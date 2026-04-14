@@ -1,5 +1,73 @@
 # `@midlyr/cli`
 
-Scaffold for the public MidLyr CLI package.
+Public MidLyr CLI for the regulation/compliance REST API.
 
-This package depends on `@midlyr/sdk` through its public package exports. The current `bin` target is scaffold-only and does not implement real commands. Real CLI behavior is deferred to later work.
+The package depends on `@midlyr/sdk` through public package exports. Shared HTTP transport, request construction, and API types belong in `@midlyr/sdk`; this package owns command parsing, environment handling, JSON output, and CLI-specific polling behavior.
+
+## Usage
+
+```bash
+MIDLYR_API_KEY=mlyr_... midlyr <command> [options]
+```
+
+Global options:
+
+- `--api-key <key>`: overrides `MIDLYR_API_KEY`.
+- `--base-url <url>`: overrides `MIDLYR_BASE_URL` / the SDK default.
+- `--request-timeout-ms <ms>`: per-request HTTP timeout.
+
+Command output is JSON. Errors are written to stderr as JSON and exit non-zero.
+
+## Commands
+
+### `browse-document`
+
+```bash
+midlyr browse-document --query "fair lending" --category regulation --authority CFPB --limit 25
+```
+
+Calls `GET /api/v1/regulations`.
+
+Options: `--query`, repeatable `--category`, repeatable `--authority`, repeatable `--jurisdiction`, `--limit`, `--cursor`.
+
+### `read-document`
+
+```bash
+midlyr read-document reg_123 --offset 0 --limit 4000
+midlyr read-document --id reg_123
+```
+
+Calls `GET /api/v1/regulations/:id`.
+
+Options: positional document id or `--id`, `--cursor`, `--offset`, `--limit`.
+
+### `query-document`
+
+````bash
+midlyr query-document --query "small business lending obligations" --document-id reg_123 --limit 5
+
+
+### `screen-analysis`
+
+```bash
+midlyr screen-analysis \
+  --institution-type bank \
+  --total-assets 1500 \
+  --transaction-volume small_business_loans:200:2026 \
+  --timeout-ms 300000
+````
+
+Calls `POST /api/v1/regulations/screening`, then polls `GET /api/v1/regulations/jobs/:jobId` by default until the job is `completed` or `failed`.
+
+Options:
+
+- `--institution-type <type>`: required. One of `bank`, `credit_union`, `fintech`, `loan_servicer`, `mortgage_lender`, `other`.
+- `--institution-subtype <value>`
+- `--total-assets <number>`
+- `--transaction-volume <type:annual_count:year>`: repeatable.
+- `--transaction-volumes-json <json-array>`: exact JSON alternative to repeatable `--transaction-volume`.
+- `--timeout-ms <ms>`: total polling timeout. Timeout errors preserve `job_id` in JSON stderr.
+- `--poll-interval-ms <ms>`: polling interval.
+- `--no-wait`: submit only; do not poll.
+
+There is intentionally no public `jobs` command in v1.

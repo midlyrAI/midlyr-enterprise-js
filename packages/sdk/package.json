@@ -21,7 +21,7 @@
   "scripts": {
     "build": "tsgo -b",
     "typecheck": "tsgo -b --noEmit --pretty false",
-    "test": "vitest run src/index.test.ts"
+    "test": "vitest run --config vitest.config.ts"
   },
   "engines": {
     "node": ">=22"

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { Midlyr, MidlyrAPIError, MidlyrNetworkError, type FetchLike } from "./index.js";
+import { Midlyr, MidlyrAPIError, MidlyrNetworkError, type FetchLike } from "../src/index.js";
 
 function jsonResponse(body: unknown, init: ResponseInit = {}) {
   return new Response(JSON.stringify(body), {
@@ -37,6 +37,36 @@ describe("Midlyr SDK", () => {
       "x-api-key": "mlyr_test",
       accept: "application/json",
     });
+  });
+
+  it("omits undefined query parameters", async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({
+        id: "reg_123",
+        category: "regulation",
+        title: "Regulation B",
+        citation: "12 CFR Part 1002",
+        authority: "CFPB",
+        jurisdiction: "federal",
+        description: "Equal credit opportunity",
+        source_url: "https://example.com/reg-b",
+        formal_citation: { short: "Reg B", full: "Regulation B" },
+        text: "content",
+        offset: 0,
+        limit: 100,
+        total_characters: 1000,
+        has_more: false,
+        next_cursor: null,
+        attributes: {},
+      }),
+    );
+    const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
+
+    await client.regulations.read("reg_123", { cursor: undefined, limit: 100 });
+
+    expect(String(fetch.mock.calls[0]![0])).toBe(
+      "https://api.example.com/api/v1/regulations/reg_123?limit=100",
+    );
   });
 
   it("throws typed API errors for non-2xx responses", async () => {
@@ -85,6 +115,56 @@ describe("Midlyr SDK", () => {
 
     expect(result.jobId).toBe("job_123");
     expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("honors Retry-After headers for safe GET retries", async () => {
+    vi.useFakeTimers();
+    try {
+      const fetch = vi
+        .fn<FetchLike>()
+        .mockResolvedValueOnce(
+          jsonResponse(
+            { error: { code: "rate_limited", message: "try again later" } },
+            { status: 429, headers: { "Retry-After": "2" } },
+          ),
+        )
+        .mockResolvedValueOnce(
+          jsonResponse({
+            job_id: "job_retry_after",
+            type: "screening",
+            status: "completed",
+            created_at: "2026-04-14T00:00:00.000Z",
+            updated_at: "2026-04-14T00:00:02.000Z",
+            result: null,
+            error: null,
+          }),
+        );
+      const client = new Midlyr({
+        apiKey: "mlyr_test",
+        baseUrl: "https://api.example.com",
+        fetch,
+        maxRetries: 1,
+        retryDelayMs: 50_000,
+      });
+
+      const resultPromise = client.jobs.get("job_retry_after");
+      await Promise.resolve();
+
+      expect(fetch).toHaveBeenCalledTimes(1);
+
+      await vi.advanceTimersByTimeAsync(1_999);
+      expect(fetch).toHaveBeenCalledTimes(1);
+
+      await vi.advanceTimersByTimeAsync(1);
+
+      await expect(resultPromise).resolves.toMatchObject({
+        job_id: "job_retry_after",
+        status: "completed",
+      });
+      expect(fetch).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("does not retry mutating POST requests by default", async () => {

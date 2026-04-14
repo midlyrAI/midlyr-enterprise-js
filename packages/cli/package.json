@@ -24,7 +24,7 @@
   "scripts": {
     "build": "tsgo -b",
     "typecheck": "tsgo -b --noEmit --pretty false",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --config vitest.config.ts"
   },
   "dependencies": {
     "@midlyr/sdk": "workspace:*"

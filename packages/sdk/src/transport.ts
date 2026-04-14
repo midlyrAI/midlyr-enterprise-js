@@ -16,7 +16,7 @@ import type { ErrorDetail } from "./types/common.js";
 export type HttpMethod = "GET" | "POST";
 
 type QueryPrimitive = string | number | boolean;
-type QueryValue = QueryPrimitive | readonly QueryPrimitive[] | null | undefined;
+type QueryValue = QueryPrimitive | readonly QueryPrimitive[];
 type QueryParams = object;
 
 export interface TransportOptions {
@@ -130,7 +130,7 @@ function buildUrl(baseUrl: string, path: string, query?: QueryParams): string {
 
   if (query) {
     for (const [key, value] of Object.entries(query)) {
-      if (!isQueryValue(value)) {
+      if (value === undefined || value === null || !isQueryValue(value)) {
         continue;
       }
 
@@ -298,8 +298,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isQueryValue(value: unknown): value is QueryValue {
   return (
-    value === undefined ||
-    value === null ||
     typeof value === "string" ||
     typeof value === "number" ||
     typeof value === "boolean" ||

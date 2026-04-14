@@ -39,11 +39,6 @@ const page = await midlyr.regulations.browse({
 const regulation = await midlyr.regulations.read(page.results[0]!.id, {
   limit: 4_000,
 });
-
-const chunks = await midlyr.regulations.queryChunks({
-  query: "What rules apply to small business lending?",
-  limit: 5,
-});
 ```
 
 ## Analysis APIs
@@ -107,12 +102,6 @@ try {
 ## Current scope
 
 `@midlyr/sdk` v0 wraps the current regulation/compliance REST endpoints:
-
-- `GET /api/v1/regulations`
-- `GET /api/v1/regulations/:id`
-- `POST /api/v1/regulations/chunks/query`
-- `POST /api/v1/regulations/screening`
-- `GET /api/v1/regulations/jobs/:jobId`
 
 Out of scope for this package pass:
 
