@@ -1,0 +1,35 @@
+{
+  "name": "@midlyr/cli",
+  "version": "0.0.0",
+  "description": "MidLyr CLI package scaffold.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "midlyr": "./dist/bin.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsgo -b",
+    "typecheck": "tsgo -b --noEmit --pretty false",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@midlyr/sdk": "workspace:*"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

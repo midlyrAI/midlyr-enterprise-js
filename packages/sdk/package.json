@@ -1,0 +1,29 @@
+{
+  "name": "@midlyr/sdk",
+  "version": "0.0.0",
+  "description": "MidLyr JavaScript SDK scaffold.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsgo -b",
+    "typecheck": "tsgo -b --noEmit --pretty false",
+    "test": "vitest run --passWithNoTests"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
