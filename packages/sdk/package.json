@@ -1,7 +1,7 @@
 {
   "name": "@midlyr/sdk",
   "version": "0.0.0",
-  "description": "MidLyr JavaScript SDK scaffold.",
+  "description": "MidLyr Enterprise TypeScript SDK for REST APIs.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -21,9 +21,9 @@
   "scripts": {
     "build": "tsgo -b",
     "typecheck": "tsgo -b --noEmit --pretty false",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run src/index.test.ts"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }
