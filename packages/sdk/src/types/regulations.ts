@@ -21,8 +21,8 @@ export interface RegulationSummary {
   authority: string;
   jurisdiction: string;
   description: string;
-  updated_at: string;
-  source_url: string;
+  updatedAt: string;
+  sourceUrl: string;
 }
 
 export interface FormalCitation {
@@ -38,21 +38,21 @@ export interface RegulationDetail {
   authority: string;
   jurisdiction: string;
   description: string;
-  source_url: string;
-  formal_citation: FormalCitation;
+  sourceUrl: string;
+  formalCitation: FormalCitation;
   text: string;
   offset: number;
   limit: number;
-  total_characters: number;
-  has_more: boolean;
-  next_cursor: string | null;
+  totalCharacters: number;
+  hasMore: boolean;
+  nextCursor: string | null;
   attributes: Record<string, unknown>;
 }
 
 export interface RegulatoryChunk {
-  chunk_id: string;
-  document_id: string;
-  document_title: string;
+  chunkId: string;
+  documentId: string;
+  documentTitle: string;
   citation: string;
   authority: string;
   text: string;
@@ -82,7 +82,7 @@ export interface ReadRegulationQuery {
 
 export interface QueryRegulatoryChunksBody {
   query: string;
-  document_ids?: string[];
+  documentIds?: string[];
   category?: string | string[];
   authority?: string | string[];
   limit?: number;
@@ -90,5 +90,5 @@ export interface QueryRegulatoryChunksBody {
 
 export interface QueryRegulatoryChunksResponse {
   chunks: RegulatoryChunk[];
-  total_matches: number;
+  totalMatches: number;
 }

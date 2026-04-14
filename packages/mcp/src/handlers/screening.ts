@@ -8,16 +8,16 @@ export async function screeningHandler(
 ) {
   const screening = await client.analysis.startScreening(params);
 
-  if (!screening.job_id) {
+  if (!screening.jobId) {
     return errorResult("Compliance screening service is not yet available.");
   }
 
   try {
-    const { job, timedOut } = await pollJob(client, screening.job_id);
+    const { job, timedOut } = await pollJob(client, screening.jobId);
 
     if (timedOut) {
       return errorResult(
-        `Screening timed out after 30 minutes. Job ID: ${screening.job_id}, status: ${job.status}. It may still complete — check back later.`,
+        `Screening timed out after 30 minutes. Job ID: ${screening.jobId}, status: ${job.status}. It may still complete — check back later.`,
       );
     }
 
@@ -28,7 +28,7 @@ export async function screeningHandler(
     return textResult(job.result);
   } catch (error) {
     return errorResult(
-      `Failed to poll screening status. Job ID: ${screening.job_id}. Error: ${error instanceof Error ? error.message : String(error)}`,
+      `Failed to poll screening status. Job ID: ${screening.jobId}. Error: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 }

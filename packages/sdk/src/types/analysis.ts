@@ -19,26 +19,26 @@ export type TransactionVolumeType =
 
 export interface TransactionVolume {
   type: TransactionVolumeType;
-  annual_count: number;
+  annualCount: number;
   year: number;
 }
 
 export interface StartComplianceScreeningBody {
-  institution_type: InstitutionType;
-  institution_subtype?: string;
-  total_assets?: number;
-  transaction_volumes?: TransactionVolume[];
+  institutionType: InstitutionType;
+  institutionSubtype?: string;
+  totalAssets?: number;
+  transactionVolumes?: TransactionVolume[];
 }
 
 export interface StartComplianceScreeningResponse {
-  job_id: string;
+  jobId: string;
   status: ComplianceScreeningStatus;
-  created_at: string;
+  createdAt: string;
 }
 
 export interface ScreeningResultRegulation {
-  regulation_id: string;
-  regulation_name: string;
+  regulationId: string;
+  regulationName: string;
   applies: boolean;
   confidence: number;
   reason: string;
@@ -46,6 +46,6 @@ export interface ScreeningResultRegulation {
 
 export interface ScreeningResult {
   regulations: ScreeningResultRegulation[];
-  total_applicable: number;
-  total_evaluated: number;
+  totalApplicable: number;
+  totalEvaluated: number;
 }

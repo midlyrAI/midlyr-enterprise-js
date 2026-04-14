@@ -16,7 +16,7 @@ describe("Midlyr SDK", () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({
         results: [],
-        pagination: { next_cursor: null, has_more: false, approximate_total: 0 },
+        pagination: { nextCursor: null, hasMore: false, approximateTotal: 0 },
       }),
     );
     const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
@@ -64,11 +64,11 @@ describe("Midlyr SDK", () => {
       )
       .mockResolvedValueOnce(
         jsonResponse({
-          job_id: "job_123",
+          jobId: "job_123",
           type: "screening",
           status: "completed",
-          created_at: "2026-04-14T00:00:00.000Z",
-          updated_at: "2026-04-14T00:00:00.000Z",
+          createdAt: "2026-04-14T00:00:00.000Z",
+          updatedAt: "2026-04-14T00:00:00.000Z",
           result: null,
           error: null,
         }),
@@ -83,7 +83,7 @@ describe("Midlyr SDK", () => {
 
     const result = await client.jobs.get("job_123");
 
-    expect(result.job_id).toBe("job_123");
+    expect(result.jobId).toBe("job_123");
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 
@@ -100,7 +100,7 @@ describe("Midlyr SDK", () => {
     });
 
     await expect(
-      client.analysis.startScreening({ institution_type: "bank" }),
+      client.analysis.startScreening({ institutionType: "bank" }),
     ).rejects.toBeInstanceOf(MidlyrAPIError);
     expect(fetch).toHaveBeenCalledTimes(1);
   });

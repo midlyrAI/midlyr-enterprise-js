@@ -4,7 +4,7 @@ export interface ErrorDetail {
 }
 
 export interface PaginationResult {
-  next_cursor: string | null;
-  has_more: boolean;
-  approximate_total: number;
+  nextCursor: string | null;
+  hasMore: boolean;
+  approximateTotal: number;
 }
