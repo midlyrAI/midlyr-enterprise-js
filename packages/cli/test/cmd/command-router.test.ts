@@ -6,7 +6,6 @@ describe("command names", () => {
     expect(commandNames).toEqual([
       "browse-document",
       "read-document",
-      "query-document",
       "screen-analysis",
     ]);
     expect(isCommandName("screen-analysis")).toBe(true);

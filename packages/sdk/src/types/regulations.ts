@@ -3,68 +3,56 @@ import type { PaginationResult } from "./common.js";
 export type DocumentCategory =
   | "statute"
   | "regulation"
-  | "interagency-guidance"
-  | "agency-guidance"
-  | "examination-handbook"
-  | "interpretive-action"
-  | "enforcement-action"
-  | "supervisory-observation"
-  | "rating-framework"
-  | "sro-rule"
-  | "operating-circular";
+  | "interagencyGuidance"
+  | "agencyGuidance"
+  | "examinationHandbook"
+  | "interpretiveAction"
+  | "sroRule";
 
 export interface RegulationSummary {
   id: string;
   category: DocumentCategory;
   title: string;
-  citation: string;
-  authority: string;
-  jurisdiction: string;
+  authorities: string[];
+  jurisdictions: string[];
   description: string;
   updatedAt: string;
   sourceUrl: string;
 }
 
-export interface FormalCitation {
-  short: string;
-  full: string;
+export interface RegulationTableOfContentsEntry {
+  id: string;
+  title: string;
+  level: number;
+  startOffset: number;
+  parentId?: string;
 }
 
-export interface RegulationDetail {
-  id: string;
-  category: DocumentCategory;
-  title: string;
-  citation: string;
-  authority: string;
-  jurisdiction: string;
-  description: string;
-  sourceUrl: string;
-  formalCitation: FormalCitation;
-  text: string;
-  offset: number;
-  limit: number;
-  totalCharacters: number;
-  hasMore: boolean;
-  nextCursor: string | null;
+export interface RegulationTableOfContents {
+  entries: RegulationTableOfContentsEntry[];
+}
+
+export interface RegulationDetails extends RegulationSummary {
+  totalBytes: number;
+  tableOfContents: RegulationTableOfContents;
   attributes: Record<string, unknown>;
 }
 
-export interface RegulatoryChunk {
-  chunkId: string;
-  documentId: string;
-  documentTitle: string;
-  citation: string;
-  authority: string;
+export interface RegulationContent {
+  id: string;
   text: string;
-  score: number;
-  section: string | null;
+  offset: number;
+  limit: number;
+  totalBytes: number;
+  hasMore: boolean;
+  details: RegulationDetails;
 }
 
 export interface BrowseRegulationsQuery {
   query?: string;
   category?: string | string[];
-  authority?: string | string[];
-  jurisdiction?: string | string[];
+  authorities?: string | string[];
+  jurisdictions?: string | string[];
   limit?: number;
   cursor?: string;
 }
@@ -74,21 +62,7 @@ export interface BrowseRegulationsResponse {
   pagination: PaginationResult;
 }
 
-export interface ReadRegulationQuery {
-  cursor?: string;
+export interface ReadRegulationContentQuery {
   offset?: number;
   limit?: number;
-}
-
-export interface QueryRegulatoryChunksBody {
-  query: string;
-  documentIds?: string[];
-  category?: string | string[];
-  authority?: string | string[];
-  limit?: number;
-}
-
-export interface QueryRegulatoryChunksResponse {
-  chunks: RegulatoryChunk[];
-  totalMatches: number;
 }

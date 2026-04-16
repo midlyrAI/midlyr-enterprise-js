@@ -60,45 +60,29 @@ Search and browse the regulatory document library with filtering and pagination.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `query` | string | No | Search query text |
-| `category` | string[] | No | Filter by category (e.g., `statute`, `regulation`) |
-| `authority` | string[] | No | Filter by authority (e.g., `OCC`, `FDIC`) |
-| `jurisdiction` | string[] | No | Filter by jurisdiction (e.g., `federal`, `NY`) |
+| `category` | string[] | No | Filter by category (e.g., `statute`, `regulation`, `interagencyGuidance`) |
+| `authorities` | string[] | No | Filter by authority (e.g., `OCC`, `FDIC`) |
+| `jurisdictions` | string[] | No | Filter by jurisdiction (e.g., `us-federal`, `us-state:ny`) |
 | `cursor` | string | No | Pagination cursor |
 
 ### read_regulatory_document
 
-Read the full text of a regulatory document with offset-based pagination.
+Read the text content of a regulatory document with byte-offset pagination.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `id` | string | Yes | Document ID |
-| `offset` | number | No | Character offset (default: 0) |
-| `limit` | number | No | Max characters (default/max: 40000) |
+| `offset` | number | No | Byte offset (default: 0) |
+| `limit` | number | No | Max bytes (default/max: 40000) |
 
-### query_regulatory_chunks (Preview)
+### screen_analysis
 
-Semantic search across regulation text. Returns relevant passages ranked by score.
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `query` | string | Yes | Search query (max 2000 chars) |
-| `document_ids` | string[] | No | Restrict to specific documents |
-| `category` | string[] | No | Filter by category |
-| `authority` | string[] | No | Filter by authority |
-| `limit` | number | No | Max results (default: 10, max: 50) |
-
-### start_compliance_screening (Preview)
-
-Analyze which regulations apply to a financial institution. Long-running operation (up to 30 minutes).
+Screen text content for regulatory compliance issues. Returns findings with risk scores and citations. Long-running operation (up to 30 minutes).
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `institution_type` | enum | Yes | `bank`, `credit_union`, `fintech`, `loan_servicer`, `mortgage_lender`, `other` |
-| `institution_subtype` | string | No | Specific subtype |
-| `total_assets` | number | No | Total assets in millions USD |
-| `transaction_volumes` | array | No | Transaction data by type and year |
-
-> **Note:** Tools marked *Preview* may return limited results as backend services are being rolled out.
+| `scenario` | enum | Yes | `marketing_asset`, `dispute`, `debt_collection`, `complaint`, `generic` |
+| `text` | string | Yes | The text content to screen for compliance issues |
 
 ## License
 

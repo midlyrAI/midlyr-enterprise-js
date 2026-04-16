@@ -1,4 +1,4 @@
-import type { McpJob } from "@midlyr/sdk";
+import type { Job } from "@midlyr/sdk";
 import type { MidlyrClient } from "../sdk/midlyr-client.js";
 import { CliInterruptedError, CliJobTimeoutError } from "./errors.js";
 
@@ -27,7 +27,7 @@ export class ScreenAnalysisPollingService {
     private readonly runtime: PollingRuntime,
   ) {}
 
-  async poll(jobId: string, policy: PollingPolicy): Promise<McpJob> {
+  async poll(jobId: string, policy: PollingPolicy): Promise<Job> {
     const startedAt = this.runtime.now();
     let interrupted = false;
     this.runtime.onSignal("SIGINT", () => {
@@ -48,7 +48,7 @@ export class ScreenAnalysisPollingService {
       }
 
       const job = await this.client.getJob(jobId);
-      if (job.status === "completed" || job.status === "failed") {
+      if (job.status === "succeeded" || job.status === "failed") {
         return job;
       }
     }

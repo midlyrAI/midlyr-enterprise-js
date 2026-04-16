@@ -1,4 +1,4 @@
-import type { StartComplianceScreeningBody } from "@midlyr/sdk";
+import type { StartScreenAnalysisBody } from "@midlyr/sdk";
 import type { MidlyrClient } from "../sdk/midlyr-client.js";
 import { CliInputError } from "./errors.js";
 import {
@@ -10,7 +10,7 @@ import {
 type ScreenAnalysisClient = Pick<MidlyrClient, "startScreenAnalysis">;
 
 export interface ScreenAnalysisInput {
-  body: StartComplianceScreeningBody;
+  body: StartScreenAnalysisBody;
   wait?: boolean;
   timeoutMs?: number;
   pollIntervalMs?: number;
@@ -28,11 +28,11 @@ export class ScreenAnalysisService {
       return submitted;
     }
 
-    if (!submitted.job_id) {
-      throw new CliInputError("screen-analysis response did not include a job_id to poll.");
+    if (!submitted.id) {
+      throw new CliInputError("screen-analysis response did not include an id to poll.");
     }
 
-    return this.polling.poll(submitted.job_id, {
+    return this.polling.poll(submitted.id, {
       timeoutMs: input.timeoutMs ?? DEFAULT_SCREEN_ANALYSIS_TIMEOUT_MS,
       pollIntervalMs: input.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS,
     });

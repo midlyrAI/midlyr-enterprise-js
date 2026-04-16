@@ -8,65 +8,69 @@ function createClient(): MidlyrClient {
   return {
     browseDocuments: vi.fn(async () => ({
       results: [],
-      pagination: { next_cursor: null, has_more: false, approximate_total: 0 },
+      pagination: { nextCursor: null, hasMore: false, approximateTotal: 0 },
     })),
-    readDocument: vi.fn(),
-    queryDocument: vi.fn(async () => ({ chunks: [], total_matches: 0 })),
+    getDocumentDetails: vi.fn(),
+    readDocumentContent: vi.fn(async () => ({
+      id: "reg_1",
+      text: "content",
+      offset: 0,
+      limit: 40000,
+      totalBytes: 7,
+      hasMore: false,
+      details: {},
+    })),
     startScreenAnalysis: vi.fn(async () => ({
-      job_id: "job_1",
-      status: "pending",
-      created_at: "2026-04-14T00:00:00.000Z",
+      id: "job_1",
     })),
     getJob: vi.fn(),
-  };
+  } as unknown as MidlyrClient;
 }
 
 describe("domain services", () => {
-  it("delegates browse/read/query to the SDK client", async () => {
+  it("delegates browse/read to the SDK client", async () => {
     const client = createClient();
     const documents = new DocumentsService(client);
 
     await documents.browse({ query: "fair" });
     await documents.read("reg_1", { limit: 10 });
-    await documents.query({ query: "loans" });
 
     expect(client.browseDocuments).toHaveBeenCalledWith({ query: "fair" });
-    expect(client.readDocument).toHaveBeenCalledWith("reg_1", { limit: 10 });
-    expect(client.queryDocument).toHaveBeenCalledWith({ query: "loans" });
+    expect(client.readDocumentContent).toHaveBeenCalledWith("reg_1", { limit: 10 });
   });
 
-  it("screen-analysis returns submitted job when no-wait", async () => {
+  it("screen-analysis returns submitted response when no-wait", async () => {
     const client = createClient();
     const poll = vi.fn();
     const result = await new ScreenAnalysisService(client, { poll }).run({
-      body: { institution_type: "bank" },
+      body: { content: { type: "text", text: "test" }, scenario: "generic" },
       wait: false,
     });
 
-    expect(result).toMatchObject({ job_id: "job_1" });
+    expect(result).toMatchObject({ id: "job_1" });
     expect(poll).not.toHaveBeenCalled();
   });
 
   it("screen-analysis delegates polling when waiting", async () => {
     const client = createClient();
-    const poll = vi.fn(async () => ({ job_id: "job_1", status: "completed" }));
+    const poll = vi.fn(async () => ({ id: "job_1", status: "succeeded" }));
 
-    await new ScreenAnalysisService(client, { poll }).run({ body: { institution_type: "bank" } });
+    await new ScreenAnalysisService(client, { poll }).run({
+      body: { content: { type: "text", text: "test" }, scenario: "generic" },
+    });
 
     expect(poll).toHaveBeenCalledWith("job_1", { timeoutMs: 300000, pollIntervalMs: 2000 });
   });
 
-  it("screen-analysis rejects missing job id when waiting", async () => {
+  it("screen-analysis rejects missing id when waiting", async () => {
     const client = createClient();
     vi.mocked(client.startScreenAnalysis).mockResolvedValueOnce({
-      job_id: "",
-      status: "pending",
-      created_at: "2026-04-14T00:00:00.000Z",
+      id: "",
     });
 
     await expect(
       new ScreenAnalysisService(client, { poll: vi.fn() }).run({
-        body: { institution_type: "bank" },
+        body: { content: { type: "text", text: "test" }, scenario: "generic" },
       }),
     ).rejects.toBeInstanceOf(CliInputError);
   });

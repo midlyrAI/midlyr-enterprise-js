@@ -6,14 +6,14 @@ describe("MidlyrClient", () => {
     const sdk = {
       regulations: {
         browse: vi.fn(async () => ({ results: [], pagination: {} })),
-        read: vi.fn(async () => ({ id: "reg_1" })),
-        queryChunks: vi.fn(async () => ({ chunks: [], total_matches: 0 })),
+        getDetails: vi.fn(async () => ({ id: "reg_1" })),
+        readContent: vi.fn(async () => ({ id: "reg_1", text: "content" })),
       },
       analysis: {
-        startScreening: vi.fn(async () => ({ job_id: "job_1", status: "pending" })),
+        screen: vi.fn(async () => ({ id: "job_1" })),
       },
       jobs: {
-        get: vi.fn(async () => ({ job_id: "job_1", status: "completed" })),
+        get: vi.fn(async () => ({ id: "job_1", status: "succeeded" })),
       },
     };
     const client = new MidlyrClient(
@@ -22,15 +22,15 @@ describe("MidlyrClient", () => {
     );
 
     await client.browseDocuments({ query: "fair" });
-    await client.readDocument("reg_1", { limit: 10 });
-    await client.queryDocument({ query: "loans" });
-    await client.startScreenAnalysis({ institution_type: "bank" });
+    await client.getDocumentDetails("reg_1");
+    await client.readDocumentContent("reg_1", { limit: 10 });
+    await client.startScreenAnalysis({ content: { type: "text", text: "test" }, scenario: "generic" });
     await client.getJob("job_1");
 
     expect(sdk.regulations.browse).toHaveBeenCalledWith({ query: "fair" });
-    expect(sdk.regulations.read).toHaveBeenCalledWith("reg_1", { limit: 10 });
-    expect(sdk.regulations.queryChunks).toHaveBeenCalledWith({ query: "loans" });
-    expect(sdk.analysis.startScreening).toHaveBeenCalledWith({ institution_type: "bank" });
+    expect(sdk.regulations.getDetails).toHaveBeenCalledWith("reg_1");
+    expect(sdk.regulations.readContent).toHaveBeenCalledWith("reg_1", { limit: 10 });
+    expect(sdk.analysis.screen).toHaveBeenCalledWith({ content: { type: "text", text: "test" }, scenario: "generic" });
     expect(sdk.jobs.get).toHaveBeenCalledWith("job_1");
   });
 });

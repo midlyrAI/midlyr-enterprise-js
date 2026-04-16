@@ -6,5 +6,5 @@ export async function readHandler(
   client: Midlyr,
 ) {
   const { id, ...query } = params;
-  return textResult(await client.regulations.read(id, query));
+  return textResult(await client.regulations.readContent(id, query));
 }

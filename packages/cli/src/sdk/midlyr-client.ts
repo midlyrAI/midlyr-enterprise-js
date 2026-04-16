@@ -2,9 +2,8 @@ import {
   Midlyr as MidlyrSdk,
   type BrowseRegulationsQuery,
   type FetchLike,
-  type QueryRegulatoryChunksBody,
-  type ReadRegulationQuery,
-  type StartComplianceScreeningBody,
+  type ReadRegulationContentQuery,
+  type StartScreenAnalysisBody,
 } from "@midlyr/sdk";
 
 export type MidlyrClientOptions = {
@@ -34,16 +33,16 @@ export class MidlyrClient {
     return this.sdk.regulations.browse(input);
   }
 
-  readDocument(id: string, input: ReadRegulationQuery) {
-    return this.sdk.regulations.read(id, input);
+  getDocumentDetails(id: string) {
+    return this.sdk.regulations.getDetails(id);
   }
 
-  queryDocument(input: QueryRegulatoryChunksBody) {
-    return this.sdk.regulations.queryChunks(input);
+  readDocumentContent(id: string, input: ReadRegulationContentQuery) {
+    return this.sdk.regulations.readContent(id, input);
   }
 
-  startScreenAnalysis(input: StartComplianceScreeningBody) {
-    return this.sdk.analysis.startScreening(input);
+  startScreenAnalysis(input: StartScreenAnalysisBody) {
+    return this.sdk.analysis.screen(input);
   }
 
   getJob(jobId: string) {

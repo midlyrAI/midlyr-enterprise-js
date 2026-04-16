@@ -1,6 +1,6 @@
 import type { MidlyrRequestOptions } from "../config.js";
 import type { Transport } from "../transport.js";
-import type { McpJob } from "../types/jobs.js";
+import type { Job } from "../types/jobs.js";
 
 export class JobAPI {
   readonly #transport: Transport;
@@ -9,10 +9,10 @@ export class JobAPI {
     this.#transport = transport;
   }
 
-  get(jobId: string, options: MidlyrRequestOptions = {}) {
-    return this.#transport.request<McpJob>({
+  get(id: string, options: MidlyrRequestOptions = {}) {
+    return this.#transport.request<Job>({
       method: "GET",
-      path: `/api/v1/regulations/jobs/${encodeURIComponent(jobId)}`,
+      path: `/api/v1/jobs/${encodeURIComponent(id)}`,
       ...options,
     });
   }

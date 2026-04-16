@@ -3,15 +3,15 @@ import { CliInterruptedError, CliJobTimeoutError } from "../../src/domain/errors
 import { ScreenAnalysisPollingService } from "../../src/domain/polling.js";
 import type { MidlyrClient } from "../../src/sdk/midlyr-client.js";
 
-function createClient(statuses: Array<"pending" | "in_progress" | "completed" | "failed">) {
+function createClient(statuses: Array<"running" | "succeeded" | "failed">) {
   const getJob = vi.fn(async () => {
-    const status = statuses.shift() ?? "completed";
+    const status = statuses.shift() ?? "succeeded";
     return {
-      job_id: "job_1",
-      type: "screening",
+      id: "job_1",
+      type: "screen_analysis" as const,
       status,
-      created_at: "2026-04-14T00:00:00.000Z",
-      updated_at: "2026-04-14T00:00:00.000Z",
+      createdAt: "2026-04-14T00:00:00.000Z",
+      updatedAt: "2026-04-14T00:00:00.000Z",
       result: null,
       error: null,
     };
@@ -21,8 +21,8 @@ function createClient(statuses: Array<"pending" | "in_progress" | "completed" | 
 }
 
 describe("ScreenAnalysisPollingService", () => {
-  it("polls until completed", async () => {
-    const client = createClient(["in_progress", "completed"]);
+  it("polls until succeeded", async () => {
+    const client = createClient(["running", "succeeded"]);
     let now = 0;
     const service = new ScreenAnalysisPollingService(client, {
       now: () => now,
@@ -34,7 +34,7 @@ describe("ScreenAnalysisPollingService", () => {
 
     const result = await service.poll("job_1", { timeoutMs: 100, pollIntervalMs: 10 });
 
-    expect(result.status).toBe("completed");
+    expect(result.status).toBe("succeeded");
     expect(client.getJob).toHaveBeenCalledTimes(2);
   });
 
@@ -54,7 +54,7 @@ describe("ScreenAnalysisPollingService", () => {
   });
 
   it("preserves job id when timeout crosses during sleep before another poll", async () => {
-    const client = createClient(["completed"]);
+    const client = createClient(["succeeded"]);
     let now = 0;
     const service = new ScreenAnalysisPollingService(client, {
       now: () => now,
@@ -73,7 +73,7 @@ describe("ScreenAnalysisPollingService", () => {
   });
 
   it("preserves job id when interrupted", async () => {
-    const client = createClient(["completed"]);
+    const client = createClient(["succeeded"]);
     let handler: (() => void) | undefined;
     const service = new ScreenAnalysisPollingService(client, {
       now: () => 0,

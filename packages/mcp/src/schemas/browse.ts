@@ -3,15 +3,11 @@ import { z } from "zod";
 const DocumentCategoryEnum = z.enum([
   "statute",
   "regulation",
-  "interagency-guidance",
-  "agency-guidance",
-  "examination-handbook",
-  "interpretive-action",
-  "enforcement-action",
-  "supervisory-observation",
-  "rating-framework",
-  "sro-rule",
-  "operating-circular",
+  "interagencyGuidance",
+  "agencyGuidance",
+  "examinationHandbook",
+  "interpretiveAction",
+  "sroRule",
 ]);
 
 export const name = "browse_regulatory_library";
@@ -22,7 +18,7 @@ export const description =
 export const schema = {
   query: z.string().optional().describe("Search query text"),
   category: z.array(DocumentCategoryEnum).optional().describe("Filter by document category"),
-  authority: z.array(z.string()).optional().describe("Filter by issuing authority (e.g. OCC, FDIC)"),
-  jurisdiction: z.array(z.string()).optional().describe("Filter by jurisdiction (e.g. federal, NY)"),
+  authorities: z.array(z.string()).optional().describe("Filter by issuing authority (e.g. OCC, FDIC)"),
+  jurisdictions: z.array(z.string()).optional().describe("Filter by jurisdiction (e.g. us-federal, us-state:ny)"),
   cursor: z.string().optional().describe("Pagination cursor from a previous response"),
 };

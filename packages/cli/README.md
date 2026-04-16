@@ -37,35 +37,25 @@ midlyr read-document reg_123 --offset 0 --limit 4000
 midlyr read-document --id reg_123
 ```
 
-Calls `GET /api/v1/regulations/:id`.
+Calls `GET /api/v1/regulations/:id/content`.
 
-Options: positional document id or `--id`, `--cursor`, `--offset`, `--limit`.
-
-### `query-document`
-
-````bash
-midlyr query-document --query "small business lending obligations" --document-id reg_123 --limit 5
-
+Options: positional document id or `--id`, `--offset`, `--limit`.
 
 ### `screen-analysis`
 
 ```bash
 midlyr screen-analysis \
-  --institution-type bank \
-  --total-assets 1500 \
-  --transaction-volume small_business_loans:200:2026 \
+  --scenario marketing_asset \
+  --text "Get 0% APR for life!" \
   --timeout-ms 300000
-````
+```
 
-Calls `POST /api/v1/regulations/screening`, then polls `GET /api/v1/regulations/jobs/:jobId` by default until the job is `completed` or `failed`.
+Calls `POST /api/v1/analysis/screen`, then polls `GET /api/v1/jobs/:id` by default until the job is `succeeded` or `failed`.
 
 Options:
 
-- `--institution-type <type>`: required. One of `bank`, `credit_union`, `fintech`, `loan_servicer`, `mortgage_lender`, `other`.
-- `--institution-subtype <value>`
-- `--total-assets <number>`
-- `--transaction-volume <type:annual_count:year>`: repeatable.
-- `--transaction-volumes-json <json-array>`: exact JSON alternative to repeatable `--transaction-volume`.
+- `--scenario <type>`: required. One of `marketing_asset`, `dispute`, `debt_collection`, `complaint`, `generic`.
+- `--text <content>`: required. The text content to screen. Can also be passed as positional arguments.
 - `--timeout-ms <ms>`: total polling timeout. Timeout errors preserve `job_id` in JSON stderr.
 - `--poll-interval-ms <ms>`: polling interval.
 - `--no-wait`: submit only; do not poll.

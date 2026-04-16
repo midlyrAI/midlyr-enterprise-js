@@ -43,29 +43,32 @@ describe("Midlyr SDK", () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({
         id: "reg_123",
-        category: "regulation",
-        title: "Regulation B",
-        citation: "12 CFR Part 1002",
-        authority: "CFPB",
-        jurisdiction: "federal",
-        description: "Equal credit opportunity",
-        source_url: "https://example.com/reg-b",
-        formal_citation: { short: "Reg B", full: "Regulation B" },
         text: "content",
         offset: 0,
         limit: 100,
-        total_characters: 1000,
-        has_more: false,
-        next_cursor: null,
-        attributes: {},
+        totalBytes: 1000,
+        hasMore: false,
+        details: {
+          id: "reg_123",
+          category: "regulation",
+          title: "Regulation B",
+          authorities: ["CFPB"],
+          jurisdictions: ["us-federal"],
+          description: "Equal credit opportunity",
+          updatedAt: "2026-04-14T00:00:00.000Z",
+          sourceUrl: "https://example.com/reg-b",
+          totalBytes: 1000,
+          tableOfContents: { entries: [] },
+          attributes: {},
+        },
       }),
     );
     const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
 
-    await client.regulations.read("reg_123", { cursor: undefined, limit: 100 });
+    await client.regulations.readContent("reg_123", { limit: 100 });
 
     expect(String(fetch.mock.calls[0]![0])).toBe(
-      "https://api.example.com/api/v1/regulations/reg_123?limit=100",
+      "https://api.example.com/api/v1/regulations/reg_123/content?limit=100",
     );
   });
 
@@ -78,7 +81,7 @@ describe("Midlyr SDK", () => {
     );
     const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
 
-    await expect(client.regulations.read("missing")).rejects.toMatchObject({
+    await expect(client.regulations.getDetails("missing")).rejects.toMatchObject({
       name: "MidlyrAPIError",
       status: 404,
       code: "document_not_found",
@@ -94,12 +97,12 @@ describe("Midlyr SDK", () => {
       )
       .mockResolvedValueOnce(
         jsonResponse({
-          jobId: "job_123",
-          type: "screening",
-          status: "completed",
+          id: "job_123",
+          type: "screen_analysis",
+          status: "succeeded",
           createdAt: "2026-04-14T00:00:00.000Z",
           updatedAt: "2026-04-14T00:00:00.000Z",
-          result: null,
+          result: { type: "analysis.screen.result", riskScore: 0, findings: [] },
           error: null,
         }),
       );
@@ -113,7 +116,7 @@ describe("Midlyr SDK", () => {
 
     const result = await client.jobs.get("job_123");
 
-    expect(result.jobId).toBe("job_123");
+    expect(result.id).toBe("job_123");
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 
@@ -130,12 +133,12 @@ describe("Midlyr SDK", () => {
         )
         .mockResolvedValueOnce(
           jsonResponse({
-            job_id: "job_retry_after",
-            type: "screening",
-            status: "completed",
-            created_at: "2026-04-14T00:00:00.000Z",
-            updated_at: "2026-04-14T00:00:02.000Z",
-            result: null,
+            id: "job_retry_after",
+            type: "screen_analysis",
+            status: "succeeded",
+            createdAt: "2026-04-14T00:00:00.000Z",
+            updatedAt: "2026-04-14T00:00:02.000Z",
+            result: { type: "analysis.screen.result", riskScore: 0, findings: [] },
             error: null,
           }),
         );
@@ -158,8 +161,8 @@ describe("Midlyr SDK", () => {
       await vi.advanceTimersByTimeAsync(1);
 
       await expect(resultPromise).resolves.toMatchObject({
-        job_id: "job_retry_after",
-        status: "completed",
+        id: "job_retry_after",
+        status: "succeeded",
       });
       expect(fetch).toHaveBeenCalledTimes(2);
     } finally {
@@ -180,7 +183,7 @@ describe("Midlyr SDK", () => {
     });
 
     await expect(
-      client.analysis.startScreening({ institutionType: "bank" }),
+      client.analysis.screen({ content: { type: "text", text: "test" }, scenario: "generic" }),
     ).rejects.toBeInstanceOf(MidlyrAPIError);
     expect(fetch).toHaveBeenCalledTimes(1);
   });

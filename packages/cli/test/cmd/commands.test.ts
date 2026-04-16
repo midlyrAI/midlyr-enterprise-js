@@ -8,7 +8,6 @@ function createServices() {
     documents: {
       browse: vi.fn(async () => ({ ok: true })),
       read: vi.fn(async () => ({ ok: true })),
-      query: vi.fn(async () => ({ ok: true })),
     },
     screenAnalysis: {
       run: vi.fn(async () => ({ ok: true })),
@@ -29,8 +28,8 @@ describe("command handlers", () => {
     expect(services.documents.browse).toHaveBeenCalledWith({
       query: "fair",
       category: ["regulation"],
-      authority: undefined,
-      jurisdiction: undefined,
+      authorities: undefined,
+      jurisdictions: undefined,
       limit: 2,
       cursor: undefined,
     });
@@ -46,47 +45,22 @@ describe("command handlers", () => {
     );
 
     expect(services.documents.read).toHaveBeenCalledWith("reg_1", {
-      cursor: undefined,
       offset: 3,
       limit: undefined,
     });
   });
 
-  it("maps query-document options to domain input", async () => {
-    const services = createServices();
-
-    await runCommand(
-      "query-document",
-      parseArgs(["query-document", "--query", "loans", "--document-id", "reg_1,reg_2"]),
-      services,
-    );
-
-    expect(services.documents.query).toHaveBeenCalledWith({
-      query: "loans",
-      document_ids: ["reg_1", "reg_2"],
-      category: undefined,
-      authority: undefined,
-      limit: undefined,
-    });
-  });
-
-  it("validates query-document requires a query", async () => {
-    await expect(
-      runCommand("query-document", parseArgs(["query-document"]), createServices()),
-    ).rejects.toBeInstanceOf(CliInputError);
-  });
-
-  it("maps screen-analysis options and transaction volumes", async () => {
+  it("maps screen-analysis options with scenario and text", async () => {
     const services = createServices();
 
     await runCommand(
       "screen-analysis",
       parseArgs([
         "screen-analysis",
-        "--institution-type",
-        "bank",
-        "--transaction-volume",
-        "small_business_loans:2:2026",
+        "--scenario",
+        "marketing_asset",
+        "--text",
+        "Get 0% APR for life!",
         "--timeout-ms",
         "100",
         "--no-wait",
@@ -96,8 +70,8 @@ describe("command handlers", () => {
 
     expect(services.screenAnalysis.run).toHaveBeenCalledWith({
       body: {
-        institution_type: "bank",
-        transaction_volumes: [{ type: "small_business_loans", annual_count: 2, year: 2026 }],
+        content: { type: "text", text: "Get 0% APR for life!" },
+        scenario: "marketing_asset",
       },
       wait: false,
       timeoutMs: 100,
@@ -105,17 +79,31 @@ describe("command handlers", () => {
     });
   });
 
-  it("validates transaction-volumes-json is an array", async () => {
+  it("validates screen-analysis requires --scenario", async () => {
     await expect(
       runCommand(
         "screen-analysis",
-        parseArgs([
-          "screen-analysis",
-          "--institution-type",
-          "bank",
-          "--transaction-volumes-json",
-          "{}",
-        ]),
+        parseArgs(["screen-analysis", "--text", "some content"]),
+        createServices(),
+      ),
+    ).rejects.toBeInstanceOf(CliInputError);
+  });
+
+  it("validates screen-analysis requires text", async () => {
+    await expect(
+      runCommand(
+        "screen-analysis",
+        parseArgs(["screen-analysis", "--scenario", "generic"]),
+        createServices(),
+      ),
+    ).rejects.toBeInstanceOf(CliInputError);
+  });
+
+  it("validates screen-analysis rejects invalid scenario", async () => {
+    await expect(
+      runCommand(
+        "screen-analysis",
+        parseArgs(["screen-analysis", "--scenario", "invalid", "--text", "test"]),
         createServices(),
       ),
     ).rejects.toBeInstanceOf(CliInputError);

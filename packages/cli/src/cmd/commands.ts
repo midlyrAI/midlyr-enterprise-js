@@ -1,9 +1,9 @@
-import type { StartComplianceScreeningBody, TransactionVolume } from "@midlyr/sdk";
+import { SCREEN_ANALYSIS_SCENARIOS, type StartScreenAnalysisBody, type ScreenAnalysisScenario } from "@midlyr/sdk";
 import { CliInputError } from "../domain/errors.js";
 import type { DocumentsService } from "../domain/documents.js";
 import type { ScreenAnalysisService } from "../domain/screen-analysis.js";
 import { isCommandName } from "./command-names.js";
-import { parseCliNumber, type ParsedArgs } from "./parser.js";
+import type { ParsedArgs } from "./parser.js";
 
 export interface CommandServices {
   documents: DocumentsService;
@@ -24,25 +24,15 @@ export async function runCommand(
       return services.documents.browse({
         query: args.option("query"),
         category: args.multiOption("category"),
-        authority: args.multiOption("authority"),
-        jurisdiction: args.multiOption("jurisdiction"),
+        authorities: args.multiOption("authority"),
+        jurisdictions: args.multiOption("jurisdiction"),
         limit: args.numberOption("limit"),
         cursor: args.option("cursor"),
       });
 
     case "read-document":
       return services.documents.read(getDocumentId(args), {
-        cursor: args.option("cursor"),
         offset: args.numberOption("offset"),
-        limit: args.numberOption("limit"),
-      });
-
-    case "query-document":
-      return services.documents.query({
-        query: getDocumentQuery(args),
-        document_ids: args.multiOption("document-id"),
-        category: args.multiOption("category"),
-        authority: args.multiOption("authority"),
         limit: args.numberOption("limit"),
       });
 
@@ -64,55 +54,30 @@ function getDocumentId(args: ParsedArgs): string {
   return id;
 }
 
-function getDocumentQuery(args: ParsedArgs): string {
-  const query = args.option("query") ?? args.positionals.join(" ");
-  if (!query) {
-    throw new CliInputError("query-document requires --query or a query positional argument.");
-  }
-  return query;
+const VALID_SCENARIOS: ReadonlySet<string> = new Set(SCREEN_ANALYSIS_SCENARIOS);
+
+function isScenario(value: string): value is ScreenAnalysisScenario {
+  return VALID_SCENARIOS.has(value);
 }
 
-function buildScreenAnalysisBody(args: ParsedArgs): StartComplianceScreeningBody {
-  const institutionType = args.option("institution-type");
-  if (!institutionType) {
-    throw new CliInputError("screen-analysis requires --institution-type.");
+function buildScreenAnalysisBody(args: ParsedArgs): StartScreenAnalysisBody {
+  const scenario = args.option("scenario");
+  if (!scenario) {
+    throw new CliInputError("screen-analysis requires --scenario.");
+  }
+  if (!isScenario(scenario)) {
+    throw new CliInputError(
+      `Invalid --scenario '${scenario}'. Must be one of: ${SCREEN_ANALYSIS_SCENARIOS.join(", ")}.`,
+    );
+  }
+
+  const text = args.option("text") ?? args.positionals.join(" ");
+  if (!text) {
+    throw new CliInputError("screen-analysis requires --text or text as a positional argument.");
   }
 
   return {
-    institution_type: institutionType as StartComplianceScreeningBody["institution_type"],
-    institution_subtype: args.option("institution-subtype"),
-    total_assets: args.numberOption("total-assets"),
-    transaction_volumes: parseTransactionVolumes(args),
+    content: { type: "text", text },
+    scenario,
   };
-}
-
-function parseTransactionVolumes(args: ParsedArgs): TransactionVolume[] | undefined {
-  const json = args.option("transaction-volumes-json");
-  if (json) {
-    const parsedJson = JSON.parse(json) as unknown;
-    if (!Array.isArray(parsedJson)) {
-      throw new CliInputError("--transaction-volumes-json must be a JSON array.");
-    }
-    return parsedJson as TransactionVolume[];
-  }
-
-  const volumes = args.multiOption("transaction-volume");
-  if (!volumes) {
-    return undefined;
-  }
-
-  return volumes.map((value) => {
-    const [type, annualCount, year] = value.split(":");
-    if (!type || !annualCount || !year) {
-      throw new CliInputError(
-        "--transaction-volume must use type:annual_count:year, for example small_business_loans:200:2026.",
-      );
-    }
-
-    return {
-      type: type as TransactionVolume["type"],
-      annual_count: parseCliNumber(annualCount, "transaction-volume annual_count"),
-      year: parseCliNumber(year, "transaction-volume year"),
-    };
-  });
 }

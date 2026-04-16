@@ -1,51 +1,51 @@
-export type ComplianceScreeningStatus = "pending" | "in_progress" | "completed" | "failed";
+import type { RegulationSummary } from "./regulations.js";
 
-export type InstitutionType =
-  | "bank"
-  | "credit_union"
-  | "fintech"
-  | "loan_servicer"
-  | "mortgage_lender"
-  | "other";
+export const SCREEN_ANALYSIS_SCENARIOS = [
+  "marketing_asset",
+  "dispute",
+  "debt_collection",
+  "complaint",
+  "generic",
+] as const;
 
-export type TransactionVolumeType =
-  | "small_business_loans"
-  | "consumer_loans"
-  | "mortgage"
-  | "credit_cards"
-  | "commercial_loans"
-  | "auto_loans"
-  | "other";
+export type ScreenAnalysisScenario = (typeof SCREEN_ANALYSIS_SCENARIOS)[number];
 
-export interface TransactionVolume {
-  type: TransactionVolumeType;
-  annualCount: number;
-  year: number;
+export interface ScreenAnalysisContent {
+  type: "text";
+  text: string;
 }
 
-export interface StartComplianceScreeningBody {
-  institutionType: InstitutionType;
-  institutionSubtype?: string;
-  totalAssets?: number;
-  transactionVolumes?: TransactionVolume[];
+export interface StartScreenAnalysisBody {
+  content: ScreenAnalysisContent;
+  scenario: ScreenAnalysisScenario;
 }
 
-export interface StartComplianceScreeningResponse {
-  jobId: string;
-  status: ComplianceScreeningStatus;
-  createdAt: string;
+export interface StartScreenAnalysisResponse {
+  id: string;
 }
 
-export interface ScreeningResultRegulation {
-  regulationId: string;
-  regulationName: string;
-  applies: boolean;
-  confidence: number;
-  reason: string;
+export type ViolationPriority = "p1" | "p2" | "p3";
+
+export interface ScreenAnalysisCitationChunk {
+  text: string;
+  startOffset: number | null;
+  endOffset: number | null;
 }
 
-export interface ScreeningResult {
-  regulations: ScreeningResultRegulation[];
-  totalApplicable: number;
-  totalEvaluated: number;
+export interface ScreenAnalysisCitation {
+  regulation: RegulationSummary;
+  chunks: ScreenAnalysisCitationChunk[];
+}
+
+export interface ScreenAnalysisViolationResult {
+  priority: ViolationPriority;
+  title: string;
+  details: string;
+  citations: ScreenAnalysisCitation[];
+}
+
+export interface ScreenAnalysisJobResult {
+  type: "analysis.screen.result";
+  riskScore: number;
+  findings: ScreenAnalysisViolationResult[];
 }

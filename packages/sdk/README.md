@@ -32,11 +32,13 @@ Requests authenticate with the `x-api-key` header.
 ```ts
 const page = await midlyr.regulations.browse({
   query: "fair lending",
-  jurisdiction: "federal",
+  jurisdictions: "us-federal",
   limit: 25,
 });
 
-const regulation = await midlyr.regulations.read(page.results[0]!.id, {
+const details = await midlyr.regulations.getDetails(page.results[0]!.id);
+
+const content = await midlyr.regulations.readContent(page.results[0]!.id, {
   limit: 4_000,
 });
 ```
@@ -44,18 +46,17 @@ const regulation = await midlyr.regulations.read(page.results[0]!.id, {
 ## Analysis APIs
 
 ```ts
-const screening = await midlyr.analysis.startScreening({
-  institution_type: "bank",
-  total_assets: 1_500,
-  transaction_volumes: [{ type: "small_business_loans", annual_count: 200, year: 2026 }],
+const response = await midlyr.analysis.screen({
+  content: { type: "text", text: "Get 0% APR for life!" },
+  scenario: "marketing_asset",
 });
 
-const job = await midlyr.jobs.get(screening.job_id);
+const job = await midlyr.jobs.get(response.id);
 ```
 
 ## Job API
 
-The SDK exposes `jobs.get(jobId)` only. It does not provide a polling helper; MCP and CLI layers can decide their own polling or display behavior later.
+The SDK exposes `jobs.get(id)` only. Jobs use a discriminated union on `status`: `"running"`, `"succeeded"`, or `"failed"`. It does not provide a polling helper; MCP and CLI layers can decide their own polling or display behavior later.
 
 ## Timeout and retries
 
@@ -87,7 +88,7 @@ Retries are intentionally conservative:
 import { MidlyrAPIError, MidlyrNetworkError } from "@midlyr/sdk";
 
 try {
-  await midlyr.regulations.read("missing");
+  await midlyr.regulations.getDetails("missing");
 } catch (error) {
   if (error instanceof MidlyrAPIError) {
     console.error(error.status, error.code, error.message);

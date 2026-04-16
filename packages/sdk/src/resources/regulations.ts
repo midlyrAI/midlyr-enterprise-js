@@ -3,10 +3,9 @@ import type { Transport } from "../transport.js";
 import type {
   BrowseRegulationsQuery,
   BrowseRegulationsResponse,
-  QueryRegulatoryChunksBody,
-  QueryRegulatoryChunksResponse,
-  ReadRegulationQuery,
-  RegulationDetail,
+  ReadRegulationContentQuery,
+  RegulationContent,
+  RegulationDetails,
 } from "../types/regulations.js";
 
 export class RegulationAPI {
@@ -25,20 +24,19 @@ export class RegulationAPI {
     });
   }
 
-  read(id: string, query: ReadRegulationQuery = {}, options: MidlyrRequestOptions = {}) {
-    return this.#transport.request<RegulationDetail>({
+  getDetails(id: string, options: MidlyrRequestOptions = {}) {
+    return this.#transport.request<RegulationDetails>({
       method: "GET",
       path: `/api/v1/regulations/${encodeURIComponent(id)}`,
-      query,
       ...options,
     });
   }
 
-  queryChunks(body: QueryRegulatoryChunksBody, options: MidlyrRequestOptions = {}) {
-    return this.#transport.request<QueryRegulatoryChunksResponse>({
-      method: "POST",
-      path: "/api/v1/regulations/chunks/query",
-      body,
+  readContent(id: string, query: ReadRegulationContentQuery = {}, options: MidlyrRequestOptions = {}) {
+    return this.#transport.request<RegulationContent>({
+      method: "GET",
+      path: `/api/v1/regulations/${encodeURIComponent(id)}/content`,
+      query,
       ...options,
     });
   }

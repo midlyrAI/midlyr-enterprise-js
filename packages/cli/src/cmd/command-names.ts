@@ -1,7 +1,6 @@
 export const commandNames = [
   "browse-document",
   "read-document",
-  "query-document",
   "screen-analysis",
 ] as const;
 
