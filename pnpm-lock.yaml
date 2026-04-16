@@ -26,6 +26,10 @@ importers:
       '@midlyr/sdk':
         specifier: workspace:*
         version: link:../sdk
+    devDependencies:
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.6.0
 
   packages/sdk: {}
 
@@ -967,7 +971,6 @@ snapshots:
   '@types/node@25.6.0':
     dependencies:
       undici-types: 7.19.2
-    optional: true
 
   '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260413.1':
     optional: true
@@ -1214,8 +1217,7 @@ snapshots:
 
   tinyspy@4.0.4: {}
 
-  undici-types@7.19.2:
-    optional: true
+  undici-types@7.19.2: {}
 
   vite-node@3.2.4(@types/node@25.6.0):
     dependencies:

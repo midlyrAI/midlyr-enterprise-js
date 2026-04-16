@@ -1,5 +1,6 @@
 import { DEFAULT_BASE_URL } from "@midlyr/sdk";
 import { CliInputError } from "../domain/errors.js";
+import type { Credentials } from "../domain/credentials.js";
 import type { ParsedArgs } from "./parser.js";
 
 export interface CliConfig {
@@ -11,10 +12,13 @@ export interface CliConfig {
 export function resolveCliConfig(
   args: ParsedArgs,
   env: Record<string, string | undefined>,
+  credentials?: Credentials,
 ): CliConfig {
-  const apiKey = args.option("api-key") ?? env["MIDLYR_API_KEY"];
+  const apiKey = args.option("api-key") ?? env["MIDLYR_API_KEY"] ?? credentials?.apiKey;
   if (!apiKey) {
-    throw new CliInputError("Missing API key. Set MIDLYR_API_KEY or pass --api-key.");
+    throw new CliInputError(
+      "Missing API key. Set MIDLYR_API_KEY, pass --api-key, or run: midlyr config set api-key <key>",
+    );
   }
 
   return {

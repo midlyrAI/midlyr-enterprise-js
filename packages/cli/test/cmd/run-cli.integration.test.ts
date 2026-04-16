@@ -71,7 +71,7 @@ describe("midlyr CLI", () => {
     expect(parseJsonOutput(io.stderr())).toMatchObject({
       error: {
         code: "cli_input_error",
-        message: "Missing API key. Set MIDLYR_API_KEY or pass --api-key.",
+        message: "Missing API key. Set MIDLYR_API_KEY, pass --api-key, or run: midlyr config set api-key <key>",
       },
     });
   });

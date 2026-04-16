@@ -2,6 +2,7 @@ export const commandNames = [
   "browse-document",
   "read-document",
   "screen-analysis",
+  "config",
 ] as const;
 
 export type CommandName = (typeof commandNames)[number];

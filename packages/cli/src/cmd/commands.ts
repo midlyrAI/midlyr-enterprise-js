@@ -1,13 +1,36 @@
 import { SCREEN_ANALYSIS_SCENARIOS, type StartScreenAnalysisBody, type ScreenAnalysisScenario } from "@midlyr/sdk";
 import { CliInputError } from "../domain/errors.js";
+import type { CredentialsStore } from "../domain/credentials.js";
 import type { DocumentsService } from "../domain/documents.js";
 import type { ScreenAnalysisService } from "../domain/screen-analysis.js";
 import { isCommandName } from "./command-names.js";
 import type { ParsedArgs } from "./parser.js";
+import type { Writable } from "./output.js";
 
 export interface CommandServices {
   documents: DocumentsService;
   screenAnalysis: ScreenAnalysisService;
+}
+
+export async function runConfigCommand(
+  args: ParsedArgs,
+  stdout: Writable,
+  credentialsStore: CredentialsStore,
+): Promise<void> {
+  const [subcommand, key, value] = args.positionals;
+
+  if (subcommand !== "set") {
+    throw new CliInputError("Usage: midlyr config set api-key <key>");
+  }
+  if (key !== "api-key") {
+    throw new CliInputError("Usage: midlyr config set api-key <key>");
+  }
+  if (!value) {
+    throw new CliInputError("Usage: midlyr config set api-key <key>");
+  }
+
+  await credentialsStore.write({ apiKey: value });
+  stdout.write(`API key saved to ${credentialsStore.path()}\n`);
 }
 
 export async function runCommand(
@@ -43,6 +66,9 @@ export async function runCommand(
         timeoutMs: args.numberOption("timeout-ms"),
         pollIntervalMs: args.numberOption("poll-interval-ms"),
       });
+
+    case "config":
+      throw new Error("config command should be handled before this point");
   }
 }
 

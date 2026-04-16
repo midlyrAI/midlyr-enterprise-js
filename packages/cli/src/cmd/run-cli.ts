@@ -1,5 +1,6 @@
 import type { FetchLike } from "@midlyr/sdk";
 import { DocumentsService } from "../domain/documents.js";
+import type { CredentialsStore } from "../domain/credentials.js";
 import {
   ScreenAnalysisPollingService,
   type SignalHandler,
@@ -8,7 +9,7 @@ import {
 import { ScreenAnalysisService } from "../domain/screen-analysis.js";
 import { MidlyrClient } from "../sdk/midlyr-client.js";
 import { commandNames } from "./command-names.js";
-import { runCommand } from "./commands.js";
+import { runCommand, runConfigCommand } from "./commands.js";
 import { resolveCliConfig } from "./config.js";
 import { formatHelp, printError, printJson, type Writable } from "./output.js";
 import { parseArgs } from "./parser.js";
@@ -23,6 +24,7 @@ export interface CliRuntime {
   sleep?: (ms: number) => Promise<void>;
   now?: () => number;
   onSignal?: (signal: SignalName, handler: SignalHandler) => void;
+  credentialsStore?: CredentialsStore;
 }
 
 export async function runCli(argv: readonly string[], runtime: CliRuntime = {}): Promise<number> {
@@ -37,7 +39,16 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
       return 0;
     }
 
-    const config = resolveCliConfig(parsed, runtime.env ?? {});
+    if (parsed.command === "config") {
+      if (!runtime.credentialsStore) {
+        throw new Error("credentialsStore is required for the config command");
+      }
+      await runConfigCommand(parsed, stdout, runtime.credentialsStore);
+      return 0;
+    }
+
+    const credentials = runtime.credentialsStore ? await runtime.credentialsStore.read() : {};
+    const config = resolveCliConfig(parsed, runtime.env ?? {}, credentials);
     const client = new MidlyrClient({ ...config, fetch: runtime.fetch });
     const polling = new ScreenAnalysisPollingService(client, {
       now: runtime.now ?? Date.now,
