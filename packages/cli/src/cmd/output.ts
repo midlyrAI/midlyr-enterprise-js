@@ -1,5 +1,6 @@
 import { DEFAULT_BASE_URL, MidlyrAPIError, MidlyrError, MidlyrNetworkError } from "@midlyr/sdk";
 import { CliInputError, CliInterruptedError, CliJobTimeoutError } from "../domain/errors.js";
+import { LoginError } from "../domain/login/errors.js";
 import type { CommandName } from "./command-names.js";
 
 export type Writable = {
@@ -39,6 +40,14 @@ export function toErrorPayload(error: unknown): Record<string, unknown> {
       status: error.status,
       body: error.body,
     });
+  }
+
+  if (error instanceof LoginError) {
+    return errorPayload(
+      error.code,
+      error.message,
+      error.detail !== undefined ? { detail: error.detail } : {},
+    );
   }
 
   if (error instanceof MidlyrNetworkError || error instanceof MidlyrError) {
