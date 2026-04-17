@@ -2,7 +2,7 @@
 
 import { spawn } from "node:child_process";
 import { createHash, randomBytes as nodeRandomBytes, randomUUID } from "node:crypto";
-import { access, mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { homedir } from "node:os";
 import { createInterface } from "node:readline";
@@ -67,7 +67,6 @@ const mcpHostConfigFs: McpHostConfigFs = {
   mkdir: (p, opts) => mkdir(p, opts),
   rename: (from, to) => rename(from, to),
   unlink: (p) => unlink(p),
-  access: (p) => access(p),
 };
 
 const exitCode = await runCli(process.argv.slice(2), {

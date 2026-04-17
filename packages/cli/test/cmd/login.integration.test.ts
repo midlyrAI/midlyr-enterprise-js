@@ -206,21 +206,13 @@ function inMemoryFs(): InMemoryFs {
     bump("unlink");
     files.delete(p);
   });
-  const access = vi.fn(async (p: string) => {
-    bump("access");
-    if (!files.has(p)) {
-      const err = new Error(`ENOENT: no such file '${p}'`) as NodeJS.ErrnoException;
-      err.code = "ENOENT";
-      throw err;
-    }
-  });
 
   return {
     files,
     dirs,
     calls,
-    spies: { readFile, writeFile, mkdir, rename, unlink, access },
-    fs: { readFile, writeFile, mkdir, rename, unlink, access },
+    spies: { readFile, writeFile, mkdir, rename, unlink },
+    fs: { readFile, writeFile, mkdir, rename, unlink },
   };
 }
 
@@ -452,7 +444,6 @@ describe("midlyr login (integration)", () => {
     expect(h.fsBox.spies.mkdir).not.toHaveBeenCalled();
     expect(h.fsBox.spies.rename).not.toHaveBeenCalled();
     expect(h.fsBox.spies.unlink).not.toHaveBeenCalled();
-    expect(h.fsBox.spies.access).not.toHaveBeenCalled();
   });
 
   it("timeout: exits 1 with login_timeout, no credentials written", async () => {

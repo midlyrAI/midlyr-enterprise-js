@@ -168,7 +168,6 @@ interface Harness {
   creds: ScriptedCredStore;
   fetcher: ScriptedFetch;
   stdout: { write(chunk: string): unknown; text: string };
-  stderr: { write(chunk: string): unknown; text: string };
   calls: string[];
   fireSignal(signal: "SIGINT" | "SIGTERM"): void;
   fireTimeout(): void;
@@ -220,7 +219,6 @@ function makeHarness(opts: {
     { ok: true, status: 200, json: DEFAULT_EXCHANGE_JSON },
   ]);
   const stdout = captureWritable();
-  const stderr = captureWritable();
   const calls: string[] = [];
   const setTimeoutCalls: Array<{ ms: number }> = [];
   let clearTimeoutCalls = 0;
@@ -277,7 +275,6 @@ function makeHarness(opts: {
       signalHandlers[signal]!.push(handler);
     },
     stdout,
-    stderr,
     apiBaseUrl: "https://api.midlyr.com",
     appBaseUrl: "https://app.midlyr.com",
     label: "cli-2026-04-16",
@@ -291,7 +288,6 @@ function makeHarness(opts: {
     creds,
     fetcher,
     stdout,
-    stderr,
     calls,
     fireSignal: (sig) => {
       for (const h of signalHandlers[sig]!) h();

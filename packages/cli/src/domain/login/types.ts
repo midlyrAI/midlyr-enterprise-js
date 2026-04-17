@@ -16,7 +16,6 @@ export interface McpHostConfigFs {
   mkdir(path: string, options: { recursive: boolean }): Promise<unknown>;
   rename(from: string, to: string): Promise<void>;
   unlink(path: string): Promise<void>;
-  access(path: string): Promise<void>;
 }
 
 // Browser opener

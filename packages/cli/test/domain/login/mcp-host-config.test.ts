@@ -80,14 +80,6 @@ function createFsStub(opts: FsStubOptions = {}): FsStub {
       }
       delete files[path];
     },
-    async access(path: string): Promise<void> {
-      calls.push({ op: "access", args: [path] });
-      if (!(path in files)) {
-        const err = new Error(`ENOENT: ${path}`);
-        (err as Error & { code?: string }).code = "ENOENT";
-        throw err;
-      }
-    },
   };
 
   return { fs, calls, files };

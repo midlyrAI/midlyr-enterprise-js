@@ -26,7 +26,6 @@ export interface LoginServiceDeps {
   clearTimeout: (handle: ReturnType<typeof globalThis.setTimeout>) => void;
   onSignal: (signal: SignalName, handler: SignalHandler) => void;
   stdout: Writable;
-  stderr: Writable;
   apiBaseUrl: string; // e.g. "https://api.midlyr.com"
   appBaseUrl: string; // e.g. "https://app.midlyr.com" — used only for error messages
   label: string; // e.g. "cli-2026-04-16"

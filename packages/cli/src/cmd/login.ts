@@ -37,7 +37,6 @@ export async function runLoginCommand(
   _parsed: ParsedArgs,
 ): Promise<void> {
   const stdout: Writable = runtime.stdout ?? defaultStdout();
-  const stderr: Writable = runtime.stderr ?? defaultStderr();
   const env = runtime.env ?? {};
 
   const apiBaseUrl = env["MIDLYR_BASE_URL"] ?? DEFAULT_BASE_URL;
@@ -66,7 +65,6 @@ export async function runLoginCommand(
     clearTimeout: runtime.clearTimeout,
     onSignal,
     stdout,
-    stderr,
     apiBaseUrl,
     appBaseUrl,
     label,
@@ -91,8 +89,4 @@ export async function runLoginCommand(
 
 function defaultStdout(): Writable {
   return { write: (chunk: string) => globalThis.console.log(chunk) };
-}
-
-function defaultStderr(): Writable {
-  return { write: (chunk: string) => globalThis.console.error(chunk) };
 }
