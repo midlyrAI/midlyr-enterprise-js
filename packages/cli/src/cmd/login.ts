@@ -14,6 +14,8 @@ import type {
 import { runMcpPicker } from "../domain/login/mcp-picker.js";
 import type { ParsedArgs } from "./parser.js";
 
+const DEFAULT_APP_URL = "https://app.midlyr.com";
+
 type SignalName = "SIGINT" | "SIGTERM";
 type SignalHandler = () => void;
 
@@ -40,7 +42,7 @@ export async function runLoginCommand(
   const env = runtime.env ?? {};
 
   const apiBaseUrl = env["MIDLYR_BASE_URL"] ?? DEFAULT_BASE_URL;
-  const appBaseUrl = env["MIDLYR_APP_URL"] ?? "https://app.midlyr.com";
+  const appBaseUrl = env["MIDLYR_APP_URL"] ?? DEFAULT_APP_URL;
   const label = `cli-${new Date().toISOString().slice(0, 10)}`;
 
   if (!runtime.credentialsStore) {
