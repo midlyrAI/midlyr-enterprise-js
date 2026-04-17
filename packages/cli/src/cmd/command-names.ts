@@ -3,6 +3,7 @@ export const commandNames = [
   "read-document",
   "screen-analysis",
   "config",
+  "login",
 ] as const;
 
 export type CommandName = (typeof commandNames)[number];

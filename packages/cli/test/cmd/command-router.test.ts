@@ -8,6 +8,7 @@ describe("command names", () => {
       "read-document",
       "screen-analysis",
       "config",
+      "login",
     ]);
     expect(isCommandName("screen-analysis")).toBe(true);
     expect(isCommandName("jobs")).toBe(false);

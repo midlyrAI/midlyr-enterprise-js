@@ -69,6 +69,9 @@ export async function runCommand(
 
     case "config":
       throw new Error("config command should be handled before this point");
+
+    case "login":
+      throw new Error("login command should be handled in run-cli.ts before runCommand");
   }
 }
 

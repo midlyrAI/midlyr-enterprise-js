@@ -11,8 +11,9 @@ import { MidlyrClient } from "../sdk/midlyr-client.js";
 import { commandNames } from "./command-names.js";
 import { runCommand, runConfigCommand } from "./commands.js";
 import { resolveCliConfig } from "./config.js";
+import { runLoginCommand, type LoginRuntime } from "./login.js";
 import { formatHelp, printError, printJson, type Writable } from "./output.js";
-import { parseArgs } from "./parser.js";
+import { parseArgs, type ParsedArgs } from "./parser.js";
 
 export type { Writable };
 
@@ -27,6 +28,9 @@ export interface CliRuntime {
   credentialsStore?: CredentialsStore;
 }
 
+type NoCredsCommand = "config" | "login";
+const NO_CREDS_COMMANDS: ReadonlySet<string> = new Set<NoCredsCommand>(["config", "login"]);
+
 export async function runCli(argv: readonly string[], runtime: CliRuntime = {}): Promise<number> {
   const stdout = runtime.stdout ?? defaultStdout();
   const stderr = runtime.stderr ?? defaultStderr();
@@ -39,12 +43,8 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
       return 0;
     }
 
-    if (parsed.command === "config") {
-      if (!runtime.credentialsStore) {
-        throw new Error("credentialsStore is required for the config command");
-      }
-      await runConfigCommand(parsed, stdout, runtime.credentialsStore);
-      return 0;
+    if (NO_CREDS_COMMANDS.has(parsed.command)) {
+      return await dispatchNoCreds(parsed.command as NoCredsCommand, parsed, runtime, stdout);
     }
 
     const credentials = runtime.credentialsStore ? await runtime.credentialsStore.read() : {};
@@ -68,6 +68,40 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
     printError(stderr, error);
     return 1;
   }
+}
+
+async function dispatchNoCreds(
+  commandName: NoCredsCommand,
+  parsed: ParsedArgs,
+  runtime: CliRuntime,
+  stdout: Writable,
+): Promise<number> {
+  if (commandName === "config") {
+    if (!runtime.credentialsStore) {
+      throw new Error("credentialsStore is required for the config command");
+    }
+    await runConfigCommand(parsed, stdout, runtime.credentialsStore);
+    return 0;
+  }
+
+  // login
+  const loginRuntime = runtime as LoginRuntime;
+  if (
+    !loginRuntime.browserOpener ||
+    !loginRuntime.localhostServer ||
+    !loginRuntime.prompter ||
+    !loginRuntime.mcpHostConfigFs ||
+    !loginRuntime.platformInfo ||
+    !loginRuntime.randomUUID ||
+    !loginRuntime.randomBytes ||
+    !loginRuntime.sha256 ||
+    !loginRuntime.setTimeout ||
+    !loginRuntime.clearTimeout
+  ) {
+    throw new Error("login command requires a fully-provisioned LoginRuntime");
+  }
+  await runLoginCommand(loginRuntime, parsed);
+  return 0;
 }
 
 function defaultStdout(): Writable {
