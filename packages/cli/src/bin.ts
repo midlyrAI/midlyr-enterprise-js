@@ -14,6 +14,7 @@ import type {
   HttpFactory,
   PlatformInfo,
 } from "./domain/login/types.js";
+import { loadEnvFile, resolveCliEnv } from "./load-env.js";
 
 declare const process: {
   argv: string[];
@@ -27,7 +28,14 @@ declare const process: {
   on(signal: "SIGINT" | "SIGTERM", handler: () => void): void;
 };
 
-const credentialsStore = createFileCredentialsStore({ readFile, writeFile, mkdir }, homedir());
+const cliEnv = resolveCliEnv(process.env);
+loadEnvFile(cliEnv, process.env);
+
+const credentialsStore = createFileCredentialsStore(
+  { readFile, writeFile, mkdir },
+  homedir(),
+  cliEnv,
+);
 
 const platformInfo: PlatformInfo = {
   os: process.platform,

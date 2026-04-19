@@ -4,3 +4,10 @@ node_modules/
 dist/
 coverage/
 *.tsbuildinfo
+
+# Local dev scratchpad — CLI test commands, not shipped
+test-commands*.sh
+packages/cli/test-commands*.sh
+
+# Dev-only per-environment config for @midlyr/cli (not shipped)
+packages/cli/.env.*

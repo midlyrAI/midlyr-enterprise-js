@@ -17,9 +17,11 @@ export interface CredentialsFs {
 export function createFileCredentialsStore(
   fs: CredentialsFs,
   homeDir: string,
+  cliEnv: "local" | "staging" | "production" = "production",
 ): CredentialsStore {
   const configDir = `${homeDir}/.config/midlyr`;
-  const filePath = `${configDir}/credentials.json`;
+  const fileName = cliEnv === "production" ? "credentials.json" : `credentials.${cliEnv}.json`;
+  const filePath = `${configDir}/${fileName}`;
 
   return {
     async read(): Promise<Credentials> {
