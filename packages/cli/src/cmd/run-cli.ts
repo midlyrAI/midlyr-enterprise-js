@@ -89,9 +89,6 @@ async function dispatchNoCreds(
   if (
     !loginRuntime.browserOpener ||
     !loginRuntime.localhostServer ||
-    !loginRuntime.prompter ||
-    !loginRuntime.mcpHostConfigFs ||
-    !loginRuntime.platformInfo ||
     !loginRuntime.randomUUID ||
     !loginRuntime.randomBytes ||
     !loginRuntime.sha256 ||

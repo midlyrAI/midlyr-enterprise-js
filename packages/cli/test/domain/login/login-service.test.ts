@@ -280,7 +280,6 @@ function makeHarness(opts: {
     stdout,
     apiBaseUrl: "https://api.midlyr.com",
     appBaseUrl: "https://app.midlyr.com",
-    label: "cli-2026-04-16",
     timeoutMs: opts.timeoutMs,
   };
 
@@ -338,13 +337,16 @@ describe("runLogin", () => {
     });
     expect(h.creds.writes).toEqual([{ apiKey: "mlyr_test_abc_secret" }]);
 
+    // Pairing code is echoed so the user can verify it matches the browser
+    expect(h.stdout.text).toContain("ABCD-1234");
+
     // Two fetch calls in order
     expect(h.fetcher.calls).toHaveLength(2);
     expect(h.fetcher.calls[0]!.url).toBe("https://api.midlyr.com/api/v1/auth/cli/sessions");
     expect(h.fetcher.calls[0]!.init.method).toBe("POST");
     const sessionsBody = JSON.parse(String(h.fetcher.calls[0]!.init.body));
     expect(sessionsBody.state).toBe("STATE_UUID");
-    expect(sessionsBody.label).toBe("cli-2026-04-16");
+    expect("label" in sessionsBody).toBe(false);
     expect(sessionsBody.codeChallengeMethod).toBe("S256");
     expect(sessionsBody.callbackUrl).toBe("http://localhost:53100/callback");
 

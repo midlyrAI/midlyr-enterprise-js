@@ -28,7 +28,6 @@ export interface LoginServiceDeps {
   stdout: Writable;
   apiBaseUrl: string; // e.g. "https://api.midlyr.com"
   appBaseUrl: string; // e.g. "https://app.midlyr.com" — used only for error messages
-  label: string; // e.g. "cli-2026-04-16"
   timeoutMs?: number; // default 300_000
 }
 
@@ -91,7 +90,6 @@ export async function runLogin(deps: LoginServiceDeps): Promise<LoginResult> {
       body: JSON.stringify({
         callbackUrl: `http://localhost:${session.handle.port}/callback`,
         state,
-        label: deps.label,
         codeChallenge,
         codeChallengeMethod: "S256",
       }),
@@ -116,7 +114,12 @@ export async function runLogin(deps: LoginServiceDeps): Promise<LoginResult> {
     );
   }
 
-  // 6. Open browser — non-fatal on failure
+  // 6. Show pairing code so the user can verify it in the browser before authorizing.
+  deps.stdout.write(
+    `\nPairing code: \x1b[1m${sessionStart.pairingCode}\x1b[22m\nVerify this matches the code shown in your browser.\n\n`,
+  );
+
+  // 7. Open browser — non-fatal on failure
   try {
     await deps.browserOpener.open(sessionStart.authorizeUrl);
   } catch {

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { FetchLike } from "@midlyr/sdk";
 import { runCli } from "../../src/cli.js";
 import type { LoginRuntime } from "../../src/cmd/login.js";
@@ -9,9 +9,6 @@ import type {
   CallbackResponse,
   LocalhostServer,
   LocalhostServerSession,
-  McpHostConfigFs,
-  PlatformInfo,
-  Prompter,
 } from "../../src/domain/login/types.js";
 
 interface ScriptedServer {
@@ -121,101 +118,6 @@ function scriptedBrowser(openError?: Error): ScriptedBrowser {
   };
 }
 
-interface ScriptedPrompter {
-  prompter: Prompter;
-  questions: string[];
-  closed: boolean;
-  answers: string[];
-}
-
-function scriptedPrompter(answers: string[]): ScriptedPrompter {
-  const questions: string[] = [];
-  let index = 0;
-  const state: ScriptedPrompter = {
-    questions,
-    closed: false,
-    answers,
-    prompter: {
-      question: async (prompt: string) => {
-        questions.push(prompt);
-        const answer = answers[index++];
-        if (answer === undefined) {
-          throw new Error(`Unexpected prompter.question call #${index}`);
-        }
-        return answer;
-      },
-      close: () => {
-        state.closed = true;
-      },
-    },
-  };
-  return state;
-}
-
-type FsMethod = keyof McpHostConfigFs;
-
-interface InMemoryFs {
-  fs: McpHostConfigFs;
-  files: Map<string, string>;
-  dirs: Set<string>;
-  calls: Partial<Record<FsMethod, number>>;
-  spies: Record<FsMethod, ReturnType<typeof vi.fn>>;
-}
-
-function inMemoryFs(): InMemoryFs {
-  const files = new Map<string, string>();
-  const dirs = new Set<string>();
-  const calls: Partial<Record<FsMethod, number>> = {};
-  const bump = (m: FsMethod) => {
-    calls[m] = (calls[m] ?? 0) + 1;
-  };
-
-  const readFile = vi.fn(async (p: string, _enc: BufferEncoding) => {
-    bump("readFile");
-    const data = files.get(p);
-    if (data === undefined) {
-      const err = new Error(`ENOENT: no such file, open '${p}'`) as NodeJS.ErrnoException;
-      err.code = "ENOENT";
-      throw err;
-    }
-    return data;
-  });
-  const writeFile = vi.fn(
-    async (p: string, data: string, _opts: { encoding: BufferEncoding; mode?: number }) => {
-      bump("writeFile");
-      files.set(p, data);
-    },
-  );
-  const mkdir = vi.fn(async (p: string, _opts: { recursive: boolean }) => {
-    bump("mkdir");
-    dirs.add(p);
-    return undefined;
-  });
-  const rename = vi.fn(async (from: string, to: string) => {
-    bump("rename");
-    const data = files.get(from);
-    if (data === undefined) {
-      const err = new Error(`ENOENT: no such file, rename '${from}'`) as NodeJS.ErrnoException;
-      err.code = "ENOENT";
-      throw err;
-    }
-    files.set(to, data);
-    files.delete(from);
-  });
-  const unlink = vi.fn(async (p: string) => {
-    bump("unlink");
-    files.delete(p);
-  });
-
-  return {
-    files,
-    dirs,
-    calls,
-    spies: { readFile, writeFile, mkdir, rename, unlink },
-    fs: { readFile, writeFile, mkdir, rename, unlink },
-  };
-}
-
 interface FetchCall {
   url: string;
   init: RequestInit;
@@ -274,8 +176,6 @@ interface Harness {
   browser: ScriptedBrowser;
   creds: InMemoryCredStore;
   fetcher: ScriptedFetch;
-  prompter: ScriptedPrompter;
-  fsBox: InMemoryFs;
   stdout: () => string;
   stderr: () => string;
   signalHandlers: Map<string, (() => void)[]>;
@@ -287,9 +187,7 @@ interface HarnessOpts {
   fetcher?: ScriptedFetch;
   server?: ScriptedServer;
   browser?: ScriptedBrowser;
-  answers?: string[];
   env?: Record<string, string | undefined>;
-  platformOs?: NodeJS.Platform;
 }
 
 function makeHarness(opts: HarnessOpts = {}): Harness {
@@ -302,20 +200,11 @@ function makeHarness(opts: HarnessOpts = {}): Harness {
       { ok: true, status: 200, json: DEFAULT_SESSION_JSON },
       { ok: true, status: 200, json: DEFAULT_EXCHANGE_JSON },
     ]);
-  const prompter = scriptedPrompter(opts.answers ?? ["5"]);
-  const fsBox = inMemoryFs();
 
   let stdout = "";
   let stderr = "";
   const signalHandlers = new Map<string, (() => void)[]>();
   let timerHandler: (() => void) | null = null;
-
-  const platformInfo: PlatformInfo = {
-    os: opts.platformOs ?? "darwin",
-    homedir: "/home/test",
-    cwd: "/home/test",
-    env: { ...opts.env },
-  };
 
   const runtime: LoginRuntime = {
     env: opts.env ?? {},
@@ -330,9 +219,6 @@ function makeHarness(opts: HarnessOpts = {}): Harness {
     },
     browserOpener: browser.opener,
     localhostServer: server.instance,
-    prompter: prompter.prompter,
-    mcpHostConfigFs: fsBox.fs,
-    platformInfo,
     randomUUID: () => "STATE_UUID",
     randomBytes: (size: number) => {
       const out = new Uint8Array(size);
@@ -359,8 +245,6 @@ function makeHarness(opts: HarnessOpts = {}): Harness {
     browser,
     creds,
     fetcher,
-    prompter,
-    fsBox,
     stdout: () => stdout,
     stderr: () => stderr,
     signalHandlers,
@@ -378,27 +262,13 @@ async function flush(n = 20): Promise<void> {
 }
 
 function parseJsonLines(text: string): unknown {
-  // Takes the last JSON block in stderr (JSON emitted by printError).
   const trimmed = text.trim();
   return JSON.parse(trimmed);
 }
 
 describe("midlyr login (integration)", () => {
-  it("happy path: writes credentials, merges MCP config, exits 0", async () => {
-    const h = makeHarness({ answers: ["2"] }); // 2 = Claude Code
-    // Pre-existing claude-code config with another mcp server
-    const existingPath = "/home/test/.claude.json";
-    h.fsBox.files.set(
-      existingPath,
-      JSON.stringify(
-        {
-          theme: "dark",
-          mcpServers: { other: { url: "https://other.example.com" } },
-        },
-        null,
-        2,
-      ),
-    );
+  it("happy path: writes credentials and prints the success message", async () => {
+    const h = makeHarness();
 
     const promise = runCli(["login"], h.runtime);
     await flush();
@@ -412,47 +282,11 @@ describe("midlyr login (integration)", () => {
 
     expect(exitCode).toBe(0);
     expect(h.creds.writes).toEqual([{ apiKey: "mlyr_test_abc_secret" }]);
-    expect(h.stdout()).toContain("Authenticated");
-    expect(h.stdout()).toContain("Added Midlyr to Claude Code config");
-
-    const written = JSON.parse(h.fsBox.files.get(existingPath)!) as {
-      theme: string;
-      mcpServers: {
-        other: unknown;
-        midlyr: { url: string; headers: { "x-api-key": string } };
-      };
-    };
-    expect(written.theme).toBe("dark");
-    expect(written.mcpServers.other).toEqual({ url: "https://other.example.com" });
-    expect(written.mcpServers.midlyr.url).toBe("https://mcp.midlyr.com");
-    expect(written.mcpServers.midlyr.headers["x-api-key"]).toBe("mlyr_test_abc_secret");
-    expect(h.prompter.closed).toBe(true);
-  });
-
-  it("skip picker: no FS calls on mcpHostConfigFs", async () => {
-    const h = makeHarness({ answers: ["5"] }); // 5 = Skip
-
-    const promise = runCli(["login"], h.runtime);
-    await flush();
-    h.server.resolveFirstCallback({
-      state: "STATE_UUID",
-      sessionId: "sess_abc",
-      result: "authorized",
-      authorizationCode: VALID_AUTH_CODE,
-    });
-    const exitCode = await promise;
-
-    expect(exitCode).toBe(0);
-    expect(h.creds.writes).toEqual([{ apiKey: "mlyr_test_abc_secret" }]);
-    expect(h.fsBox.spies.readFile).not.toHaveBeenCalled();
-    expect(h.fsBox.spies.writeFile).not.toHaveBeenCalled();
-    expect(h.fsBox.spies.mkdir).not.toHaveBeenCalled();
-    expect(h.fsBox.spies.rename).not.toHaveBeenCalled();
-    expect(h.fsBox.spies.unlink).not.toHaveBeenCalled();
+    expect(h.stdout()).toContain("Authentication successful");
   });
 
   it("timeout: exits 1 with login_timeout, no credentials written", async () => {
-    const h = makeHarness({ answers: ["5"] });
+    const h = makeHarness();
 
     const promise = runCli(["login"], h.runtime);
     await flush();
@@ -466,7 +300,7 @@ describe("midlyr login (integration)", () => {
   });
 
   it("state mismatch: exits 1 with login_state_mismatch, no credentials, exchange NOT called", async () => {
-    const h = makeHarness({ answers: ["5"] });
+    const h = makeHarness();
 
     const promise = runCli(["login"], h.runtime);
     await flush();
@@ -481,13 +315,12 @@ describe("midlyr login (integration)", () => {
     const payload = parseJsonLines(h.stderr()) as { error: { code: string } };
     expect(payload.error.code).toBe("login_state_mismatch");
     expect(h.creds.writes).toEqual([]);
-    // Only the /sessions call should have fired — no /exchange
     expect(h.fetcher.calls).toHaveLength(1);
   });
 
   it("browser opener failure: prints authorizeUrl, still completes login", async () => {
     const browser = scriptedBrowser(new Error("no browser"));
-    const h = makeHarness({ browser, answers: ["5"] });
+    const h = makeHarness({ browser });
 
     const promise = runCli(["login"], h.runtime);
     await flush();
@@ -505,8 +338,7 @@ describe("midlyr login (integration)", () => {
   });
 
   it("works without MIDLYR_API_KEY: login bypasses resolveCliConfig", async () => {
-    // env is empty — no MIDLYR_API_KEY. login must still succeed.
-    const h = makeHarness({ answers: ["5"], env: {} });
+    const h = makeHarness({ env: {} });
 
     const promise = runCli(["login"], h.runtime);
     await flush();
@@ -527,7 +359,7 @@ describe("midlyr login (integration)", () => {
       { ok: true, status: 200, json: DEFAULT_SESSION_JSON },
       { ok: false, status: 401, json: { error: "invalid_verifier" } },
     ]);
-    const h = makeHarness({ fetcher, answers: ["5"] });
+    const h = makeHarness({ fetcher });
 
     const promise = runCli(["login"], h.runtime);
     await flush();
@@ -546,7 +378,7 @@ describe("midlyr login (integration)", () => {
   });
 
   it("result=denied: exits 1 with login_callback_error, no credentials written", async () => {
-    const h = makeHarness({ answers: ["5"] });
+    const h = makeHarness();
 
     const promise = runCli(["login"], h.runtime);
     await flush();
@@ -564,7 +396,7 @@ describe("midlyr login (integration)", () => {
   });
 
   it("missing sessionId: exits 1 with login_callback_error, no credentials written", async () => {
-    const h = makeHarness({ answers: ["5"] });
+    const h = makeHarness();
 
     const promise = runCli(["login"], h.runtime);
     await flush();
@@ -581,7 +413,7 @@ describe("midlyr login (integration)", () => {
   });
 
   it("missing authorizationCode: exits 1 with login_callback_error, no credentials, exchange NOT called", async () => {
-    const h = makeHarness({ answers: ["5"] });
+    const h = makeHarness();
 
     const promise = runCli(["login"], h.runtime);
     await flush();
@@ -589,7 +421,6 @@ describe("midlyr login (integration)", () => {
       state: "STATE_UUID",
       sessionId: "sess_abc",
       result: "authorized",
-      // authorizationCode intentionally omitted
     });
     const exitCode = await promise;
 
@@ -597,7 +428,6 @@ describe("midlyr login (integration)", () => {
     const payload = parseJsonLines(h.stderr()) as { error: { code: string } };
     expect(payload.error.code).toBe("login_callback_error");
     expect(h.creds.writes).toEqual([]);
-    // Only /sessions was called — no /exchange
     expect(h.fetcher.calls).toHaveLength(1);
   });
 });

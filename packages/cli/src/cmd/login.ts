@@ -3,15 +3,7 @@ import { DEFAULT_BASE_URL } from "@midlyr/sdk";
 import type { CliRuntime } from "./run-cli.js";
 import type { Writable } from "./output.js";
 import { runLogin } from "../domain/login/login-service.js";
-import { MCP_HOSTS, writeMidlyrToHost } from "../domain/login/mcp-host-config.js";
-import type {
-  BrowserOpener,
-  LocalhostServer,
-  McpHostConfigFs,
-  PlatformInfo,
-  Prompter,
-} from "../domain/login/types.js";
-import { runMcpPicker } from "../domain/login/mcp-picker.js";
+import type { BrowserOpener, LocalhostServer } from "../domain/login/types.js";
 import type { ParsedArgs } from "./parser.js";
 
 const DEFAULT_APP_URL = "https://app.midlyr.com";
@@ -24,9 +16,6 @@ type SignalHandler = () => void;
 export interface LoginRuntime extends CliRuntime {
   browserOpener: BrowserOpener;
   localhostServer: LocalhostServer;
-  prompter: Prompter;
-  mcpHostConfigFs: McpHostConfigFs;
-  platformInfo: PlatformInfo;
   randomUUID: () => string;
   randomBytes: (size: number) => Uint8Array;
   sha256: (data: Uint8Array) => Uint8Array;
@@ -43,7 +32,6 @@ export async function runLoginCommand(
 
   const apiBaseUrl = env["MIDLYR_BASE_URL"] ?? DEFAULT_BASE_URL;
   const appBaseUrl = env["MIDLYR_APP_URL"] ?? DEFAULT_APP_URL;
-  const label = `cli-${new Date().toISOString().slice(0, 10)}`;
 
   if (!runtime.credentialsStore) {
     throw new Error("credentialsStore is required for login command");
@@ -55,7 +43,7 @@ export async function runLoginCommand(
 
   stdout.write("Opening browser to authenticate...\n");
 
-  const loginResult = await runLogin({
+  await runLogin({
     localhostServer: runtime.localhostServer,
     browserOpener: runtime.browserOpener,
     credentialsStore: runtime.credentialsStore,
@@ -69,24 +57,9 @@ export async function runLoginCommand(
     stdout,
     apiBaseUrl,
     appBaseUrl,
-    label,
   });
 
-  stdout.write("Authenticated\n");
-
-  const picked = await runMcpPicker(runtime.prompter, stdout);
-  if (picked !== "skip") {
-    const result = await writeMidlyrToHost(picked, loginResult.apiKey, {
-      fs: runtime.mcpHostConfigFs,
-      platformInfo: runtime.platformInfo,
-    });
-    const hostLabel = MCP_HOSTS[picked].label;
-    stdout.write(
-      `Added Midlyr to ${hostLabel} config (${result.path}). Restart ${hostLabel} to activate.\n`,
-    );
-  }
-
-  runtime.prompter.close();
+  stdout.write("\x1b[1mAuthentication successful.\x1b[22m Your CLI is ready to use.\n");
 }
 
 function defaultStdout(): Writable {
