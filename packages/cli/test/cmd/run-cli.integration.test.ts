@@ -111,7 +111,7 @@ describe("midlyr CLI", () => {
     expect(exitCode).toBe(0);
     const [url, init] = fetch.mock.calls[0]!;
     expect(String(url)).toBe(
-      "https://api.example.com/api/v1/regulations?query=fair+lending&category=regulation&category=agencyGuidance&authorities=CFPB&jurisdictions=us-federal&limit=25&cursor=next_1",
+      "https://api.example.com/api/v1/regulations/?query=fair+lending&category=regulation&category=agencyGuidance&authorities=CFPB&jurisdictions=us-federal&limit=25&cursor=next_1",
     );
     expect(init?.headers).toMatchObject({ "x-api-key": "env_key" });
     expect(parseJsonOutput(io.stdout())).toMatchObject({ results: [] });
@@ -137,7 +137,7 @@ describe("midlyr CLI", () => {
           sourceUrl: "https://example.com/reg-b",
           totalBytes: 1000,
           tableOfContents: { entries: [] },
-          attributes: {},
+          attributes: { category: "regulation", cfrTitle: 12, cfrPart: 1002 },
         },
       }),
     );

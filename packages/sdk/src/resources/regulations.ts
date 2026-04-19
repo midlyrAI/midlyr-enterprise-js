@@ -18,7 +18,7 @@ export class RegulationAPI {
   browse(query: BrowseRegulationsQuery = {}, options: MidlyrRequestOptions = {}) {
     return this.#transport.request<BrowseRegulationsResponse>({
       method: "GET",
-      path: "/api/v1/regulations",
+      path: "/api/v1/regulations/",
       query,
       ...options,
     });

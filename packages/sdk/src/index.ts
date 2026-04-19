@@ -34,15 +34,23 @@ export type {
   ScreenAnalysisJobType,
 } from "./types/jobs.js";
 export type {
+  AgencyGuidanceAttributes,
   BrowseRegulationsQuery,
   BrowseRegulationsResponse,
   DocumentCategory,
+  ExaminationHandbookAttributes,
+  InteragencyGuidanceAttributes,
+  InterpretiveActionAttributes,
   ReadRegulationContentQuery,
+  RegulationAttributes,
+  RegulationCategoryAttributes,
   RegulationContent,
   RegulationDetails,
   RegulationSummary,
   RegulationTableOfContents,
   RegulationTableOfContentsEntry,
+  SroRuleAttributes,
+  StatuteAttributes,
 } from "./types/regulations.js";
 
 export const packageName = "@midlyr/sdk";

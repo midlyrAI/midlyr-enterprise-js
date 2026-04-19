@@ -30,7 +30,7 @@ describe("Midlyr SDK", () => {
     expect(fetch).toHaveBeenCalledTimes(1);
     const [url, init] = fetch.mock.calls[0]!;
     expect(String(url)).toBe(
-      "https://api.example.com/api/v1/regulations?query=fair+lending&category=regulation&category=guidance&limit=2",
+      "https://api.example.com/api/v1/regulations/?query=fair+lending&category=regulation&category=guidance&limit=2",
     );
     expect(init?.method).toBe("GET");
     expect(init?.headers).toMatchObject({
@@ -59,7 +59,7 @@ describe("Midlyr SDK", () => {
           sourceUrl: "https://example.com/reg-b",
           totalBytes: 1000,
           tableOfContents: { entries: [] },
-          attributes: {},
+          attributes: { category: "regulation", cfrTitle: 12, cfrPart: 1002 },
         },
       }),
     );
