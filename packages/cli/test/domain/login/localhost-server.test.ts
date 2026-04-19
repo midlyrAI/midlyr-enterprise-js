@@ -151,6 +151,38 @@ describe("createLocalhostServer", () => {
     await session.handle.close();
   });
 
+  it("parseQuery keeps authorizationCode", async () => {
+    const mf = createMockFactory();
+    const server = createLocalhostServer({ http: mf.factory });
+    const session = await server.listen();
+    mf.servers[0]!.fireRequest(
+      "GET",
+      "/callback?state=abc&sessionId=sess_foo&result=authorized&authorizationCode=auth_code_1234567890abcdef",
+    );
+    await expect(session.firstCallback).resolves.toEqual({
+      state: "abc",
+      sessionId: "sess_foo",
+      result: "authorized",
+      authorizationCode: "auth_code_1234567890abcdef",
+    });
+    await session.handle.close();
+  });
+
+  it("parseQuery trims whitespace from authorizationCode", async () => {
+    const mf = createMockFactory();
+    const server = createLocalhostServer({ http: mf.factory });
+    const session = await server.listen();
+    // %0A is a URL-encoded newline — a realistic artifact from some proxies/browsers.
+    mf.servers[0]!.fireRequest(
+      "GET",
+      "/callback?state=a&sessionId=s&result=authorized&authorizationCode=auth_code_1234567890abcdef%0A",
+    );
+    await expect(session.firstCallback).resolves.toMatchObject({
+      authorizationCode: "auth_code_1234567890abcdef",
+    });
+    await session.handle.close();
+  });
+
   it("responds 404 to GET /other and does not resolve firstCallback", async () => {
     const mf = createMockFactory();
     const server = createLocalhostServer({ http: mf.factory });

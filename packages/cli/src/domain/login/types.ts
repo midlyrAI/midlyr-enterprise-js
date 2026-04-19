@@ -69,6 +69,7 @@ export interface CallbackQuery {
   sessionId?: string;
   result?: string;
   error?: string;
+  authorizationCode?: string;
 }
 
 export interface CallbackResponse {

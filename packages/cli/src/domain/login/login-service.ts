@@ -164,22 +164,29 @@ export async function runLogin(deps: LoginServiceDeps): Promise<LoginResult> {
       { result: query.result },
     );
   }
-  // 8d. missing sessionId
-  if (!query.sessionId) {
+  // 8d. missing sessionId or authorizationCode — merged, non-differential message.
+  // The backend requires both to be present on an authorized callback; revealing
+  // which is missing adds no value and could leak oracle-style information.
+  // authorizationCode is never interpolated into errors or logs.
+  if (!query.sessionId || !query.authorizationCode) {
     await respondSafely(session, { status: 400, body: FAILURE_HTML });
     await closeSession(session);
-    throw new LoginError("login_callback_error", "Callback sessionId missing");
+    throw new LoginError("login_callback_error", "Callback missing required fields");
   }
 
   // 9. Respond 200 to browser, then close the server
   await respondSafely(session, { status: 200, body: SUCCESS_HTML });
   await closeSession(session);
 
-  // 10. Exchange sessionId + codeVerifier for apiKey
+  // 10. Exchange sessionId + codeVerifier + authorizationCode for apiKey
   const exchangeRes = await deps.fetch(`${deps.apiBaseUrl}/api/v1/auth/cli/exchange`, {
     method: "POST",
     headers: { "content-type": "application/json", accept: "application/json" },
-    body: JSON.stringify({ sessionId: query.sessionId, codeVerifier }),
+    body: JSON.stringify({
+      sessionId: query.sessionId,
+      codeVerifier,
+      authorizationCode: query.authorizationCode,
+    }),
   });
   if (!exchangeRes.ok) {
     throw new LoginError(

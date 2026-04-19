@@ -265,6 +265,9 @@ const DEFAULT_EXCHANGE_JSON = {
   label: "cli-2026-04-16",
 };
 
+// Backend zod requires authorizationCode min 32 / max 160.
+const VALID_AUTH_CODE = "c".repeat(40);
+
 interface Harness {
   runtime: LoginRuntime;
   server: ScriptedServer;
@@ -403,6 +406,7 @@ describe("midlyr login (integration)", () => {
       state: "STATE_UUID",
       sessionId: "sess_abc",
       result: "authorized",
+      authorizationCode: VALID_AUTH_CODE,
     });
     const exitCode = await promise;
 
@@ -434,6 +438,7 @@ describe("midlyr login (integration)", () => {
       state: "STATE_UUID",
       sessionId: "sess_abc",
       result: "authorized",
+      authorizationCode: VALID_AUTH_CODE,
     });
     const exitCode = await promise;
 
@@ -490,6 +495,7 @@ describe("midlyr login (integration)", () => {
       state: "STATE_UUID",
       sessionId: "sess_abc",
       result: "authorized",
+      authorizationCode: VALID_AUTH_CODE,
     });
     const exitCode = await promise;
 
@@ -508,6 +514,7 @@ describe("midlyr login (integration)", () => {
       state: "STATE_UUID",
       sessionId: "sess_abc",
       result: "authorized",
+      authorizationCode: VALID_AUTH_CODE,
     });
     const exitCode = await promise;
 
@@ -528,6 +535,7 @@ describe("midlyr login (integration)", () => {
       state: "STATE_UUID",
       sessionId: "sess_abc",
       result: "authorized",
+      authorizationCode: VALID_AUTH_CODE,
     });
     const exitCode = await promise;
 
@@ -570,5 +578,26 @@ describe("midlyr login (integration)", () => {
     const payload = parseJsonLines(h.stderr()) as { error: { code: string } };
     expect(payload.error.code).toBe("login_callback_error");
     expect(h.creds.writes).toEqual([]);
+  });
+
+  it("missing authorizationCode: exits 1 with login_callback_error, no credentials, exchange NOT called", async () => {
+    const h = makeHarness({ answers: ["5"] });
+
+    const promise = runCli(["login"], h.runtime);
+    await flush();
+    h.server.resolveFirstCallback({
+      state: "STATE_UUID",
+      sessionId: "sess_abc",
+      result: "authorized",
+      // authorizationCode intentionally omitted
+    });
+    const exitCode = await promise;
+
+    expect(exitCode).toBe(1);
+    const payload = parseJsonLines(h.stderr()) as { error: { code: string } };
+    expect(payload.error.code).toBe("login_callback_error");
+    expect(h.creds.writes).toEqual([]);
+    // Only /sessions was called — no /exchange
+    expect(h.fetcher.calls).toHaveLength(1);
   });
 });

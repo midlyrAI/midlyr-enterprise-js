@@ -196,6 +196,9 @@ const DEFAULT_SESSION_JSON = {
   pollIntervalSeconds: 2,
 };
 
+// Backend zod requires authorizationCode to be min 32 / max 160.
+const VALID_AUTH_CODE = "c".repeat(40);
+
 const DEFAULT_EXCHANGE_JSON = {
   apiKey: "mlyr_test_abc_secret",
   keyPrefix: "mlyr_test_abc",
@@ -324,6 +327,7 @@ describe("runLogin", () => {
       state: "STATE_UUID",
       sessionId: "sess_abc",
       result: "authorized",
+      authorizationCode: VALID_AUTH_CODE,
     });
     const result = await p;
 
@@ -385,6 +389,7 @@ describe("runLogin", () => {
       state: "STATE_UUID",
       sessionId: "sess_abc",
       result: "authorized",
+      authorizationCode: VALID_AUTH_CODE,
     });
     await p;
 
@@ -403,6 +408,7 @@ describe("runLogin", () => {
       state: "STATE_UUID",
       sessionId: "sess_abc",
       result: "authorized",
+      authorizationCode: VALID_AUTH_CODE,
     });
     await p;
 
@@ -503,6 +509,7 @@ describe("runLogin", () => {
       state: "STATE_UUID",
       sessionId: "sess_abc",
       result: "authorized",
+      authorizationCode: VALID_AUTH_CODE,
     });
     await expect(p).rejects.toMatchObject({
       name: "LoginError",
@@ -522,6 +529,7 @@ describe("runLogin", () => {
       state: "STATE_UUID",
       sessionId: "sess_abc",
       result: "authorized",
+      authorizationCode: VALID_AUTH_CODE,
     });
     await expect(p).rejects.toBe(writeErr);
     expect(h.stdout.text).toContain("midlyr config set api-key mlyr_test_abc_secret");
@@ -536,6 +544,7 @@ describe("runLogin", () => {
       state: "STATE_UUID",
       sessionId: "sess_abc",
       result: "authorized",
+      authorizationCode: VALID_AUTH_CODE,
     });
     const result = await p;
     expect(result.apiKey).toBe("mlyr_test_abc_secret");
@@ -549,5 +558,81 @@ describe("runLogin", () => {
     h.fireSignal("SIGINT");
     await expect(p).rejects.toBeInstanceOf(CliInterruptedError);
     expect(h.server.closed).toBe(true);
+  });
+
+  it("forwards authorizationCode from callback to /exchange body", async () => {
+    const h = makeHarness();
+    const p = runLogin(h.deps);
+    await flush();
+    h.server.resolveFirstCallback({
+      state: "STATE_UUID",
+      sessionId: "sess_abc",
+      result: "authorized",
+      authorizationCode: VALID_AUTH_CODE,
+    });
+    await p;
+
+    const exchangeBody = JSON.parse(String(h.fetcher.calls[1]!.init.body));
+    expect(Object.keys(exchangeBody).sort()).toEqual([
+      "authorizationCode",
+      "codeVerifier",
+      "sessionId",
+    ]);
+    expect(exchangeBody.authorizationCode).toBe(VALID_AUTH_CODE);
+    expect(exchangeBody.sessionId).toBe("sess_abc");
+    expect(typeof exchangeBody.codeVerifier).toBe("string");
+  });
+
+  it("missing authorizationCode: throws login_callback_error, exchange NOT called", async () => {
+    const h = makeHarness();
+    const p = runLogin(h.deps);
+    await flush();
+    h.server.resolveFirstCallback({
+      state: "STATE_UUID",
+      sessionId: "sess_abc",
+      result: "authorized",
+      // authorizationCode intentionally omitted
+    });
+    await expect(p).rejects.toMatchObject({
+      name: "LoginError",
+      code: "login_callback_error",
+      message: "Callback missing required fields",
+    });
+    expect(h.server.respondCalls[0]!.status).toBe(400);
+    // Only /sessions was called — no /exchange
+    expect(h.fetcher.calls).toHaveLength(1);
+    expect(h.creds.writes).toEqual([]);
+  });
+
+  it("LoginError on exchange failure never contains the authorizationCode value", async () => {
+    // Use a distinctive secret so a substring search is meaningful.
+    const SECRET_CODE = "SECRET_" + "z".repeat(33);
+    const fetcher = scriptedFetch([
+      { ok: true, status: 200, json: DEFAULT_SESSION_JSON },
+      { ok: false, status: 401, json: { error: "invalid_verifier" } },
+    ]);
+    const h = makeHarness({ fetcher });
+    const p = runLogin(h.deps);
+    await flush();
+    h.server.resolveFirstCallback({
+      state: "STATE_UUID",
+      sessionId: "sess_abc",
+      result: "authorized",
+      authorizationCode: SECRET_CODE,
+    });
+
+    let caught: unknown;
+    try {
+      await p;
+    } catch (err) {
+      caught = err;
+    }
+    expect(caught).toBeInstanceOf(LoginError);
+    const err = caught as LoginError;
+    // Serialized error surface (message + detail + JSON) must never leak the code.
+    expect(err.message).not.toContain(SECRET_CODE);
+    expect(JSON.stringify(err)).not.toContain(SECRET_CODE);
+    // Stdout written during the login flow must not leak it either.
+    expect(h.stdout.text).not.toContain(SECRET_CODE);
   });
 });

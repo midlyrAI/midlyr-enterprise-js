@@ -133,6 +133,8 @@ function parseQuery(url: string): CallbackQuery {
       decodedKey === "error"
     ) {
       out[decodedKey] = value;
+    } else if (decodedKey === "authorizationCode") {
+      out.authorizationCode = value.trim();
     }
   }
   return out;
