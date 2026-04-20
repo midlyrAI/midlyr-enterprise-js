@@ -20,6 +20,7 @@ export interface CliRuntime {
   env?: Record<string, string | undefined>;
   stdout?: Writable;
   stderr?: Writable;
+  logger?: Writable;
   fetch?: FetchLike;
   sleep?: (ms: number) => Promise<void>;
   now?: () => number;
@@ -54,9 +55,12 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
       sleep: runtime.sleep ?? defaultSleep,
       onSignal: (signal, handler) => runtime.onSignal?.(signal, handler),
     });
+    const logger = runtime.logger ?? stderr;
     const result = await runCommand(parsed.command, parsed, {
       documents: new DocumentsService(client),
-      screenAnalysis: new ScreenAnalysisService(client, polling),
+      screenAnalysis: new ScreenAnalysisService(client, polling, (message) =>
+        logger.write(`${message}\n`),
+      ),
     });
 
     printJson(stdout, result);

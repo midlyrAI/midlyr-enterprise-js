@@ -22,6 +22,7 @@ function createRuntime(fetch?: FetchLike, overrides: Partial<CliRuntime> = {}) {
     sleep: async () => undefined,
     stdout: { write: (chunk: string) => (stdout += chunk) },
     stderr: { write: (chunk: string) => (stderr += chunk) },
+    logger: { write: () => undefined },
     ...overrides,
     env: {
       MIDLYR_API_KEY: "mlyr_test",

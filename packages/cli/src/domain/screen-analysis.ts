@@ -9,6 +9,8 @@ import {
 
 type ScreenAnalysisClient = Pick<MidlyrClient, "startScreenAnalysis">;
 
+export type ScreenAnalysisLogger = (message: string) => void;
+
 export interface ScreenAnalysisInput {
   body: StartScreenAnalysisBody;
   wait?: boolean;
@@ -16,10 +18,13 @@ export interface ScreenAnalysisInput {
   pollIntervalMs?: number;
 }
 
+const NOOP_LOGGER: ScreenAnalysisLogger = () => {};
+
 export class ScreenAnalysisService {
   constructor(
     private readonly client: ScreenAnalysisClient,
     private readonly polling: ScreenAnalysisPollingService,
+    private readonly log: ScreenAnalysisLogger = NOOP_LOGGER,
   ) {}
 
   async run(input: ScreenAnalysisInput) {
@@ -31,6 +36,9 @@ export class ScreenAnalysisService {
     if (!submitted.id) {
       throw new CliInputError("screen-analysis response did not include an id to poll.");
     }
+
+    this.log(`Job submitted: ${submitted.id}`);
+    this.log("Waiting for job to complete...");
 
     return this.polling.poll(submitted.id, {
       timeoutMs: input.timeoutMs ?? DEFAULT_SCREEN_ANALYSIS_TIMEOUT_MS,
