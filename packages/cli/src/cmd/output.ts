@@ -1,4 +1,4 @@
-import { DEFAULT_BASE_URL, MidlyrAPIError, MidlyrError, MidlyrNetworkError } from "@midlyr/sdk";
+import { MidlyrAPIError, MidlyrError, MidlyrNetworkError } from "@midlyr/sdk";
 import { CliInputError, CliInterruptedError, CliJobTimeoutError } from "../domain/errors.js";
 import { LoginError } from "../domain/login/errors.js";
 import type { CommandName } from "./command-names.js";
@@ -16,7 +16,7 @@ export function printError(stderr: Writable, error: unknown): void {
 }
 
 export function formatHelp(commandNames: readonly CommandName[]): string {
-  return `midlyr <command> [options]\n\nCommands:\n${commandNames.map((name) => `  ${name}`).join("\n")}\n\nLogin:\n  midlyr login                      Browser-based login that provisions an API key\n\nConfig:\n  midlyr config set api-key <key>   Save API key to ~/.config/midlyr/credentials.json\n\nGlobal options:\n  --api-key <key>              Defaults to MIDLYR_API_KEY\n  --base-url <url>             Defaults to MIDLYR_BASE_URL or ${DEFAULT_BASE_URL}\n  --request-timeout-ms <ms>    Per-request HTTP timeout\n\nRun command output is JSON.\n`;
+  return `midlyr <command> [options]\n\nCommands:\n${commandNames.map((name) => `  ${name}`).join("\n")}\n\nLogin:\n  midlyr login                      Browser-based login that provisions an API key\n\nConfig:\n  midlyr config set api-key <key>   Save API key to ~/.config/midlyr/credentials.json\n\nGlobal options:\n  --request-timeout-ms <ms>    Per-request HTTP timeout\n\nRun command output is JSON.\n`;
 }
 
 export function toErrorPayload(error: unknown): Record<string, unknown> {

@@ -12,9 +12,9 @@ MIDLYR_API_KEY=mlyr_... midlyr <command> [options]
 
 Global options:
 
-- `--api-key <key>`: overrides `MIDLYR_API_KEY`.
-- `--base-url <url>`: overrides `MIDLYR_BASE_URL` / the SDK default.
 - `--request-timeout-ms <ms>`: per-request HTTP timeout.
+
+The API key is resolved from `MIDLYR_API_KEY` or `~/.config/midlyr/credentials.json` (written by `midlyr login` or `midlyr config set api-key <key>`).
 
 Command output is JSON. Errors are written to stderr as JSON and exit non-zero.
 

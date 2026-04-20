@@ -5,33 +5,25 @@ import { resolveCliConfig } from "../../src/cmd/config.js";
 import { parseArgs } from "../../src/cmd/parser.js";
 
 describe("resolveCliConfig", () => {
-  it("prefers explicit options over environment values", () => {
-    const args = parseArgs([
-      "browse-document",
-      "--api-key",
-      "explicit",
-      "--base-url",
-      "https://api.example.com",
-      "--request-timeout-ms",
-      "1234",
-    ]);
+  it("uses env vars and --request-timeout-ms flag", () => {
+    const args = parseArgs(["browse-document", "--request-timeout-ms", "1234"]);
     const config = resolveCliConfig(args, {
       MIDLYR_API_KEY: "env",
       MIDLYR_BASE_URL: "https://env.example.com",
     });
 
     expect(config).toEqual({
-      apiKey: "explicit",
-      baseUrl: "https://api.example.com",
+      apiKey: "env",
+      baseUrl: "https://env.example.com",
       requestTimeoutMs: 1234,
     });
   });
 
-  it("falls back to environment and SDK default base URL", () => {
+  it("falls back to credentials file and SDK default base URL", () => {
     const args = parseArgs(["browse-document"]);
-    const config = resolveCliConfig(args, { MIDLYR_API_KEY: "env" });
+    const config = resolveCliConfig(args, {}, { apiKey: "from-file" });
 
-    expect(config.apiKey).toBe("env");
+    expect(config.apiKey).toBe("from-file");
     expect(config.baseUrl).toBe(DEFAULT_BASE_URL);
   });
 

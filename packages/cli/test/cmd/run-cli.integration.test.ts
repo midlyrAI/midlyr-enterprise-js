@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import type { FetchLike } from "@midlyr/sdk";
 import { runCli, type CliRuntime } from "../../src/cli.js";
 
+const TEST_BASE_URL = "https://api.example.com";
+
 function jsonResponse(body: unknown, init: ResponseInit = {}) {
   return new Response(JSON.stringify(body), {
     ...init,
@@ -16,12 +18,16 @@ function createRuntime(fetch?: FetchLike, overrides: Partial<CliRuntime> = {}) {
   let stdout = "";
   let stderr = "";
   const runtime: CliRuntime = {
-    env: { MIDLYR_API_KEY: "mlyr_test", ...overrides.env },
     fetch,
     sleep: async () => undefined,
     stdout: { write: (chunk: string) => (stdout += chunk) },
     stderr: { write: (chunk: string) => (stderr += chunk) },
     ...overrides,
+    env: {
+      MIDLYR_API_KEY: "mlyr_test",
+      MIDLYR_BASE_URL: TEST_BASE_URL,
+      ...overrides.env,
+    },
   };
 
   return {
@@ -51,6 +57,9 @@ describe("midlyr CLI", () => {
     expect(io.stdout()).not.toContain("agents");
     expect(io.stdout()).not.toContain("enterprise");
     expect(io.stdout()).not.toContain("consumer");
+    // Public surface should not advertise the removed global flags.
+    expect(io.stdout()).not.toContain("--api-key");
+    expect(io.stdout()).not.toContain("--base-url");
   });
 
   it("exits non-zero for unknown commands", async () => {
@@ -71,12 +80,13 @@ describe("midlyr CLI", () => {
     expect(parseJsonOutput(io.stderr())).toMatchObject({
       error: {
         code: "cli_input_error",
-        message: "Missing API key. Set MIDLYR_API_KEY, pass --api-key, or run: midlyr config set api-key <key>",
+        message:
+          "Missing API key. Set MIDLYR_API_KEY, or run: midlyr login (or midlyr config set api-key <key>)",
       },
     });
   });
 
-  it("uses MIDLYR_API_KEY and constructs browse-document requests", async () => {
+  it("uses MIDLYR_API_KEY and MIDLYR_BASE_URL to construct browse-document requests", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({
         results: [],
@@ -88,8 +98,6 @@ describe("midlyr CLI", () => {
     const exitCode = await runCli(
       [
         "browse-document",
-        "--base-url",
-        "https://api.example.com",
         "--query",
         "fair lending",
         "--category",
@@ -117,7 +125,7 @@ describe("midlyr CLI", () => {
     expect(parseJsonOutput(io.stdout())).toMatchObject({ results: [] });
   });
 
-  it("allows explicit API key override and constructs read-document requests", async () => {
+  it("constructs read-document requests with env-configured api key", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({
         id: "reg_123",
@@ -144,18 +152,7 @@ describe("midlyr CLI", () => {
     const io = createRuntime(fetch, { env: { MIDLYR_API_KEY: "env_key" } });
 
     const exitCode = await runCli(
-      [
-        "read-document",
-        "reg_123",
-        "--api-key",
-        "explicit_key",
-        "--base-url",
-        "https://api.example.com",
-        "--offset",
-        "10",
-        "--limit",
-        "100",
-      ],
+      ["read-document", "reg_123", "--offset", "10", "--limit", "100"],
       io.runtime,
     );
 
@@ -164,7 +161,7 @@ describe("midlyr CLI", () => {
     expect(String(url)).toBe(
       "https://api.example.com/api/v1/regulations/reg_123/content?offset=10&limit=100",
     );
-    expect(init?.headers).toMatchObject({ "x-api-key": "explicit_key" });
+    expect(init?.headers).toMatchObject({ "x-api-key": "env_key" });
   });
 
   it("submits screen-analysis and polls until terminal job", async () => {
@@ -200,8 +197,6 @@ describe("midlyr CLI", () => {
     const exitCode = await runCli(
       [
         "screen-analysis",
-        "--base-url",
-        "https://api.example.com",
         "--scenario",
         "marketing_asset",
         "--text",
@@ -238,8 +233,6 @@ describe("midlyr CLI", () => {
     const exitCode = await runCli(
       [
         "screen-analysis",
-        "--base-url",
-        "https://api.example.com",
         "--scenario",
         "generic",
         "--text",
@@ -271,8 +264,6 @@ describe("midlyr CLI", () => {
     const exitCode = await runCli(
       [
         "screen-analysis",
-        "--base-url",
-        "https://api.example.com",
         "--scenario",
         "generic",
         "--text",
@@ -309,8 +300,6 @@ describe("midlyr CLI", () => {
     const exitCode = await runCli(
       [
         "screen-analysis",
-        "--base-url",
-        "https://api.example.com",
         "--scenario",
         "complaint",
         "--text",

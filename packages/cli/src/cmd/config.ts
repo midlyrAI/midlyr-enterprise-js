@@ -14,16 +14,16 @@ export function resolveCliConfig(
   env: Record<string, string | undefined>,
   credentials?: Credentials,
 ): CliConfig {
-  const apiKey = args.option("api-key") ?? env["MIDLYR_API_KEY"] ?? credentials?.apiKey;
+  const apiKey = env["MIDLYR_API_KEY"] ?? credentials?.apiKey;
   if (!apiKey) {
     throw new CliInputError(
-      "Missing API key. Set MIDLYR_API_KEY, pass --api-key, or run: midlyr config set api-key <key>",
+      "Missing API key. Set MIDLYR_API_KEY, or run: midlyr login (or midlyr config set api-key <key>)",
     );
   }
 
   return {
     apiKey,
-    baseUrl: args.option("base-url") ?? env["MIDLYR_BASE_URL"] ?? DEFAULT_BASE_URL,
+    baseUrl: env["MIDLYR_BASE_URL"] ?? DEFAULT_BASE_URL,
     requestTimeoutMs: args.numberOption("request-timeout-ms"),
   };
 }
