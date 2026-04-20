@@ -28,14 +28,16 @@ function createClient(): MidlyrClient {
 }
 
 describe("domain services", () => {
-  it("delegates browse/read to the SDK client", async () => {
+  it("delegates browse/getDetails/readContent to the SDK client", async () => {
     const client = createClient();
     const documents = new DocumentsService(client);
 
     await documents.browse({ query: "fair" });
-    await documents.read("reg_1", { limit: 10 });
+    await documents.getDetails("reg_1");
+    await documents.readContent("reg_1", { limit: 10 });
 
     expect(client.browseDocuments).toHaveBeenCalledWith({ query: "fair" });
+    expect(client.getDocumentDetails).toHaveBeenCalledWith("reg_1");
     expect(client.readDocumentContent).toHaveBeenCalledWith("reg_1", { limit: 10 });
   });
 

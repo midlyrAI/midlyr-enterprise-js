@@ -53,8 +53,11 @@ export async function runCommand(
         cursor: args.option("cursor"),
       });
 
-    case "read-document":
-      return services.documents.read(getDocumentId(args), {
+    case "describe-document":
+      return services.documents.getDetails(getDocumentId(args));
+
+    case "read-document-content":
+      return services.documents.readContent(getDocumentId(args), {
         offset: args.numberOption("offset"),
         limit: args.numberOption("limit"),
       });
@@ -78,7 +81,7 @@ export async function runCommand(
 function getDocumentId(args: ParsedArgs): string {
   const id = args.option("id") ?? args.positionals[0];
   if (!id) {
-    throw new CliInputError("read-document requires --id or a document id positional argument.");
+    throw new CliInputError("A document id is required (pass as positional or --id).");
   }
   return id;
 }

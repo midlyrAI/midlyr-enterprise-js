@@ -7,7 +7,8 @@ function createServices() {
   return {
     documents: {
       browse: vi.fn(async () => ({ ok: true })),
-      read: vi.fn(async () => ({ ok: true })),
+      getDetails: vi.fn(async () => ({ ok: true })),
+      readContent: vi.fn(async () => ({ ok: true })),
     },
     screenAnalysis: {
       run: vi.fn(async () => ({ ok: true })),
@@ -35,16 +36,28 @@ describe("command handlers", () => {
     });
   });
 
-  it("maps read-document positional id and query options", async () => {
+  it("maps describe-document to getDetails with positional id", async () => {
     const services = createServices();
 
     await runCommand(
-      "read-document",
-      parseArgs(["read-document", "reg_1", "--offset", "3"]),
+      "describe-document",
+      parseArgs(["describe-document", "reg_1"]),
       services,
     );
 
-    expect(services.documents.read).toHaveBeenCalledWith("reg_1", {
+    expect(services.documents.getDetails).toHaveBeenCalledWith("reg_1");
+  });
+
+  it("maps read-document-content positional id and query options", async () => {
+    const services = createServices();
+
+    await runCommand(
+      "read-document-content",
+      parseArgs(["read-document-content", "reg_1", "--offset", "3"]),
+      services,
+    );
+
+    expect(services.documents.readContent).toHaveBeenCalledWith("reg_1", {
       offset: 3,
       limit: undefined,
     });

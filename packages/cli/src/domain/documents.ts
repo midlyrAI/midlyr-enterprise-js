@@ -4,7 +4,10 @@ import type {
 } from "@midlyr/sdk";
 import type { MidlyrClient } from "../sdk/midlyr-client.js";
 
-type DocumentsClient = Pick<MidlyrClient, "browseDocuments" | "readDocumentContent">;
+type DocumentsClient = Pick<
+  MidlyrClient,
+  "browseDocuments" | "getDocumentDetails" | "readDocumentContent"
+>;
 
 export class DocumentsService {
   constructor(private readonly client: DocumentsClient) {}
@@ -13,7 +16,11 @@ export class DocumentsService {
     return this.client.browseDocuments(input);
   }
 
-  read(id: string, input: ReadRegulationContentQuery) {
+  getDetails(id: string) {
+    return this.client.getDocumentDetails(id);
+  }
+
+  readContent(id: string, input: ReadRegulationContentQuery) {
     return this.client.readDocumentContent(id, input);
   }
 }

@@ -48,7 +48,8 @@ describe("midlyr CLI", () => {
 
     expect(exitCode).toBe(0);
     expect(io.stdout()).toContain("browse-document");
-    expect(io.stdout()).toContain("read-document");
+    expect(io.stdout()).toContain("describe-document");
+    expect(io.stdout()).toContain("read-document-content");
     expect(io.stdout()).toContain("screen-analysis");
     expect(io.stdout()).not.toContain("query-document");
     expect(io.stdout()).not.toContain("jobs");
@@ -125,7 +126,34 @@ describe("midlyr CLI", () => {
     expect(parseJsonOutput(io.stdout())).toMatchObject({ results: [] });
   });
 
-  it("constructs read-document requests with env-configured api key", async () => {
+  it("constructs describe-document requests from a positional id", async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({
+        id: "reg_123",
+        category: "regulation",
+        title: "Regulation B",
+        authorities: ["CFPB"],
+        jurisdictions: ["us-federal"],
+        description: "Equal credit opportunity",
+        updatedAt: "2026-04-14T00:00:00.000Z",
+        sourceUrl: "https://example.com/reg-b",
+        totalBytes: 1000,
+        tableOfContents: { entries: [] },
+        attributes: { category: "regulation", cfrTitle: 12, cfrPart: 1002 },
+      }),
+    );
+    const io = createRuntime(fetch, { env: { MIDLYR_API_KEY: "env_key" } });
+
+    const exitCode = await runCli(["describe-document", "reg_123"], io.runtime);
+
+    expect(exitCode).toBe(0);
+    const [url, init] = fetch.mock.calls[0]!;
+    expect(String(url)).toBe("https://api.example.com/api/v1/regulations/reg_123");
+    expect(init?.headers).toMatchObject({ "x-api-key": "env_key" });
+    expect(parseJsonOutput(io.stdout())).toMatchObject({ id: "reg_123", title: "Regulation B" });
+  });
+
+  it("constructs read-document-content requests with env-configured api key", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({
         id: "reg_123",
@@ -152,7 +180,7 @@ describe("midlyr CLI", () => {
     const io = createRuntime(fetch, { env: { MIDLYR_API_KEY: "env_key" } });
 
     const exitCode = await runCli(
-      ["read-document", "reg_123", "--offset", "10", "--limit", "100"],
+      ["read-document-content", "reg_123", "--offset", "10", "--limit", "100"],
       io.runtime,
     );
 

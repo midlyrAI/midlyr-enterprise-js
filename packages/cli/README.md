@@ -30,14 +30,25 @@ Calls `GET /api/v1/regulations`.
 
 Options: `--query`, repeatable `--category`, repeatable `--authority`, repeatable `--jurisdiction`, `--limit`, `--cursor`.
 
-### `read-document`
+### `describe-document`
 
 ```bash
-midlyr read-document reg_123 --offset 0 --limit 4000
-midlyr read-document --id reg_123
+midlyr describe-document reg_123
+midlyr describe-document --id reg_123
 ```
 
-Calls `GET /api/v1/regulations/:id/content`.
+Calls `GET /api/v1/regulations/:id`. Returns metadata (title, jurisdictions, table of contents, etc.) without the full content body.
+
+Options: positional document id or `--id`.
+
+### `read-document-content`
+
+```bash
+midlyr read-document-content reg_123 --offset 0 --limit 4000
+midlyr read-document-content --id reg_123
+```
+
+Calls `GET /api/v1/regulations/:id/content`. Returns the content body; use `describe-document` instead if you only need metadata.
 
 Options: positional document id or `--id`, `--offset`, `--limit`.
 

@@ -5,7 +5,8 @@ describe("command names", () => {
   it("lists and recognizes the exact command surface", () => {
     expect(commandNames).toEqual([
       "browse-document",
-      "read-document",
+      "describe-document",
+      "read-document-content",
       "screen-analysis",
       "config",
       "login",
