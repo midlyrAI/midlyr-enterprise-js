@@ -64,10 +64,16 @@ export class Transport {
           return (await parseResponse(response)) as T;
         }
 
-        if (shouldRetryResponse(response, config.method, attempt, maxRetries)) {
-          await sleep(getRetryDelayMs(response, retryDelayMs, attempt));
-          continue;
-        }
+        const body = truncateForLog(
+          await response.clone().text().catch(() => ""),
+        );
+        const retryable = shouldRetryResponse(response, config.method, attempt, maxRetries);
+        const serverDelayMs = retryable ? getRetryDelayMs(response, retryDelayMs, attempt) : 0;
+        const willRetry = retryable && serverDelayMs <= MAX_RETRY_WAIT_MS;
+        if (await logAndMaybeSleep(
+          `HTTP ${response.status}${body ? ` ${body}` : ""}`,
+          { attempt, maxRetries, willRetry, delayMs: willRetry ? serverDelayMs : 0, serverDelayMs },
+        )) continue;
 
         throw await buildAPIError(response);
       } catch (error) {
@@ -76,13 +82,15 @@ export class Transport {
         }
 
         const isTimeout = isTimeoutError(error);
-        if (
-          isRetryableTransportError(error) &&
-          shouldRetryError(config.method, attempt, maxRetries)
-        ) {
-          await sleep(getRetryDelayMs(undefined, retryDelayMs, attempt));
-          continue;
-        }
+        const retryable =
+          isRetryableTransportError(error) && shouldRetryError(config.method, attempt, maxRetries);
+        const serverDelayMs = retryable ? getRetryDelayMs(undefined, retryDelayMs, attempt) : 0;
+        const willRetry = retryable && serverDelayMs <= MAX_RETRY_WAIT_MS;
+        const reason = error instanceof Error ? error.message : String(error);
+        if (await logAndMaybeSleep(
+          `network error "${reason}"`,
+          { attempt, maxRetries, willRetry, delayMs: willRetry ? serverDelayMs : 0, serverDelayMs },
+        )) continue;
 
         throw new MidlyrNetworkError(
           isTimeout ? "Midlyr request timed out" : "Midlyr request failed",
@@ -314,4 +322,49 @@ function sleep(ms: number): Promise<void> {
   }
 
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+const LOG_PREFIX = "[midlyr]";
+const MAX_LOG_BODY_CHARS = 512;
+const MAX_RETRY_WAIT_MS = 30_000;
+
+function truncateForLog(raw: string): string {
+  return raw.length > MAX_LOG_BODY_CHARS ? `${raw.slice(0, MAX_LOG_BODY_CHARS)}…` : raw;
+}
+
+async function logAndMaybeSleep(
+  summary: string,
+  ctx: {
+    attempt: number;
+    maxRetries: number;
+    willRetry: boolean;
+    delayMs: number;
+    serverDelayMs: number;
+  },
+): Promise<boolean> {
+  globalThis.console.error(`${LOG_PREFIX} ${summary}`);
+  if (ctx.willRetry) {
+    globalThis.console.error(
+      `${LOG_PREFIX} retrying in ${formatDelay(ctx.delayMs)} (attempt ${ctx.attempt + 1}/${ctx.maxRetries})`,
+    );
+    await sleep(ctx.delayMs);
+    return true;
+  }
+  if (ctx.serverDelayMs > MAX_RETRY_WAIT_MS) {
+    globalThis.console.error(
+      `${LOG_PREFIX} server asked us to retry in ${formatDelay(ctx.serverDelayMs)}, which exceeds the ${formatDelay(MAX_RETRY_WAIT_MS)} cap — giving up`,
+    );
+  }
+  return false;
+}
+
+function formatDelay(ms: number): string {
+  if (ms < 1_000) return `${ms}ms`;
+  const seconds = Math.round(ms / 1_000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 48) return `${hours}h`;
+  return `${Math.round(hours / 24)}d`;
 }

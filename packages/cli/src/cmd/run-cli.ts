@@ -8,7 +8,6 @@ import {
 } from "../domain/polling.js";
 import { ScreenAnalysisService } from "../domain/screen-analysis.js";
 import { MidlyrClient } from "../sdk/midlyr-client.js";
-import { commandNames } from "./command-names.js";
 import { runCommand, runConfigCommand } from "./commands.js";
 import { resolveCliConfig } from "./config.js";
 import { runLoginCommand, type LoginRuntime } from "./login.js";
@@ -39,7 +38,7 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
     const parsed = parseArgs(argv);
 
     if (!parsed.command || parsed.hasBoolean("help") || parsed.hasBoolean("h")) {
-      stdout.write(formatHelp(commandNames));
+      stdout.write(formatHelp());
       return 0;
     }
 

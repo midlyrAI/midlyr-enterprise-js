@@ -47,20 +47,22 @@ describe("midlyr CLI", () => {
     const exitCode = await runCli(["--help"], io.runtime);
 
     expect(exitCode).toBe(0);
-    expect(io.stdout()).toContain("browse-document");
-    expect(io.stdout()).toContain("describe-document");
-    expect(io.stdout()).toContain("read-document-content");
-    expect(io.stdout()).toContain("screen-analysis");
-    expect(io.stdout()).not.toContain("query-document");
-    expect(io.stdout()).not.toContain("jobs");
-    expect(io.stdout()).not.toContain("mcp");
-    expect(io.stdout()).not.toContain("platform");
-    expect(io.stdout()).not.toContain("agents");
-    expect(io.stdout()).not.toContain("enterprise");
-    expect(io.stdout()).not.toContain("consumer");
+    const help = io.stdout();
+    expect(help).toContain("browse-document");
+    expect(help).toContain("describe-document");
+    expect(help).toContain("read-document-content");
+    expect(help).toContain("screen-analysis");
+    // No removed top-level commands should appear as a command heading (2-space indent + name on its own line)
+    expect(help).not.toMatch(/\n {2}query-document\b/);
+    expect(help).not.toMatch(/\n {2}jobs\b/);
+    expect(help).not.toMatch(/\n {2}mcp\b/);
+    expect(help).not.toMatch(/\n {2}platform\b/);
+    expect(help).not.toMatch(/\n {2}agents\b/);
+    expect(help).not.toMatch(/\n {2}enterprise\b/);
+    expect(help).not.toMatch(/\n {2}consumer\b/);
     // Public surface should not advertise the removed global flags.
-    expect(io.stdout()).not.toContain("--api-key");
-    expect(io.stdout()).not.toContain("--base-url");
+    expect(help).not.toContain("--api-key");
+    expect(help).not.toContain("--base-url");
   });
 
   it("exits non-zero for unknown commands", async () => {

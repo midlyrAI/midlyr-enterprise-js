@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { MidlyrAPIError, MidlyrNetworkError } from "@midlyr/sdk";
-import { commandNames } from "../../src/cmd/command-names.js";
 import { formatHelp, printError, printJson } from "../../src/cmd/output.js";
 import { CliInputError, CliInterruptedError, CliJobTimeoutError } from "../../src/domain/errors.js";
 
@@ -19,7 +18,19 @@ describe("cmd output", () => {
     expect(parseJson(captureWrite((stdout) => printJson(stdout, { ok: true })))).toEqual({
       ok: true,
     });
-    expect(formatHelp(commandNames)).toContain("screen-analysis");
+    const help = formatHelp();
+    // Every command is described
+    expect(help).toContain("browse-document");
+    expect(help).toContain("describe-document");
+    expect(help).toContain("read-document-content");
+    expect(help).toContain("screen-analysis");
+    expect(help).toContain("config set api-key");
+    expect(help).toContain("login");
+    // Descriptions include the underlying endpoints so LLM consumers know what a command hits
+    expect(help).toContain("GET /api/v1/regulations/");
+    expect(help).toContain("POST /api/v1/analysis/screen");
+    // Output shape is documented
+    expect(help).toContain("JSON");
   });
 
   it("formats CLI timeout/interruption/input errors", () => {
@@ -56,7 +67,7 @@ describe("cmd output", () => {
           ),
         ),
       ),
-    ).toMatchObject({ error: { code: "document_not_found", status: 404 } });
+    ).toMatchObject({ error: { code: "document_not_found", message: "missing" }, status: 404 });
 
     expect(
       parseJson(
