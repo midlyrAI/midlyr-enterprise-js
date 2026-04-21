@@ -23,7 +23,7 @@ Usage:
 Commands:
   browse-document
     List regulatory documents with optional filters.
-    Options: --query <text>, --category <cat> (repeatable), --authority <name> (repeatable),
+    Options: --query <text>, --categories <cat> (repeatable), --authority <name> (repeatable),
              --jurisdiction <code> (repeatable), --limit <n>, --cursor <token>.
     Returns a paginated list of document summaries (id, title, jurisdictions, updatedAt).
     Does NOT return content bodies — use read-document-content for that.

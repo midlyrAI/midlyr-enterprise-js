@@ -22,13 +22,13 @@ describe("command handlers", () => {
 
     await runCommand(
       "browse-document",
-      parseArgs(["browse-document", "--query", "fair", "--category", "regulation", "--limit", "2"]),
+      parseArgs(["browse-document", "--query", "fair", "--categories", "regulation", "--limit", "2"]),
       services,
     );
 
     expect(services.documents.browse).toHaveBeenCalledWith({
       query: "fair",
-      category: ["regulation"],
+      categories: ["regulation"],
       authorities: undefined,
       jurisdictions: undefined,
       limit: 2,

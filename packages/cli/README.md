@@ -23,12 +23,12 @@ Command output is JSON. Errors are written to stderr as JSON and exit non-zero.
 ### `browse-document`
 
 ```bash
-midlyr browse-document --query "fair lending" --category regulation --authority CFPB --limit 25
+midlyr browse-document --query "fair lending" --categories regulation --authority CFPB --limit 25
 ```
 
 Calls `GET /api/v1/regulations`.
 
-Options: `--query`, repeatable `--category`, repeatable `--authority`, repeatable `--jurisdiction`, `--limit`, `--cursor`.
+Options: `--query`, repeatable `--categories`, repeatable `--authority`, repeatable `--jurisdiction`, `--limit`, `--cursor`.
 
 ### `describe-document`
 

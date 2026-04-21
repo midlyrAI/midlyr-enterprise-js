@@ -115,7 +115,7 @@ export interface RegulationContent {
 
 export interface BrowseRegulationsQuery {
   query?: string;
-  category?: string | string[];
+  categories?: string | string[];
   authorities?: string | string[];
   jurisdictions?: string | string[];
   limit?: number;

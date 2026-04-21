@@ -23,14 +23,14 @@ describe("Midlyr SDK", () => {
 
     await client.regulations.browse({
       query: "fair lending",
-      category: ["regulation", "guidance"],
+      categories: ["regulation", "guidance"],
       limit: 2,
     });
 
     expect(fetch).toHaveBeenCalledTimes(1);
     const [url, init] = fetch.mock.calls[0]!;
     expect(String(url)).toBe(
-      "https://api.example.com/api/v1/regulations/?query=fair+lending&category=regulation&category=guidance&limit=2",
+      "https://api.example.com/api/v1/regulations/?query=fair+lending&categories=regulation&categories=guidance&limit=2",
     );
     expect(init?.method).toBe("GET");
     expect(init?.headers).toMatchObject({
