@@ -1,8 +1,11 @@
 {
   "name": "@midlyr/sdk",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "MidLyr Enterprise TypeScript SDK for REST APIs.",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
