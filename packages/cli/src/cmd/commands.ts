@@ -1,4 +1,4 @@
-import { SCREEN_ANALYSIS_SCENARIOS, type StartScreenAnalysisBody, type ScreenAnalysisScenario } from "@midlyr/sdk";
+import { SCREEN_ANALYSIS_SCENARIOS, type StartScreenAnalysisBody, type ScreenAnalysisScenario } from "@midlyr/sdk-js";
 import { CliInputError } from "../domain/errors.js";
 import type { CredentialsStore } from "../domain/credentials.js";
 import type { DocumentsService } from "../domain/documents.js";

@@ -1,4 +1,4 @@
-import type { StartScreenAnalysisBody } from "@midlyr/sdk";
+import type { StartScreenAnalysisBody } from "@midlyr/sdk-js";
 import type { MidlyrClient } from "../sdk/midlyr-client.js";
 import { CliInputError } from "./errors.js";
 import {

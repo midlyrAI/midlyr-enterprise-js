@@ -53,4 +53,4 @@ export type {
   StatuteAttributes,
 } from "./types/regulations.js";
 
-export const packageName = "@midlyr/sdk";
+export const packageName = "@midlyr/sdk-js";

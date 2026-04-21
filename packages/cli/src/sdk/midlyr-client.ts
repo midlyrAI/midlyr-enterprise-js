@@ -4,7 +4,7 @@ import {
   type FetchLike,
   type ReadRegulationContentQuery,
   type StartScreenAnalysisBody,
-} from "@midlyr/sdk";
+} from "@midlyr/sdk-js";
 
 export type MidlyrClientOptions = {
   apiKey: string;

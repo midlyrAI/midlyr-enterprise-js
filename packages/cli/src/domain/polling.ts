@@ -1,4 +1,4 @@
-import type { Job } from "@midlyr/sdk";
+import type { Job } from "@midlyr/sdk-js";
 import type { MidlyrClient } from "../sdk/midlyr-client.js";
 import { CliInterruptedError, CliJobTimeoutError } from "./errors.js";
 

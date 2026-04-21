@@ -1,5 +1,5 @@
-import type { FetchLike } from "@midlyr/sdk";
-import { DEFAULT_BASE_URL } from "@midlyr/sdk";
+import type { FetchLike } from "@midlyr/sdk-js";
+import { DEFAULT_BASE_URL } from "@midlyr/sdk-js";
 import type { CliRuntime } from "./run-cli.js";
 import type { Writable } from "./output.js";
 import { runLogin } from "../domain/login/login-service.js";

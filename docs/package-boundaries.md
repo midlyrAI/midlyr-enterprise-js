@@ -2,19 +2,19 @@
 
 This workspace contains three public packages:
 
-- `@midlyr/sdk`
+- `@midlyr/sdk-js`
 - `@midlyr/mcp`
 - `@midlyr/cli`
 
 ## Boundary rule
 
-`@midlyr/sdk` is the public dependency boundary for SDK functionality. The MCP and CLI packages may depend on the SDK package through the public package name:
+`@midlyr/sdk-js` is the public dependency boundary for SDK functionality. The MCP and CLI packages may depend on the SDK package through the public package name:
 
 ```ts
-import { packageName } from "@midlyr/sdk";
+import { packageName } from "@midlyr/sdk-js";
 ```
 
-They must not import SDK private source paths such as `../sdk`, `packages/sdk/src`, or `@midlyr/sdk/src`.
+They must not import SDK private source paths such as `../sdk`, `packages/sdk/src`, or `@midlyr/sdk-js/src`.
 
 ## Consumer package manager support
 
@@ -23,10 +23,10 @@ MidLyr packages should publish as standard npm packages. Consumers should be abl
 Examples after publication:
 
 ```bash
-npm install @midlyr/sdk
-pnpm add @midlyr/sdk
-yarn add @midlyr/sdk
-bun add @midlyr/sdk
+npm install @midlyr/sdk-js
+pnpm add @midlyr/sdk-js
+yarn add @midlyr/sdk-js
+bun add @midlyr/sdk-js
 ```
 
 Package manifests should keep standard `exports`, `types`, and `files` metadata. Internal `workspace:*` dependencies are acceptable during monorepo development, but release automation must ensure publishable dependency versions before npm publication.

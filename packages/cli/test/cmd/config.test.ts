@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_BASE_URL } from "@midlyr/sdk";
+import { DEFAULT_BASE_URL } from "@midlyr/sdk-js";
 import { CliInputError } from "../../src/domain/errors.js";
 import { resolveCliConfig } from "../../src/cmd/config.js";
 import { parseArgs } from "../../src/cmd/parser.js";

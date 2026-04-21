@@ -10,7 +10,7 @@ import type {
   LocalhostServerSession,
 } from "../../../src/domain/login/types.js";
 import type { CredentialsStore, Credentials } from "../../../src/domain/credentials.js";
-import type { FetchLike } from "@midlyr/sdk";
+import type { FetchLike } from "@midlyr/sdk-js";
 
 interface ScriptedServer {
   instance: LocalhostServer;

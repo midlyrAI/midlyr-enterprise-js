@@ -4,7 +4,7 @@ This repository is the scaffold for MidLyr's public JavaScript developer tooling
 
 ## Packages
 
-- `@midlyr/sdk` — public SDK package boundary for future MidLyr API client code.
+- `@midlyr/sdk-js` — public SDK package boundary for future MidLyr API client code.
 - `@midlyr/mcp` — public MCP package that will depend on the SDK public exports.
 - `@midlyr/cli` — public CLI package that will depend on the SDK public exports.
 
@@ -15,10 +15,10 @@ This pass intentionally contains package structure, build/typecheck/test/lint sc
 These packages are intended to publish as standard npm packages. Consumers should be able to install published packages with npm, pnpm, Yarn, or Bun:
 
 ```bash
-npm install @midlyr/sdk
-pnpm add @midlyr/sdk
-yarn add @midlyr/sdk
-bun add @midlyr/sdk
+npm install @midlyr/sdk-js
+pnpm add @midlyr/sdk-js
+yarn add @midlyr/sdk-js
+bun add @midlyr/sdk-js
 ```
 
 The repository currently uses pnpm for workspace development, but that does not make pnpm a consumer requirement. Published package code should stay package-manager-neutral and Node-compatible. The SDK should prefer portable JavaScript and Web APIs where possible so Bun users can consume it from npm as well.

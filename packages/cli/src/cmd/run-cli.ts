@@ -1,4 +1,4 @@
-import type { FetchLike } from "@midlyr/sdk";
+import type { FetchLike } from "@midlyr/sdk-js";
 import { DocumentsService } from "../domain/documents.js";
 import type { CredentialsStore } from "../domain/credentials.js";
 import {

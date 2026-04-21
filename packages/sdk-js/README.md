@@ -1,22 +1,22 @@
-# `@midlyr/sdk`
+# `@midlyr/sdk-js`
 
 Thin TypeScript SDK for MidLyr Enterprise REST APIs.
 
-This package intentionally owns only shared API-calling behavior. Future MCP and CLI packages should depend on the SDK through the public `@midlyr/sdk` export instead of duplicating REST transport code.
+This package intentionally owns only shared API-calling behavior. Future MCP and CLI packages should depend on the SDK through the public `@midlyr/sdk-js` export instead of duplicating REST transport code.
 
 ## Install
 
 ```bash
-npm install @midlyr/sdk
-pnpm add @midlyr/sdk
-yarn add @midlyr/sdk
-bun add @midlyr/sdk
+npm install @midlyr/sdk-js
+pnpm add @midlyr/sdk-js
+yarn add @midlyr/sdk-js
+bun add @midlyr/sdk-js
 ```
 
 ## Create a client
 
 ```ts
-import { Midlyr } from "@midlyr/sdk";
+import { Midlyr } from "@midlyr/sdk-js";
 
 const midlyr = new Midlyr({
   apiKey: process.env.MIDLYR_API_KEY!,
@@ -85,7 +85,7 @@ Retries are intentionally conservative:
 ## Errors
 
 ```ts
-import { MidlyrAPIError, MidlyrNetworkError } from "@midlyr/sdk";
+import { MidlyrAPIError, MidlyrNetworkError } from "@midlyr/sdk-js";
 
 try {
   await midlyr.regulations.getDetails("missing");
@@ -102,7 +102,7 @@ try {
 
 ## Current scope
 
-`@midlyr/sdk` v0 wraps the current regulation/compliance REST endpoints:
+`@midlyr/sdk-js` v0 wraps the current regulation/compliance REST endpoints:
 
 Out of scope for this package pass:
 

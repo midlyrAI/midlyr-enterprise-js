@@ -1,4 +1,4 @@
-import { DEFAULT_BASE_URL } from "@midlyr/sdk";
+import { DEFAULT_BASE_URL } from "@midlyr/sdk-js";
 import { CliInputError } from "../domain/errors.js";
 import type { Credentials } from "../domain/credentials.js";
 import type { ParsedArgs } from "./parser.js";

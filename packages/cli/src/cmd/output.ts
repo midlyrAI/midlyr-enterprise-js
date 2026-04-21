@@ -1,4 +1,4 @@
-import { MidlyrAPIError, MidlyrError, MidlyrNetworkError } from "@midlyr/sdk";
+import { MidlyrAPIError, MidlyrError, MidlyrNetworkError } from "@midlyr/sdk-js";
 import { CliInputError, CliInterruptedError, CliJobTimeoutError } from "../domain/errors.js";
 import { LoginError } from "../domain/login/errors.js";
 

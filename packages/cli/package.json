@@ -30,7 +30,7 @@
     "test": "vitest run --config vitest.config.ts"
   },
   "dependencies": {
-    "@midlyr/sdk": "workspace:*"
+    "@midlyr/sdk-js": "workspace:*"
   },
   "engines": {
     "node": ">=22"

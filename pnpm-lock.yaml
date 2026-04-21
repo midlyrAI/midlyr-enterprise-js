@@ -23,15 +23,15 @@ importers:
 
   packages/cli:
     dependencies:
-      '@midlyr/sdk':
+      '@midlyr/sdk-js':
         specifier: workspace:*
-        version: link:../sdk
+        version: link:../sdk-js
     devDependencies:
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
 
-  packages/sdk: {}
+  packages/sdk-js: {}
 
 packages:
 

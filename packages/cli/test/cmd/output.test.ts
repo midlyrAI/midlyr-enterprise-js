@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MidlyrAPIError, MidlyrNetworkError } from "@midlyr/sdk";
+import { MidlyrAPIError, MidlyrNetworkError } from "@midlyr/sdk-js";
 import { formatCommandHelp, formatTopHelp, printError, printJson } from "../../src/cmd/output.js";
 import { CliInputError, CliInterruptedError, CliJobTimeoutError } from "../../src/domain/errors.js";
 

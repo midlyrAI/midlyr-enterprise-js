@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { FetchLike } from "@midlyr/sdk";
+import type { FetchLike } from "@midlyr/sdk-js";
 import { runCli, type CliRuntime } from "../../src/cli.js";
 
 const TEST_BASE_URL = "https://api.example.com";

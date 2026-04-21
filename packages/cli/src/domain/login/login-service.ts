@@ -7,7 +7,7 @@ import type {
 import { LoginError } from "./errors.js";
 import type { CredentialsStore } from "../credentials.js";
 import { CliInterruptedError } from "../errors.js";
-import type { FetchLike } from "@midlyr/sdk";
+import type { FetchLike } from "@midlyr/sdk-js";
 
 type SignalName = "SIGINT" | "SIGTERM";
 type SignalHandler = () => void;
