@@ -11,7 +11,13 @@ import { MidlyrClient } from "../sdk/midlyr-client.js";
 import { runCommand, runConfigCommand } from "./commands.js";
 import { resolveCliConfig } from "./config.js";
 import { runLoginCommand, type LoginRuntime } from "./login.js";
-import { formatHelp, printError, printJson, type Writable } from "./output.js";
+import {
+  formatCommandHelp,
+  formatTopHelp,
+  printError,
+  printJson,
+  type Writable,
+} from "./output.js";
 import { parseArgs, type ParsedArgs } from "./parser.js";
 
 export type { Writable };
@@ -38,8 +44,16 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
   try {
     const parsed = parseArgs(argv);
 
-    if (!parsed.command || parsed.hasBoolean("help") || parsed.hasBoolean("h")) {
-      stdout.write(formatHelp());
+    const wantsHelp = parsed.hasBoolean("help") || parsed.hasBoolean("h");
+
+    if (!parsed.command) {
+      stdout.write(formatTopHelp());
+      return 0;
+    }
+
+    if (wantsHelp) {
+      const commandHelp = formatCommandHelp(parsed.command);
+      stdout.write(commandHelp ?? formatTopHelp());
       return 0;
     }
 

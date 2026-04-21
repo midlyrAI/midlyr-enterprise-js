@@ -66,6 +66,21 @@ describe("midlyr CLI", () => {
     expect(help).not.toContain("--base-url");
   });
 
+  it("prints per-command help when --help follows a known command", async () => {
+    const io = createRuntime();
+    const exitCode = await runCli(["screen-analysis", "--help"], io.runtime);
+
+    expect(exitCode).toBe(0);
+    const help = io.stdout();
+    // Per-command help shows the command-specific detail block...
+    expect(help).toContain("midlyr screen-analysis");
+    expect(help).toContain("--scenario");
+    expect(help).toContain("POST /api/v1/analysis/screen");
+    // ...and does NOT include unrelated commands' details.
+    expect(help).not.toContain("browse-document");
+    expect(help).not.toContain("Run 'midlyr <command> --help'");
+  });
+
   it("exits non-zero for unknown commands", async () => {
     const io = createRuntime();
     const exitCode = await runCli(["jobs"], io.runtime);
@@ -104,9 +119,9 @@ describe("midlyr CLI", () => {
         "browse-document",
         "--query",
         "fair lending",
-        "--categories",
+        "--category",
         "regulation",
-        "--categories",
+        "--category",
         "agencyGuidance",
         "--authority",
         "CFPB",

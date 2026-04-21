@@ -46,7 +46,7 @@ export async function runCommand(
     case "browse-document":
       return services.documents.browse({
         query: args.option("query"),
-        categories: args.multiOption("categories"),
+        categories: args.multiOption("category"),
         authorities: args.multiOption("authority"),
         jurisdictions: args.multiOption("jurisdiction"),
         limit: args.numberOption("limit"),

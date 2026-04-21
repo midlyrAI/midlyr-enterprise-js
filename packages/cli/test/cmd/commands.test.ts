@@ -22,7 +22,7 @@ describe("command handlers", () => {
 
     await runCommand(
       "browse-document",
-      parseArgs(["browse-document", "--query", "fair", "--categories", "regulation", "--limit", "2"]),
+      parseArgs(["browse-document", "--query", "fair", "--category", "regulation", "--limit", "2"]),
       services,
     );
 

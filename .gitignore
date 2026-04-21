@@ -1,5 +1,6 @@
 .omx/
 .omc/
+.playwright-mcp/
 node_modules/
 dist/
 coverage/

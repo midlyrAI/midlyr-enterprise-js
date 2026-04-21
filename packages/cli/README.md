@@ -1,74 +1,52 @@
 # `@midlyr/cli`
 
-Public MidLyr CLI for the regulation/compliance REST API.
+CLI for the MidLyr regulation/compliance REST API.
 
-The package depends on `@midlyr/sdk` through public package exports. Shared HTTP transport, request construction, and API types belong in `@midlyr/sdk`; this package owns command parsing, environment handling, JSON output, and CLI-specific polling behavior.
+## Install
+
+Requires Node.js >= 22. Install globally so the `midlyr` binary lands on your `PATH` (the `-g` flag is required):
+
+```bash
+npm install -g @midlyr/cli
+pnpm add -g @midlyr/cli
+bun add -g @midlyr/cli
+yarn global add @midlyr/cli
+```
+
+Or run without installing:
+
+```bash
+npx @midlyr/cli <command>
+bunx @midlyr/cli <command>
+pnpm dlx @midlyr/cli <command>
+```
+
+If `midlyr: command not found` after `-g` install, your package manager's global bin dir isn't on `PATH` (check `npm prefix -g`/`/bin`, or run `bun setup` / `pnpm setup`). `npx @midlyr/cli` works as a fallback.
+
+Uninstall: `npm uninstall -g @midlyr/cli` (or drop `-g` for a local install).
 
 ## Usage
 
 ```bash
-MIDLYR_API_KEY=mlyr_... midlyr <command> [options]
+midlyr login                   # one-time browser auth
+midlyr <command> [options]
 ```
 
-Global options:
+For CI/containers, set `MIDLYR_API_KEY=mlyr_...` instead (takes precedence over the stored credentials).
 
-- `--request-timeout-ms <ms>`: per-request HTTP timeout.
-
-The API key is resolved from `MIDLYR_API_KEY` or `~/.config/midlyr/credentials.json` (written by `midlyr login` or `midlyr config set api-key <key>`).
-
-Command output is JSON. Errors are written to stderr as JSON and exit non-zero.
+Output is JSON on stdout; errors are JSON on stderr with a non-zero exit code. Global option: `--request-timeout-ms <ms>`.
 
 ## Commands
 
-### `browse-document`
+Run `midlyr --help` to see all commands, or `midlyr <command> --help` for per-command options.
+
+- `browse-document` — search regulations
+- `describe-document` — fetch regulation metadata
+- `read-document-content` — fetch regulation content body
+- `screen-analysis` — submit text for compliance screening and poll until done
+
+Example:
 
 ```bash
-midlyr browse-document --query "fair lending" --categories regulation --authority CFPB --limit 25
+midlyr browse-document --query "fair lending" --authority CFPB --limit 25
 ```
-
-Calls `GET /api/v1/regulations`.
-
-Options: `--query`, repeatable `--categories`, repeatable `--authority`, repeatable `--jurisdiction`, `--limit`, `--cursor`.
-
-### `describe-document`
-
-```bash
-midlyr describe-document reg_123
-midlyr describe-document --id reg_123
-```
-
-Calls `GET /api/v1/regulations/:id`. Returns metadata (title, jurisdictions, table of contents, etc.) without the full content body.
-
-Options: positional document id or `--id`.
-
-### `read-document-content`
-
-```bash
-midlyr read-document-content reg_123 --offset 0 --limit 4000
-midlyr read-document-content --id reg_123
-```
-
-Calls `GET /api/v1/regulations/:id/content`. Returns the content body; use `describe-document` instead if you only need metadata.
-
-Options: positional document id or `--id`, `--offset`, `--limit`.
-
-### `screen-analysis`
-
-```bash
-midlyr screen-analysis \
-  --scenario marketing_asset \
-  --text "Get 0% APR for life!" \
-  --timeout-ms 300000
-```
-
-Calls `POST /api/v1/analysis/screen`, then polls `GET /api/v1/jobs/:id` by default until the job is `succeeded` or `failed`.
-
-Options:
-
-- `--scenario <type>`: required. One of `marketing_asset`, `dispute`, `debt_collection`, `complaint`, `generic`.
-- `--text <content>`: required. The text content to screen. Can also be passed as positional arguments.
-- `--timeout-ms <ms>`: total polling timeout. Timeout errors preserve `job_id` in JSON stderr.
-- `--poll-interval-ms <ms>`: polling interval.
-- `--no-wait`: submit only; do not poll.
-
-There is intentionally no public `jobs` command in v1.
