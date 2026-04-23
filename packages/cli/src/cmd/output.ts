@@ -126,6 +126,8 @@ without setting MIDLYR_API_KEY. Prefer \`midlyr login\` for normal use.
 ];
 
 const GLOBAL_HELP_FOOTER = `Global options:
+  --help, -h                  Show help.
+  --version, -v               Print the CLI version.
   --request-timeout-ms <ms>    Per-request HTTP timeout in milliseconds (default 30000).
 
 Environment variables:

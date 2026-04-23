@@ -10,7 +10,11 @@ export interface CredentialsStore {
 
 export interface CredentialsFs {
   readFile(path: string, encoding: BufferEncoding): Promise<string>;
-  writeFile(path: string, data: string, options: { encoding: BufferEncoding; mode: number }): Promise<void>;
+  writeFile(
+    path: string,
+    data: string,
+    options: { encoding: BufferEncoding; mode: number },
+  ): Promise<void>;
   mkdir(path: string, options: { recursive: boolean; mode: number }): Promise<unknown>;
 }
 

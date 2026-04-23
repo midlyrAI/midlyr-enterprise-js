@@ -9,11 +9,7 @@ import { runCli } from "./cmd/run-cli.js";
 import { createFileCredentialsStore } from "./domain/credentials.js";
 import { createBrowserOpener } from "./domain/login/browser-opener.js";
 import { createLocalhostServer } from "./domain/login/localhost-server.js";
-import type {
-  BrowserChildProcess,
-  HttpFactory,
-  PlatformInfo,
-} from "./domain/login/types.js";
+import type { BrowserChildProcess, HttpFactory, PlatformInfo } from "./domain/login/types.js";
 import { loadEnvFile, resolveCliEnv } from "./load-env.js";
 
 declare const process: {
@@ -67,8 +63,7 @@ const exitCode = await runCli(process.argv.slice(2), {
   localhostServer,
   randomUUID,
   randomBytes: (size: number) => new Uint8Array(nodeRandomBytes(size)),
-  sha256: (data: Uint8Array) =>
-    new Uint8Array(createHash("sha256").update(data).digest()),
+  sha256: (data: Uint8Array) => new Uint8Array(createHash("sha256").update(data).digest()),
   setTimeout: (handler: () => void, ms: number) => globalThis.setTimeout(handler, ms),
   clearTimeout: (handle: ReturnType<typeof globalThis.setTimeout>) =>
     globalThis.clearTimeout(handle),

@@ -32,7 +32,11 @@ export class RegulationAPI {
     });
   }
 
-  readContent(id: string, query: ReadRegulationContentQuery = {}, options: MidlyrRequestOptions = {}) {
+  readContent(
+    id: string,
+    query: ReadRegulationContentQuery = {},
+    options: MidlyrRequestOptions = {},
+  ) {
     return this.#transport.request<RegulationContent>({
       method: "GET",
       path: `/api/v1/regulations/${encodeURIComponent(id)}/content`,

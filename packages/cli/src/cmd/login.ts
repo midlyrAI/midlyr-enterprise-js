@@ -23,10 +23,7 @@ export interface LoginRuntime extends CliRuntime {
   clearTimeout: (handle: ReturnType<typeof globalThis.setTimeout>) => void;
 }
 
-export async function runLoginCommand(
-  runtime: LoginRuntime,
-  _parsed: ParsedArgs,
-): Promise<void> {
+export async function runLoginCommand(runtime: LoginRuntime, _parsed: ParsedArgs): Promise<void> {
   const stdout: Writable = runtime.stdout ?? defaultStdout();
   const env = runtime.env ?? {};
 

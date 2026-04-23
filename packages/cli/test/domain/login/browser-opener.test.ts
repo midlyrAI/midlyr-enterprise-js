@@ -111,7 +111,7 @@ describe("createBrowserOpener", () => {
     expect(stub.calls[0]!.args).toEqual([url]);
   });
 
-  it("uses `cmd /c start \"\" url` on win32", async () => {
+  it('uses `cmd /c start "" url` on win32', async () => {
     const stub = createSpawnStub();
     const opener = createBrowserOpener({
       spawn: stub.spawn,

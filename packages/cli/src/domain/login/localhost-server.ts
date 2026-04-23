@@ -54,41 +54,57 @@ export function createLocalhostServer(deps: LocalhostServerDeps): LocalhostServe
       const server = deps.http.createServer(listener);
 
       // Start listening on 127.0.0.1:0 (OS-assigned port)
-      const handle: LocalhostServerHandle = await new Promise<LocalhostServerHandle>((resolve, reject) => {
-        // If the server listen call fails (port bind error), reject here.
-        try {
-          server.listen(0, "127.0.0.1", () => {
-            const addr = server.address();
-            if (addr === null || typeof addr === "string") {
-              reject(new LoginError("login_server_start_failed", "Failed to determine localhost server port"));
-              return;
-            }
-            resolve({
-              port: addr.port,
-              close: () =>
-                new Promise<void>((resolveClose, rejectClose) => {
-                  server.close((err) => {
-                    if (err) rejectClose(err);
-                    else resolveClose();
-                  });
-                }),
+      const handle: LocalhostServerHandle = await new Promise<LocalhostServerHandle>(
+        (resolve, reject) => {
+          // If the server listen call fails (port bind error), reject here.
+          try {
+            server.listen(0, "127.0.0.1", () => {
+              const addr = server.address();
+              if (addr === null || typeof addr === "string") {
+                reject(
+                  new LoginError(
+                    "login_server_start_failed",
+                    "Failed to determine localhost server port",
+                  ),
+                );
+                return;
+              }
+              resolve({
+                port: addr.port,
+                close: () =>
+                  new Promise<void>((resolveClose, rejectClose) => {
+                    server.close((err) => {
+                      if (err) rejectClose(err);
+                      else resolveClose();
+                    });
+                  }),
+              });
             });
-          });
-        } catch (err) {
-          reject(new LoginError("login_server_start_failed", err instanceof Error ? err.message : String(err)));
-        }
-      });
+          } catch (err) {
+            reject(
+              new LoginError(
+                "login_server_start_failed",
+                err instanceof Error ? err.message : String(err),
+              ),
+            );
+          }
+        },
+      );
 
       // Abort handling: if the signal fires, reject firstCallback and close server.
       if (signal) {
         if (signal.aborted) {
-          rejectFirstCallback(signal.reason instanceof Error ? signal.reason : new Error("aborted"));
+          rejectFirstCallback(
+            signal.reason instanceof Error ? signal.reason : new Error("aborted"),
+          );
           await handle.close().catch(() => undefined);
         } else {
           signal.addEventListener(
             "abort",
             () => {
-              rejectFirstCallback(signal.reason instanceof Error ? signal.reason : new Error("aborted"));
+              rejectFirstCallback(
+                signal.reason instanceof Error ? signal.reason : new Error("aborted"),
+              );
             },
             { once: true },
           );
@@ -124,7 +140,8 @@ function parseQuery(url: string): CallbackQuery {
     if (part === "") continue;
     const eqIndex = part.indexOf("=");
     const key = eqIndex < 0 ? part : part.slice(0, eqIndex);
-    const value = eqIndex < 0 ? "" : decodeURIComponent(part.slice(eqIndex + 1).replace(/\+/g, " "));
+    const value =
+      eqIndex < 0 ? "" : decodeURIComponent(part.slice(eqIndex + 1).replace(/\+/g, " "));
     const decodedKey = decodeURIComponent(key);
     if (
       decodedKey === "state" ||

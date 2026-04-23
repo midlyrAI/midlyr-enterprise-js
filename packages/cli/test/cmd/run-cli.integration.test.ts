@@ -66,6 +66,28 @@ describe("midlyr CLI", () => {
     expect(help).not.toContain("--base-url");
   });
 
+  it("prints version without requiring credentials", async () => {
+    const io = createRuntime(undefined, {
+      env: { MIDLYR_API_KEY: undefined },
+      version: "1.2.3-test",
+    });
+
+    const exitCode = await runCli(["--version"], io.runtime);
+
+    expect(exitCode).toBe(0);
+    expect(io.stdout()).toBe("1.2.3-test\n");
+    expect(io.stderr()).toBe("");
+  });
+
+  it("supports -v as a version alias", async () => {
+    const io = createRuntime(undefined, { version: "1.2.3-test" });
+
+    const exitCode = await runCli(["-v"], io.runtime);
+
+    expect(exitCode).toBe(0);
+    expect(io.stdout()).toBe("1.2.3-test\n");
+  });
+
   it("prints per-command help when --help follows a known command", async () => {
     const io = createRuntime();
     const exitCode = await runCli(["screen-analysis", "--help"], io.runtime);
@@ -213,9 +235,7 @@ describe("midlyr CLI", () => {
   it("submits screen-analysis and polls until terminal job", async () => {
     const fetch = vi
       .fn<FetchLike>()
-      .mockResolvedValueOnce(
-        jsonResponse({ id: "job_123" }, { status: 202 }),
-      )
+      .mockResolvedValueOnce(jsonResponse({ id: "job_123" }, { status: 202 }))
       .mockResolvedValueOnce(
         jsonResponse({
           id: "job_123",
@@ -257,16 +277,12 @@ describe("midlyr CLI", () => {
 
     expect(exitCode).toBe(0);
     expect(fetch).toHaveBeenCalledTimes(3);
-    expect(String(fetch.mock.calls[0]![0])).toBe(
-      "https://api.example.com/api/v1/analysis/screen",
-    );
+    expect(String(fetch.mock.calls[0]![0])).toBe("https://api.example.com/api/v1/analysis/screen");
     expect(JSON.parse(String(fetch.mock.calls[0]![1]?.body))).toEqual({
       content: { type: "text", text: "Get 0% APR forever!" },
       scenario: "marketing_asset",
     });
-    expect(String(fetch.mock.calls[1]![0])).toBe(
-      "https://api.example.com/api/v1/jobs/job_123",
-    );
+    expect(String(fetch.mock.calls[1]![0])).toBe("https://api.example.com/api/v1/jobs/job_123");
     expect(parseJsonOutput(io.stdout())).toMatchObject({ id: "job_123", status: "succeeded" });
   });
 
@@ -277,15 +293,7 @@ describe("midlyr CLI", () => {
     const io = createRuntime(fetch);
 
     const exitCode = await runCli(
-      [
-        "screen-analysis",
-        "--scenario",
-        "generic",
-        "--text",
-        "test content",
-        "--timeout-ms",
-        "0",
-      ],
+      ["screen-analysis", "--scenario", "generic", "--text", "test content", "--timeout-ms", "0"],
       io.runtime,
     );
 

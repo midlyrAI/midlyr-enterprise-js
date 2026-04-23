@@ -1,7 +1,4 @@
-import type {
-  BrowseRegulationsQuery,
-  ReadRegulationContentQuery,
-} from "@midlyr/sdk-js";
+import type { BrowseRegulationsQuery, ReadRegulationContentQuery } from "@midlyr/sdk-js";
 import type { MidlyrClient } from "../sdk/midlyr-client.js";
 
 type DocumentsClient = Pick<

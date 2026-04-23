@@ -1,5 +1,8 @@
 import { CliInputError } from "../domain/errors.js";
 
+const VALUELESS_LONG_OPTIONS: ReadonlySet<string> = new Set(["help", "version"]);
+const VALUELESS_SHORT_OPTIONS: ReadonlySet<string> = new Set(["h", "v"]);
+
 export class ParsedArgs {
   constructor(
     readonly command: string | undefined,
@@ -58,6 +61,11 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
         continue;
       }
 
+      if (VALUELESS_LONG_OPTIONS.has(flag)) {
+        booleans.add(flag);
+        continue;
+      }
+
       if (flag.startsWith("no-")) {
         booleans.add(flag);
         continue;
@@ -75,8 +83,8 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
 
     if (arg.startsWith("-") && arg.length > 1) {
       const flag = arg.slice(1);
-      if (flag === "h") {
-        booleans.add("h");
+      if (VALUELESS_SHORT_OPTIONS.has(flag)) {
+        booleans.add(flag);
         continue;
       }
       throw new CliInputError(`Unknown short option '-${flag}'.`);

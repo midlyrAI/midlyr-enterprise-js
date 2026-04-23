@@ -1,9 +1,6 @@
 import type { MidlyrRequestOptions } from "../config.js";
 import type { Transport } from "../transport.js";
-import type {
-  StartScreenAnalysisBody,
-  StartScreenAnalysisResponse,
-} from "../types/analysis.js";
+import type { StartScreenAnalysisBody, StartScreenAnalysisResponse } from "../types/analysis.js";
 
 export class AnalysisAPI {
   readonly #transport: Transport;

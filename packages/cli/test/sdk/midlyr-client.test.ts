@@ -24,13 +24,19 @@ describe("MidlyrClient", () => {
     await client.browseDocuments({ query: "fair" });
     await client.getDocumentDetails("reg_1");
     await client.readDocumentContent("reg_1", { limit: 10 });
-    await client.startScreenAnalysis({ content: { type: "text", text: "test" }, scenario: "generic" });
+    await client.startScreenAnalysis({
+      content: { type: "text", text: "test" },
+      scenario: "generic",
+    });
     await client.getJob("job_1");
 
     expect(sdk.regulations.browse).toHaveBeenCalledWith({ query: "fair" });
     expect(sdk.regulations.getDetails).toHaveBeenCalledWith("reg_1");
     expect(sdk.regulations.readContent).toHaveBeenCalledWith("reg_1", { limit: 10 });
-    expect(sdk.analysis.screen).toHaveBeenCalledWith({ content: { type: "text", text: "test" }, scenario: "generic" });
+    expect(sdk.analysis.screen).toHaveBeenCalledWith({
+      content: { type: "text", text: "test" },
+      scenario: "generic",
+    });
     expect(sdk.jobs.get).toHaveBeenCalledWith("job_1");
   });
 });

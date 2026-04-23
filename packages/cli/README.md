@@ -34,11 +34,11 @@ midlyr <command> [options]
 
 For CI/containers, set `MIDLYR_API_KEY=mlyr_...` instead (takes precedence over the stored credentials).
 
-Output is JSON on stdout; errors are JSON on stderr with a non-zero exit code. Global option: `--request-timeout-ms <ms>`.
+Output is JSON on stdout; errors are JSON on stderr with a non-zero exit code. Global options: `--help`, `--version`, and `--request-timeout-ms <ms>`.
 
 ## Commands
 
-Run `midlyr --help` to see all commands, or `midlyr <command> --help` for per-command options.
+Run `midlyr --help` to see all commands, `midlyr --version` to print the installed CLI version, or `midlyr <command> --help` for per-command options.
 
 - `browse-document` — search regulations
 - `describe-document` — fetch regulation metadata

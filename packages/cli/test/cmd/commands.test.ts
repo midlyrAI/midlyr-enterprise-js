@@ -39,11 +39,7 @@ describe("command handlers", () => {
   it("maps describe-document to getDetails with positional id", async () => {
     const services = createServices();
 
-    await runCommand(
-      "describe-document",
-      parseArgs(["describe-document", "reg_1"]),
-      services,
-    );
+    await runCommand("describe-document", parseArgs(["describe-document", "reg_1"]), services);
 
     expect(services.documents.getDetails).toHaveBeenCalledWith("reg_1");
   });

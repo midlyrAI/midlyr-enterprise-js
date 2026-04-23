@@ -139,10 +139,7 @@ describe("createLocalhostServer", () => {
     const mf = createMockFactory();
     const server = createLocalhostServer({ http: mf.factory });
     const session = await server.listen();
-    mf.servers[0]!.fireRequest(
-      "GET",
-      "/callback?state=abc&sessionId=sess_foo&result=authorized",
-    );
+    mf.servers[0]!.fireRequest("GET", "/callback?state=abc&sessionId=sess_foo&result=authorized");
     await expect(session.firstCallback).resolves.toEqual({
       state: "abc",
       sessionId: "sess_foo",

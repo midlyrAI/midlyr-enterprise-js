@@ -1,9 +1,4 @@
-import type {
-  BrowserOpener,
-  CallbackQuery,
-  CallbackResponse,
-  LocalhostServer,
-} from "./types.js";
+import type { BrowserOpener, CallbackQuery, CallbackResponse, LocalhostServer } from "./types.js";
 import { LoginError } from "./errors.js";
 import type { CredentialsStore } from "../credentials.js";
 import { CliInterruptedError } from "../errors.js";
@@ -192,11 +187,9 @@ export async function runLogin(deps: LoginServiceDeps): Promise<LoginResult> {
     }),
   });
   if (!exchangeRes.ok) {
-    throw new LoginError(
-      "login_exchange_failed",
-      `Exchange failed (HTTP ${exchangeRes.status})`,
-      { status: exchangeRes.status },
-    );
+    throw new LoginError("login_exchange_failed", `Exchange failed (HTTP ${exchangeRes.status})`, {
+      status: exchangeRes.status,
+    });
   }
   const { apiKey, keyPrefix, label } = (await exchangeRes.json()) as ExchangeResponse;
 

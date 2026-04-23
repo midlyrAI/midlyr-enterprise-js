@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import type { FetchLike } from "@midlyr/sdk-js";
 import { DocumentsService } from "../domain/documents.js";
 import type { CredentialsStore } from "../domain/credentials.js";
@@ -32,10 +33,14 @@ export interface CliRuntime {
   now?: () => number;
   onSignal?: (signal: SignalName, handler: SignalHandler) => void;
   credentialsStore?: CredentialsStore;
+  version?: string;
 }
 
 type NoCredsCommand = "config" | "login";
 const NO_CREDS_COMMANDS: ReadonlySet<string> = new Set<NoCredsCommand>(["config", "login"]);
+const PACKAGE_JSON_URL = new URL("../../package.json", import.meta.url);
+
+let cachedCliVersion: string | undefined;
 
 export async function runCli(argv: readonly string[], runtime: CliRuntime = {}): Promise<number> {
   const stdout = runtime.stdout ?? defaultStdout();
@@ -45,6 +50,12 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
     const parsed = parseArgs(argv);
 
     const wantsHelp = parsed.hasBoolean("help") || parsed.hasBoolean("h");
+    const wantsVersion = parsed.hasBoolean("version") || parsed.hasBoolean("v");
+
+    if (wantsVersion) {
+      stdout.write(`${runtime.version ?? (await readCliVersion())}\n`);
+      return 0;
+    }
 
     if (!parsed.command) {
       stdout.write(formatTopHelp());
@@ -116,6 +127,22 @@ async function dispatchNoCreds(
   }
   await runLoginCommand(loginRuntime, parsed);
   return 0;
+}
+
+async function readCliVersion(): Promise<string> {
+  if (cachedCliVersion) {
+    return cachedCliVersion;
+  }
+
+  const packageJson = JSON.parse(await readFile(PACKAGE_JSON_URL, "utf8")) as {
+    version?: unknown;
+  };
+  if (typeof packageJson.version !== "string" || !packageJson.version) {
+    throw new Error("Unable to read @midlyr/cli package version.");
+  }
+
+  cachedCliVersion = packageJson.version;
+  return cachedCliVersion;
 }
 
 function defaultStdout(): Writable {

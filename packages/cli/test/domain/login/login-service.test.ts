@@ -65,12 +65,16 @@ function scriptedServer(port = 53100): ScriptedServer {
       state.listenCount++;
       if (signal) {
         if (signal.aborted) {
-          rejectFirstCallback(signal.reason instanceof Error ? signal.reason : new Error("aborted"));
+          rejectFirstCallback(
+            signal.reason instanceof Error ? signal.reason : new Error("aborted"),
+          );
         } else {
           signal.addEventListener(
             "abort",
             () => {
-              rejectFirstCallback(signal.reason instanceof Error ? signal.reason : new Error("aborted"));
+              rejectFirstCallback(
+                signal.reason instanceof Error ? signal.reason : new Error("aborted"),
+              );
             },
             { once: true },
           );
@@ -205,22 +209,26 @@ const DEFAULT_EXCHANGE_JSON = {
   label: "cli-2026-04-16",
 };
 
-function makeHarness(opts: {
-  server?: ScriptedServer;
-  browser?: ScriptedBrowser;
-  creds?: ScriptedCredStore;
-  fetcher?: ScriptedFetch;
-  timeoutMs?: number;
-  randomBytes?: (size: number) => Uint8Array;
-  sha256?: (data: Uint8Array) => Uint8Array;
-} = {}): Harness {
+function makeHarness(
+  opts: {
+    server?: ScriptedServer;
+    browser?: ScriptedBrowser;
+    creds?: ScriptedCredStore;
+    fetcher?: ScriptedFetch;
+    timeoutMs?: number;
+    randomBytes?: (size: number) => Uint8Array;
+    sha256?: (data: Uint8Array) => Uint8Array;
+  } = {},
+): Harness {
   const server = opts.server ?? scriptedServer();
   const browser = opts.browser ?? scriptedBrowser();
   const creds = opts.creds ?? scriptedCredStore();
-  const fetcher = opts.fetcher ?? scriptedFetch([
-    { ok: true, status: 200, json: DEFAULT_SESSION_JSON },
-    { ok: true, status: 200, json: DEFAULT_EXCHANGE_JSON },
-  ]);
+  const fetcher =
+    opts.fetcher ??
+    scriptedFetch([
+      { ok: true, status: 200, json: DEFAULT_SESSION_JSON },
+      { ok: true, status: 200, json: DEFAULT_EXCHANGE_JSON },
+    ]);
   const stdout = captureWritable();
   const calls: string[] = [];
   const setTimeoutCalls: Array<{ ms: number }> = [];
@@ -422,9 +430,7 @@ describe("runLogin", () => {
   });
 
   it("session start fails (500): throws login_session_start_failed, closes server, no exchange call", async () => {
-    const fetcher = scriptedFetch([
-      { ok: false, status: 500, json: { error: "boom" } },
-    ]);
+    const fetcher = scriptedFetch([{ ok: false, status: 500, json: { error: "boom" } }]);
     const h = makeHarness({ fetcher });
     const p = runLogin(h.deps);
     await expect(p).rejects.toMatchObject({

@@ -26,6 +26,17 @@ describe("parseArgs", () => {
 
   it("supports -h and rejects unknown short options", () => {
     expect(parseArgs(["-h"]).hasBoolean("h")).toBe(true);
+    expect(parseArgs(["-v"]).hasBoolean("v")).toBe(true);
     expect(() => parseArgs(["-x"])).toThrow(CliInputError);
+  });
+
+  it("keeps valueless global flags from consuming the command", () => {
+    const helpArgs = parseArgs(["--help", "screen-analysis"]);
+    expect(helpArgs.hasBoolean("help")).toBe(true);
+    expect(helpArgs.command).toBe("screen-analysis");
+
+    const versionArgs = parseArgs(["--version", "browse-document"]);
+    expect(versionArgs.hasBoolean("version")).toBe(true);
+    expect(versionArgs.command).toBe("browse-document");
   });
 });

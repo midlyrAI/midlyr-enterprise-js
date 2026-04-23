@@ -65,15 +65,24 @@ export class Transport {
         }
 
         const body = truncateForLog(
-          await response.clone().text().catch(() => ""),
+          await response
+            .clone()
+            .text()
+            .catch(() => ""),
         );
         const retryable = shouldRetryResponse(response, config.method, attempt, maxRetries);
         const serverDelayMs = retryable ? getRetryDelayMs(response, retryDelayMs, attempt) : 0;
         const willRetry = retryable && serverDelayMs <= MAX_RETRY_WAIT_MS;
-        if (await logAndMaybeSleep(
-          `HTTP ${response.status}${body ? ` ${body}` : ""}`,
-          { attempt, maxRetries, willRetry, delayMs: willRetry ? serverDelayMs : 0, serverDelayMs },
-        )) continue;
+        if (
+          await logAndMaybeSleep(`HTTP ${response.status}${body ? ` ${body}` : ""}`, {
+            attempt,
+            maxRetries,
+            willRetry,
+            delayMs: willRetry ? serverDelayMs : 0,
+            serverDelayMs,
+          })
+        )
+          continue;
 
         throw await buildAPIError(response);
       } catch (error) {
@@ -87,10 +96,16 @@ export class Transport {
         const serverDelayMs = retryable ? getRetryDelayMs(undefined, retryDelayMs, attempt) : 0;
         const willRetry = retryable && serverDelayMs <= MAX_RETRY_WAIT_MS;
         const reason = error instanceof Error ? error.message : String(error);
-        if (await logAndMaybeSleep(
-          `network error "${reason}"`,
-          { attempt, maxRetries, willRetry, delayMs: willRetry ? serverDelayMs : 0, serverDelayMs },
-        )) continue;
+        if (
+          await logAndMaybeSleep(`network error "${reason}"`, {
+            attempt,
+            maxRetries,
+            willRetry,
+            delayMs: willRetry ? serverDelayMs : 0,
+            serverDelayMs,
+          })
+        )
+          continue;
 
         throw new MidlyrNetworkError(
           isTimeout ? "Midlyr request timed out" : "Midlyr request failed",
