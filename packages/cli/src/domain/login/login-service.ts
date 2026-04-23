@@ -79,16 +79,19 @@ export async function runLogin(deps: LoginServiceDeps): Promise<LoginResult> {
   // 5. Start session with backend
   let sessionStart: SessionStartResponse;
   try {
-    const sessionRes = await deps.fetch(`${deps.apiBaseUrl}/api/v1/auth/cli/sessions`, {
-      method: "POST",
-      headers: { "content-type": "application/json", accept: "application/json" },
-      body: JSON.stringify({
-        callbackUrl: `http://localhost:${session.handle.port}/callback`,
-        state,
-        codeChallenge,
-        codeChallengeMethod: "S256",
-      }),
-    });
+    const sessionRes = await deps.fetch(
+      withApiFlowParam(`${deps.apiBaseUrl}/api/v1/auth/cli/sessions`),
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", accept: "application/json" },
+        body: JSON.stringify({
+          callbackUrl: `http://localhost:${session.handle.port}/callback`,
+          state,
+          codeChallenge,
+          codeChallengeMethod: "S256",
+        }),
+      },
+    );
     if (!sessionRes.ok) {
       deps.clearTimeout(timer);
       await closeSession(session);
@@ -114,12 +117,14 @@ export async function runLogin(deps: LoginServiceDeps): Promise<LoginResult> {
     `\nPairing code: \x1b[1m${sessionStart.pairingCode}\x1b[22m\nVerify this matches the code shown in your browser.\n\n`,
   );
 
+  const authorizeUrl = withApiFlowParam(sessionStart.authorizeUrl);
+
   // 7. Open browser — non-fatal on failure
   try {
-    await deps.browserOpener.open(sessionStart.authorizeUrl);
+    await deps.browserOpener.open(authorizeUrl);
   } catch {
     deps.stdout.write(
-      `Could not open browser automatically. Open this URL to authenticate:\n\n  ${sessionStart.authorizeUrl}\n\n`,
+      `Could not open browser automatically. Open this URL to authenticate:\n\n  ${authorizeUrl}\n\n`,
     );
   }
 
@@ -242,4 +247,10 @@ function asciiBytes(s: string): Uint8Array {
     out[i] = s.charCodeAt(i) & 0xff;
   }
   return out;
+}
+
+function withApiFlowParam(authorizeUrl: string): string {
+  const url = new URL(authorizeUrl);
+  url.searchParams.set("flow", "api");
+  return url.toString();
 }

@@ -350,7 +350,9 @@ describe("runLogin", () => {
 
     // Two fetch calls in order
     expect(h.fetcher.calls).toHaveLength(2);
-    expect(h.fetcher.calls[0]!.url).toBe("https://api.midlyr.com/api/v1/auth/cli/sessions");
+    expect(h.fetcher.calls[0]!.url).toBe(
+      "https://api.midlyr.com/api/v1/auth/cli/sessions?flow=api",
+    );
     expect(h.fetcher.calls[0]!.init.method).toBe("POST");
     const sessionsBody = JSON.parse(String(h.fetcher.calls[0]!.init.body));
     expect(sessionsBody.state).toBe("STATE_UUID");
@@ -363,8 +365,8 @@ describe("runLogin", () => {
     expect(exchangeBody.sessionId).toBe("sess_abc");
     expect(typeof exchangeBody.codeVerifier).toBe("string");
 
-    // Browser opened with the authorizeUrl FROM the server, not constructed
-    expect(h.browser.opened).toEqual(["https://app.midlyr.com/cli-auth?session=sess_abc"]);
+    // Browser opens with the authorizeUrl from the server plus the API-key login flow marker.
+    expect(h.browser.opened).toEqual(["https://app.midlyr.com/cli-auth?session=sess_abc&flow=api"]);
 
     // Success response, server closed
     expect(h.server.respondCalls).toHaveLength(1);
@@ -556,7 +558,33 @@ describe("runLogin", () => {
     });
     const result = await p;
     expect(result.apiKey).toBe("mlyr_test_abc_secret");
-    expect(h.stdout.text).toContain("https://app.midlyr.com/cli-auth?session=sess_abc");
+    expect(h.stdout.text).toContain("https://app.midlyr.com/cli-auth?session=sess_abc&flow=api");
+  });
+
+  it("overwrites an existing authorizeUrl flow with api", async () => {
+    const fetcher = scriptedFetch([
+      {
+        ok: true,
+        status: 200,
+        json: {
+          ...DEFAULT_SESSION_JSON,
+          authorizeUrl: "https://app.midlyr.com/cli-auth?session=sess_abc&flow=web",
+        },
+      },
+      { ok: true, status: 200, json: DEFAULT_EXCHANGE_JSON },
+    ]);
+    const h = makeHarness({ fetcher });
+    const p = runLogin(h.deps);
+    await flush();
+    h.server.resolveFirstCallback({
+      state: "STATE_UUID",
+      sessionId: "sess_abc",
+      result: "authorized",
+      authorizationCode: VALID_AUTH_CODE,
+    });
+    await p;
+
+    expect(h.browser.opened).toEqual(["https://app.midlyr.com/cli-auth?session=sess_abc&flow=api"]);
   });
 
   it("SIGINT during wait: throws CliInterruptedError, closes server", async () => {
