@@ -33,8 +33,8 @@ export interface LoginResult {
 }
 
 const DEFAULT_TIMEOUT_MS = 300_000;
-const SUCCESS_HTML = `<html><body><p>Authenticated. You can close this window.</p></body></html>`;
-const FAILURE_HTML = `<html><body><p>Authentication failed. You can close this window.</p></body></html>`;
+const SUCCESS_HTML = renderCallbackHtml("Authenticated", "You can close this window.");
+const FAILURE_HTML = renderCallbackHtml("Authentication failed", "You can close this window.");
 
 interface SessionStartResponse {
   sessionId: string;
@@ -79,19 +79,16 @@ export async function runLogin(deps: LoginServiceDeps): Promise<LoginResult> {
   // 5. Start session with backend
   let sessionStart: SessionStartResponse;
   try {
-    const sessionRes = await deps.fetch(
-      withApiFlowParam(`${deps.apiBaseUrl}/api/v1/auth/cli/sessions`),
-      {
-        method: "POST",
-        headers: { "content-type": "application/json", accept: "application/json" },
-        body: JSON.stringify({
-          callbackUrl: `http://localhost:${session.handle.port}/callback`,
-          state,
-          codeChallenge,
-          codeChallengeMethod: "S256",
-        }),
-      },
-    );
+    const sessionRes = await deps.fetch(`${deps.apiBaseUrl}/api/v1/auth/cli/sessions`, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({
+        callbackUrl: `http://localhost:${session.handle.port}/callback`,
+        state,
+        codeChallenge,
+        codeChallengeMethod: "S256",
+      }),
+    });
     if (!sessionRes.ok) {
       deps.clearTimeout(timer);
       await closeSession(session);
@@ -117,14 +114,12 @@ export async function runLogin(deps: LoginServiceDeps): Promise<LoginResult> {
     `\nPairing code: \x1b[1m${sessionStart.pairingCode}\x1b[22m\nVerify this matches the code shown in your browser.\n\n`,
   );
 
-  const authorizeUrl = withApiFlowParam(sessionStart.authorizeUrl);
-
   // 7. Open browser — non-fatal on failure
   try {
-    await deps.browserOpener.open(authorizeUrl);
+    await deps.browserOpener.open(sessionStart.authorizeUrl);
   } catch {
     deps.stdout.write(
-      `Could not open browser automatically. Open this URL to authenticate:\n\n  ${authorizeUrl}\n\n`,
+      `Could not open browser automatically. Open this URL to authenticate:\n\n  ${sessionStart.authorizeUrl}\n\n`,
     );
   }
 
@@ -249,8 +244,48 @@ function asciiBytes(s: string): Uint8Array {
   return out;
 }
 
-function withApiFlowParam(authorizeUrl: string): string {
-  const url = new URL(authorizeUrl);
-  url.searchParams.set("flow", "api");
-  return url.toString();
+function renderCallbackHtml(title: string, message: string): string {
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${title}</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: Canvas;
+        color: CanvasText;
+      }
+      main {
+        max-width: 42rem;
+        padding: 2rem;
+        text-align: center;
+      }
+      h1 {
+        margin: 0 0 1rem;
+        font-size: clamp(2.5rem, 8vw, 5rem);
+        line-height: 1;
+      }
+      p {
+        margin: 0;
+        font-size: clamp(1.25rem, 3vw, 2rem);
+        color: color-mix(in srgb, CanvasText 70%, transparent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>${title}</h1>
+      <p>${message}</p>
+    </main>
+  </body>
+</html>`;
 }

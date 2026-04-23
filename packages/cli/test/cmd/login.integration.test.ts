@@ -155,7 +155,7 @@ function scriptedFetch(responders: FetchResponder[]): ScriptedFetch {
 
 const DEFAULT_SESSION_JSON = {
   sessionId: "sess_abc",
-  authorizeUrl: "https://app.midlyr.com/cli-auth?session=sess_abc",
+  authorizeUrl: "https://app.midlyr.com/cli-auth?session=sess_abc&flow=cli",
   pairingCode: "ABCD-1234",
   expiresAt: "2026-04-16T23:59:00.000Z",
   pollIntervalSeconds: 2,
@@ -282,10 +282,8 @@ describe("midlyr login (integration)", () => {
 
     expect(exitCode).toBe(0);
     expect(h.creds.writes).toEqual([{ apiKey: "mlyr_test_abc_secret" }]);
-    expect(h.fetcher.calls[0]!.url).toBe(
-      "https://api.midlyr.com/api/v1/auth/cli/sessions?flow=api",
-    );
-    expect(h.browser.opened).toEqual(["https://app.midlyr.com/cli-auth?session=sess_abc&flow=api"]);
+    expect(h.fetcher.calls[0]!.url).toBe("https://api.midlyr.com/api/v1/auth/cli/sessions");
+    expect(h.browser.opened).toEqual(["https://app.midlyr.com/cli-auth?session=sess_abc&flow=cli"]);
     expect(h.stdout()).toContain("Authentication successful");
   });
 
@@ -337,7 +335,7 @@ describe("midlyr login (integration)", () => {
     const exitCode = await promise;
 
     expect(exitCode).toBe(0);
-    expect(h.stdout()).toContain("https://app.midlyr.com/cli-auth?session=sess_abc&flow=api");
+    expect(h.stdout()).toContain("https://app.midlyr.com/cli-auth?session=sess_abc&flow=cli");
     expect(h.creds.writes).toEqual([{ apiKey: "mlyr_test_abc_secret" }]);
   });
 
