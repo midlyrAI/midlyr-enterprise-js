@@ -12,10 +12,12 @@
     "test": "vitest run",
     "lint": "oxlint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "lefthook install"
   },
   "devDependencies": {
     "@typescript/native-preview": "7.0.0-dev.20260413.1",
+    "lefthook": "^2.1.6",
     "oxlint": "^1.60.0",
     "prettier": "^3.8.2",
     "vitest": "^3.2.4"

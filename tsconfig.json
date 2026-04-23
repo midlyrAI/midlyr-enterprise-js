@@ -1,4 +1,11 @@
 {
   "files": [],
-  "references": [{ "path": "./packages/sdk" }, { "path": "./packages/cli" }]
+  "references": [
+    {
+      "path": "./packages/sdk-js"
+    },
+    {
+      "path": "./packages/cli"
+    }
+  ]
 }
