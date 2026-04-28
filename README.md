@@ -5,10 +5,9 @@ This repository is the scaffold for MidLyr's public JavaScript developer tooling
 ## Packages
 
 - `@midlyr/sdk-js` — public SDK package boundary for future MidLyr API client code.
-- `@midlyr/mcp` — public MCP package that will depend on the SDK public exports.
 - `@midlyr/cli` — public CLI package that will depend on the SDK public exports.
 
-This pass intentionally contains package structure, build/typecheck/test/lint scaffolding, and placeholder entrypoints only. SDK API methods, MCP tools, and CLI commands are deferred to later implementation work.
+This pass intentionally contains package structure, build/typecheck/test/lint scaffolding, and placeholder entrypoints only. SDK API methods and CLI commands are deferred to later implementation work.
 
 ## Package manager compatibility goal
 
