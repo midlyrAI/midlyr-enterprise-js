@@ -131,3 +131,44 @@ export interface ReadRegulationContentQuery {
   offset?: number;
   limit?: number;
 }
+
+export interface QueryRegulationsFilters {
+  commonDocumentIds?: string[];
+  types?: string[];
+  authorities?: string[];
+  jurisdictions?: string[];
+  agencies?: string[];
+}
+
+export interface QueryRegulationsBody {
+  query: string;
+  limit?: number;
+  scoreThreshold?: number;
+  filters?: QueryRegulationsFilters;
+}
+
+export interface QueryRegulationsRegulation {
+  commonDocumentId: string;
+  externalId: string | null;
+  name: string;
+  type: string;
+  authority: string[];
+  jurisdiction: string[];
+  agency: string | null;
+}
+
+export interface QueryRegulationsChunk {
+  chunkId: string;
+  score: number;
+  text: string;
+  chunkIndex: number;
+  totalChunks: number;
+  sectionPath: string | null;
+  sectionId: string | null;
+  citation: string | null;
+  regulation: QueryRegulationsRegulation;
+}
+
+export interface QueryRegulationsResponse {
+  results: QueryRegulationsChunk[];
+}

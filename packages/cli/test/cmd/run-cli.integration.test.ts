@@ -52,9 +52,9 @@ describe("midlyr CLI", () => {
     expect(help).toContain("browse-document");
     expect(help).toContain("describe-document");
     expect(help).toContain("read-document-content");
+    expect(help).toContain("query-document");
     expect(help).toContain("screen-analysis");
     // No removed top-level commands should appear as a command heading (2-space indent + name on its own line)
-    expect(help).not.toMatch(/\n {2}query-document\b/);
     expect(help).not.toMatch(/\n {2}jobs\b/);
     expect(help).not.toMatch(/\n {2}mcp\b/);
     expect(help).not.toMatch(/\n {2}platform\b/);
@@ -230,6 +230,68 @@ describe("midlyr CLI", () => {
       "https://api.example.com/api/v1/regulations/reg_123/content?offset=10&limit=100",
     );
     expect(init?.headers).toMatchObject({ "x-api-key": "env_key" });
+  });
+
+  it("POSTs query-document with the parsed body and prints the response", async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({
+        results: [
+          {
+            chunkId: "chunk_1",
+            score: 0.92,
+            text: "If the financial institution is unable to complete its investigation within 10 business days...",
+            chunkIndex: 0,
+            totalChunks: 5,
+            sectionPath: "§ 1005.11",
+            sectionId: "1005.11",
+            citation: "12 CFR 1005.11",
+            regulation: {
+              commonDocumentId: "cdoc_001",
+              externalId: "ecfr-title12-part1005",
+              name: "Electronic Fund Transfers",
+              type: "regulation",
+              authority: ["CFPB"],
+              jurisdiction: ["us-federal"],
+              agency: "CFPB",
+            },
+          },
+        ],
+      }),
+    );
+    const io = createRuntime(fetch, { env: { MIDLYR_API_KEY: "env_key" } });
+
+    const exitCode = await runCli(
+      [
+        "query-document",
+        "--query",
+        "provisional credit",
+        "--limit",
+        "5",
+        "--score-threshold",
+        "0.7",
+        "--authority",
+        "CFPB",
+      ],
+      io.runtime,
+    );
+
+    expect(exitCode).toBe(0);
+    const [url, init] = fetch.mock.calls[0]!;
+    expect(String(url)).toBe("https://api.example.com/api/v1/regulations/query");
+    expect(init?.method).toBe("POST");
+    expect(init?.headers).toMatchObject({
+      "x-api-key": "env_key",
+      "content-type": "application/json",
+    });
+    expect(JSON.parse(String(init?.body))).toEqual({
+      query: "provisional credit",
+      limit: 5,
+      scoreThreshold: 0.7,
+      filters: { authorities: ["CFPB"] },
+    });
+    expect(parseJsonOutput(io.stdout())).toMatchObject({
+      results: [{ chunkId: "chunk_1", score: 0.92 }],
+    });
   });
 
   it("submits screen-analysis and polls until terminal job", async () => {

@@ -179,6 +179,31 @@ describe("Midlyr SDK", () => {
     }
   });
 
+  it("POSTs regulations.query with the body and JSON content-type", async () => {
+    const fetch = vi.fn<FetchLike>(async () => jsonResponse({ results: [] }));
+    const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
+
+    await client.regulations.query({
+      query: "provisional credit",
+      limit: 5,
+      filters: { authorities: ["CFPB"] },
+    });
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const [url, init] = fetch.mock.calls[0]!;
+    expect(String(url)).toBe("https://api.example.com/api/v1/regulations/query");
+    expect(init?.method).toBe("POST");
+    expect(init?.headers).toMatchObject({
+      "x-api-key": "mlyr_test",
+      "content-type": "application/json",
+    });
+    expect(JSON.parse(String(init?.body))).toEqual({
+      query: "provisional credit",
+      limit: 5,
+      filters: { authorities: ["CFPB"] },
+    });
+  });
+
   it("does not retry mutating POST requests by default", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({ error: { code: "internal_error", message: "try again" } }, { status: 503 }),

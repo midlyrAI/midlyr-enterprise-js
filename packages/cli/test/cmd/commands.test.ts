@@ -9,6 +9,7 @@ function createServices() {
       browse: vi.fn(async () => ({ ok: true })),
       getDetails: vi.fn(async () => ({ ok: true })),
       readContent: vi.fn(async () => ({ ok: true })),
+      query: vi.fn(async () => ({ ok: true })),
     },
     screenAnalysis: {
       run: vi.fn(async () => ({ ok: true })),
@@ -115,6 +116,77 @@ describe("command handlers", () => {
         parseArgs(["screen-analysis", "--scenario", "invalid", "--text", "test"]),
         createServices(),
       ),
+    ).rejects.toBeInstanceOf(CliInputError);
+  });
+
+  it("maps query-document options to a body with filters", async () => {
+    const services = createServices();
+
+    await runCommand(
+      "query-document",
+      parseArgs([
+        "query-document",
+        "--query",
+        "provisional credit",
+        "--limit",
+        "5",
+        "--score-threshold",
+        "0.7",
+        "--authority",
+        "CFPB",
+        "--jurisdiction",
+        "us-federal",
+        "--type",
+        "regulation",
+        "--common-document-id",
+        "cdoc_001",
+        "--agency",
+        "OCC",
+      ]),
+      services,
+    );
+
+    expect(services.documents.query).toHaveBeenCalledWith({
+      query: "provisional credit",
+      limit: 5,
+      scoreThreshold: 0.7,
+      filters: {
+        commonDocumentIds: ["cdoc_001"],
+        types: ["regulation"],
+        authorities: ["CFPB"],
+        jurisdictions: ["us-federal"],
+        agencies: ["OCC"],
+      },
+    });
+  });
+
+  it("query-document accepts the query as a positional argument", async () => {
+    const services = createServices();
+
+    await runCommand(
+      "query-document",
+      parseArgs(["query-document", "fair", "lending"]),
+      services,
+    );
+
+    expect(services.documents.query).toHaveBeenCalledWith({ query: "fair lending" });
+  });
+
+  it("query-document omits filters when no filter flags are given", async () => {
+    const services = createServices();
+
+    await runCommand(
+      "query-document",
+      parseArgs(["query-document", "--query", "test"]),
+      services,
+    );
+
+    expect(services.documents.query).toHaveBeenCalledWith({ query: "test" });
+  });
+
+  it("validates query-document requires a query string", async () => {
+    await expect(
+      runCommand("query-document", parseArgs(["query-document"]), createServices()),
     ).rejects.toBeInstanceOf(CliInputError);
   });
 });

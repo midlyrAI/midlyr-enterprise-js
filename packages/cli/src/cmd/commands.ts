@@ -1,5 +1,7 @@
 import {
   SCREEN_ANALYSIS_SCENARIOS,
+  type QueryRegulationsBody,
+  type QueryRegulationsFilters,
   type StartScreenAnalysisBody,
   type ScreenAnalysisScenario,
 } from "@midlyr/sdk-js";
@@ -66,6 +68,9 @@ export async function runCommand(
         limit: args.numberOption("limit"),
       });
 
+    case "query-document":
+      return services.documents.query(buildQueryDocumentBody(args));
+
     case "screen-analysis":
       return services.screenAnalysis.run({
         body: buildScreenAnalysisBody(args),
@@ -116,4 +121,32 @@ function buildScreenAnalysisBody(args: ParsedArgs): StartScreenAnalysisBody {
     content: { type: "text", text },
     scenario,
   };
+}
+
+function buildQueryDocumentBody(args: ParsedArgs): QueryRegulationsBody {
+  const query = args.option("query") ?? args.positionals.join(" ");
+  if (!query) {
+    throw new CliInputError("query-document requires --query or text as a positional argument.");
+  }
+
+  const filters: QueryRegulationsFilters = {};
+  const commonDocumentIds = args.multiOption("common-document-id");
+  if (commonDocumentIds) filters.commonDocumentIds = commonDocumentIds;
+  const types = args.multiOption("type");
+  if (types) filters.types = types;
+  const authorities = args.multiOption("authority");
+  if (authorities) filters.authorities = authorities;
+  const jurisdictions = args.multiOption("jurisdiction");
+  if (jurisdictions) filters.jurisdictions = jurisdictions;
+  const agencies = args.multiOption("agency");
+  if (agencies) filters.agencies = agencies;
+
+  const body: QueryRegulationsBody = { query };
+  const limit = args.numberOption("limit");
+  if (limit !== undefined) body.limit = limit;
+  const scoreThreshold = args.numberOption("score-threshold");
+  if (scoreThreshold !== undefined) body.scoreThreshold = scoreThreshold;
+  if (Object.keys(filters).length > 0) body.filters = filters;
+
+  return body;
 }

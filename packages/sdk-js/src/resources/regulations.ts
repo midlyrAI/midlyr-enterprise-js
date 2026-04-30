@@ -3,6 +3,8 @@ import type { Transport } from "../transport.js";
 import type {
   BrowseRegulationsQuery,
   BrowseRegulationsResponse,
+  QueryRegulationsBody,
+  QueryRegulationsResponse,
   ReadRegulationContentQuery,
   RegulationContent,
   RegulationDetails,
@@ -41,6 +43,15 @@ export class RegulationAPI {
       method: "GET",
       path: `/api/v1/regulations/${encodeURIComponent(id)}/content`,
       query,
+      ...options,
+    });
+  }
+
+  query(body: QueryRegulationsBody, options: MidlyrRequestOptions = {}) {
+    return this.#transport.request<QueryRegulationsResponse>({
+      method: "POST",
+      path: "/api/v1/regulations/query",
+      body,
       ...options,
     });
   }
