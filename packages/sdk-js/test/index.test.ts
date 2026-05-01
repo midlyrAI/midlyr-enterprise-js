@@ -250,6 +250,25 @@ describe("Midlyr SDK", () => {
     expect(results[0]!.chunks[1]!.sectionPath).toBeNull();
   });
 
+  it("normalizes singular-string filter values into the wire array shape", async () => {
+    const fetch = vi.fn<FetchLike>(async () => jsonResponse({ results: [] }));
+    const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
+
+    await client.regulations.query({
+      query: "anything",
+      filters: { authorities: "cfpb", jurisdictions: "us-federal", ids: "cdoc_001" },
+    });
+
+    expect(JSON.parse(String(fetch.mock.calls[0]![1]?.body))).toEqual({
+      query: "anything",
+      filters: {
+        ids: ["cdoc_001"],
+        authorities: ["cfpb"],
+        jurisdictions: ["us-federal"],
+      },
+    });
+  });
+
   it("does not retry mutating POST requests by default", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({ error: { code: "internal_error", message: "try again" } }, { status: 503 }),

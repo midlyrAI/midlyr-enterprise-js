@@ -69,8 +69,30 @@ export class RegulationAPI {
     return this.#transport.request<QueryRegulationsResponse>({
       method: "POST",
       path: "/api/v1/regulations/query",
-      body,
+      body: normalizeQueryBody(body),
       ...options,
     });
   }
+}
+
+/**
+ * Normalize singular-string filter values into wire-shape arrays so the
+ * customer can write either `authorities: "cfpb"` or `authorities: ["cfpb"]`
+ * — mirrors `BrowseRegulationsQuery`'s ergonomics.
+ */
+function normalizeQueryBody(body: QueryRegulationsBody): QueryRegulationsBody {
+  if (!body.filters) return body;
+  return {
+    ...body,
+    filters: {
+      ids: toArray(body.filters.ids),
+      authorities: toArray(body.filters.authorities),
+      jurisdictions: toArray(body.filters.jurisdictions),
+    },
+  };
+}
+
+function toArray(value: string | string[] | undefined): string[] | undefined {
+  if (value === undefined) return undefined;
+  return Array.isArray(value) ? value : [value];
 }

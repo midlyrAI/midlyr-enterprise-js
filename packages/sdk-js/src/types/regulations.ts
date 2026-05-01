@@ -133,9 +133,12 @@ export interface ReadRegulationContentQuery {
 }
 
 export interface QueryRegulationsFilters {
-  ids?: string[];
-  authorities?: string[];
-  jurisdictions?: string[];
+  /** Restrict to specific regulation ids returned from `browse()`. Accepts a single id or an array; the SDK normalizes to the wire array shape. */
+  ids?: string | string[];
+  /** Filter by issuing authority (e.g., `cfpb`, `occ`). Accepts a single value or an array. */
+  authorities?: string | string[];
+  /** Filter by jurisdiction (e.g., `us-federal`). Accepts a single value or an array. */
+  jurisdictions?: string | string[];
 }
 
 export interface QueryRegulationsBody {
