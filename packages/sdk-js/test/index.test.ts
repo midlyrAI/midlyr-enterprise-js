@@ -1,5 +1,15 @@
+import { readFile } from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
-import { Midlyr, MidlyrAPIError, MidlyrNetworkError, type FetchLike } from "../src/index.js";
+import {
+  Midlyr,
+  MidlyrAPIError,
+  MidlyrError,
+  MidlyrNetworkError,
+  SDK_CLIENT_IDENTITY,
+  SDK_CLIENT_PRODUCT,
+  SDK_VERSION,
+  type FetchLike,
+} from "../src/index.js";
 
 function jsonResponse(body: unknown, init: ResponseInit = {}) {
   return new Response(JSON.stringify(body), {
@@ -186,6 +196,90 @@ describe("Midlyr SDK", () => {
       client.analysis.screen({ content: { type: "text", text: "test" }, scenario: "generic" }),
     ).rejects.toBeInstanceOf(MidlyrAPIError);
     expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("sends the default x-midlyr-client header on every request", async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({
+        results: [],
+        pagination: { nextCursor: null, hasMore: false, approximateTotal: 0 },
+      }),
+    );
+    const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
+
+    await client.regulations.browse({ query: "x" });
+
+    const [, init] = fetch.mock.calls[0]!;
+    expect(init?.headers).toMatchObject({
+      "x-midlyr-client": SDK_CLIENT_IDENTITY,
+    });
+    expect(SDK_CLIENT_IDENTITY).toBe(`${SDK_CLIENT_PRODUCT}/${SDK_VERSION}`);
+    expect(SDK_CLIENT_PRODUCT).toBe("midlyr-sdk-js");
+  });
+
+  it("uses a caller-supplied clientIdentity override", async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({
+        results: [],
+        pagination: { nextCursor: null, hasMore: false, approximateTotal: 0 },
+      }),
+    );
+    const client = new Midlyr({
+      apiKey: "mlyr_test",
+      baseUrl: "https://api.example.com",
+      fetch,
+      clientIdentity: "midlyr-cli/9.9.9",
+    });
+
+    await client.regulations.browse({ query: "x" });
+
+    const [, init] = fetch.mock.calls[0]!;
+    expect(init?.headers).toMatchObject({
+      "x-midlyr-client": "midlyr-cli/9.9.9",
+    });
+  });
+
+  it.each([
+    ["midlyr-cli/0.1.2"],
+    ["midlyr-sdk-py/1.2.3"],
+    ["mcp/cursor"],
+    ["midlyr-sdk-js/0.0.0-pre.1"],
+  ])("accepts well-formed clientIdentity %s", (identity) => {
+    expect(
+      () =>
+        new Midlyr({
+          apiKey: "mlyr_test",
+          baseUrl: "https://api.example.com",
+          fetch: vi.fn<FetchLike>(),
+          clientIdentity: identity,
+        }),
+    ).not.toThrow();
+  });
+
+  it.each([
+    ["midlyr-cli"],
+    ["/0.1.2"],
+    ["midlyr-cli/"],
+    ["midlyr cli/0.1.2"],
+    [""],
+  ])("rejects malformed clientIdentity %j", (identity) => {
+    expect(
+      () =>
+        new Midlyr({
+          apiKey: "mlyr_test",
+          baseUrl: "https://api.example.com",
+          fetch: vi.fn<FetchLike>(),
+          clientIdentity: identity,
+        }),
+    ).toThrow(MidlyrError);
+  });
+
+  it("SDK_VERSION matches packages/sdk-js/package.json#version", async () => {
+    const pkgUrl = new URL("../package.json", import.meta.url);
+    const raw = await readFile(pkgUrl, "utf8");
+    const pkg = JSON.parse(raw) as { version?: unknown };
+    expect(typeof pkg.version).toBe("string");
+    expect(SDK_VERSION).toBe(pkg.version);
   });
 
   it("wraps network failures in typed network errors", async () => {

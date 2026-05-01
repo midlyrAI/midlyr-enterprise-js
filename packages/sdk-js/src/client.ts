@@ -22,6 +22,7 @@ export class Midlyr {
       maxRetries: options.maxRetries,
       retryDelayMs: options.retryDelayMs,
       fetch: options.fetch,
+      clientIdentity: options.clientIdentity,
     });
 
     this.regulations = new RegulationAPI(transport);

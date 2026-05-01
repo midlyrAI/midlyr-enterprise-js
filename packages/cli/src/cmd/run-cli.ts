@@ -74,7 +74,12 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
 
     const credentials = runtime.credentialsStore ? await runtime.credentialsStore.read() : {};
     const config = resolveCliConfig(parsed, runtime.env ?? {}, credentials);
-    const client = new MidlyrClient({ ...config, fetch: runtime.fetch });
+    const cliVersion = runtime.version ?? (await readCliVersion());
+    const client = new MidlyrClient({
+      ...config,
+      fetch: runtime.fetch,
+      clientIdentity: `midlyr-cli/${cliVersion}`,
+    });
     const polling = new ScreenAnalysisPollingService(client, {
       now: runtime.now ?? Date.now,
       sleep: runtime.sleep ?? defaultSleep,

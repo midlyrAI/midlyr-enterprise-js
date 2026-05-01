@@ -1,5 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
+import type { FetchLike } from "@midlyr/sdk-js";
 import { MidlyrClient } from "../../src/sdk/midlyr-client.js";
+
+function jsonResponse(body: unknown, init: ResponseInit = {}) {
+  return new Response(JSON.stringify(body), {
+    ...init,
+    headers: {
+      "content-type": "application/json",
+      ...init.headers,
+    },
+  });
+}
 
 describe("MidlyrClient", () => {
   it("adapts CLI capabilities to public SDK resources", async () => {
@@ -38,5 +49,28 @@ describe("MidlyrClient", () => {
       scenario: "generic",
     });
     expect(sdk.jobs.get).toHaveBeenCalledWith("job_1");
+  });
+
+  it("forwards clientIdentity to the underlying SDK so the CLI tag reaches the wire", async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({
+        results: [],
+        pagination: { nextCursor: null, hasMore: false, approximateTotal: 0 },
+      }),
+    );
+    const client = new MidlyrClient({
+      apiKey: "mlyr_test",
+      baseUrl: "https://api.example.com",
+      fetch,
+      clientIdentity: "midlyr-cli/9.9.9",
+    });
+
+    await client.browseDocuments({ query: "x" });
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const [, init] = fetch.mock.calls[0]!;
+    expect(init?.headers).toMatchObject({
+      "x-midlyr-client": "midlyr-cli/9.9.9",
+    });
   });
 });
