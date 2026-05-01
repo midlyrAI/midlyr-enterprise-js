@@ -3,6 +3,7 @@ export const commandNames = [
   "describe-document",
   "read-document-content",
   "screen-analysis",
+  "list-jobs",
   "config",
   "login",
 ] as const;

@@ -1,11 +1,14 @@
 import {
   SCREEN_ANALYSIS_SCENARIOS,
+  type JobType,
+  type ListJobsQuery,
   type StartScreenAnalysisBody,
   type ScreenAnalysisScenario,
 } from "@midlyr/sdk-js";
 import { CliInputError } from "../domain/errors.js";
 import type { CredentialsStore } from "../domain/credentials.js";
 import type { DocumentsService } from "../domain/documents.js";
+import type { JobsService } from "../domain/jobs.js";
 import type { ScreenAnalysisService } from "../domain/screen-analysis.js";
 import { isCommandName } from "./command-names.js";
 import type { ParsedArgs } from "./parser.js";
@@ -14,6 +17,7 @@ import type { Writable } from "./output.js";
 export interface CommandServices {
   documents: DocumentsService;
   screenAnalysis: ScreenAnalysisService;
+  jobs: JobsService;
 }
 
 export async function runConfigCommand(
@@ -74,6 +78,9 @@ export async function runCommand(
         pollIntervalMs: args.numberOption("poll-interval-ms"),
       });
 
+    case "list-jobs":
+      return services.jobs.list(buildListJobsQuery(args));
+
     case "config":
       throw new Error("config command should be handled before this point");
 
@@ -94,6 +101,37 @@ const VALID_SCENARIOS: ReadonlySet<string> = new Set(SCREEN_ANALYSIS_SCENARIOS);
 
 function isScenario(value: string): value is ScreenAnalysisScenario {
   return VALID_SCENARIOS.has(value);
+}
+
+const KNOWN_JOB_TYPES: ReadonlySet<JobType> = new Set<JobType>([
+  "screen_analysis",
+  "regulation_recommendation",
+  "context_generation",
+  "regulation_discovery",
+]);
+
+function isJobType(value: string): value is JobType {
+  return KNOWN_JOB_TYPES.has(value as JobType);
+}
+
+function buildListJobsQuery(args: ParsedArgs): ListJobsQuery {
+  const jobTypes = args.multiOption("job-type");
+  if (jobTypes) {
+    for (const t of jobTypes) {
+      if (!isJobType(t)) {
+        throw new CliInputError(
+          `Invalid --job-type '${t}'. Must be one of: ${[...KNOWN_JOB_TYPES].join(", ")}.`,
+        );
+      }
+    }
+  }
+  return {
+    jobType: jobTypes as JobType[] | undefined,
+    start: args.option("start"),
+    end: args.option("end"),
+    cursor: args.option("cursor"),
+    limit: args.numberOption("limit"),
+  };
 }
 
 function buildScreenAnalysisBody(args: ParsedArgs): StartScreenAnalysisBody {

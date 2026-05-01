@@ -2,6 +2,7 @@ import {
   Midlyr as MidlyrSdk,
   type BrowseRegulationsQuery,
   type FetchLike,
+  type ListJobsQuery,
   type ReadRegulationContentQuery,
   type StartScreenAnalysisBody,
 } from "@midlyr/sdk-js";
@@ -49,5 +50,9 @@ export class MidlyrClient {
 
   getJob(jobId: string) {
     return this.sdk.jobs.get(jobId);
+  }
+
+  listJobs(query: ListJobsQuery) {
+    return this.sdk.jobs.list(query);
   }
 }

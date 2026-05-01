@@ -13,6 +13,10 @@ function createServices() {
     screenAnalysis: {
       run: vi.fn(async () => ({ ok: true })),
     },
+    jobs: {
+      list: vi.fn(async () => ({ ok: true })),
+      get: vi.fn(async () => ({ ok: true })),
+    },
   };
 }
 
@@ -113,6 +117,60 @@ describe("command handlers", () => {
       runCommand(
         "screen-analysis",
         parseArgs(["screen-analysis", "--scenario", "invalid", "--text", "test"]),
+        createServices(),
+      ),
+    ).rejects.toBeInstanceOf(CliInputError);
+  });
+
+  it("maps list-jobs options to query input", async () => {
+    const services = createServices();
+
+    await runCommand(
+      "list-jobs",
+      parseArgs([
+        "list-jobs",
+        "--job-type",
+        "screen_analysis",
+        "--start",
+        "2026-04-01T00:00:00.000Z",
+        "--end",
+        "2026-04-30T23:59:59.000Z",
+        "--limit",
+        "25",
+        "--cursor",
+        "cur_abc",
+      ]),
+      services,
+    );
+
+    expect(services.jobs.list).toHaveBeenCalledWith({
+      jobType: ["screen_analysis"],
+      start: "2026-04-01T00:00:00.000Z",
+      end: "2026-04-30T23:59:59.000Z",
+      cursor: "cur_abc",
+      limit: 25,
+    });
+  });
+
+  it("list-jobs defaults to no filters", async () => {
+    const services = createServices();
+
+    await runCommand("list-jobs", parseArgs(["list-jobs"]), services);
+
+    expect(services.jobs.list).toHaveBeenCalledWith({
+      jobType: undefined,
+      start: undefined,
+      end: undefined,
+      cursor: undefined,
+      limit: undefined,
+    });
+  });
+
+  it("list-jobs rejects unknown --job-type values", async () => {
+    await expect(
+      runCommand(
+        "list-jobs",
+        parseArgs(["list-jobs", "--job-type", "not_a_real_type"]),
         createServices(),
       ),
     ).rejects.toBeInstanceOf(CliInputError);

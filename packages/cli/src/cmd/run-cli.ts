@@ -6,6 +6,7 @@ import {
   type SignalHandler,
   type SignalName,
 } from "../domain/polling.js";
+import { JobsService } from "../domain/jobs.js";
 import { ScreenAnalysisService } from "../domain/screen-analysis.js";
 import { MidlyrClient } from "../sdk/midlyr-client.js";
 import { CLI_VERSION } from "../version.js";
@@ -91,6 +92,7 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
       screenAnalysis: new ScreenAnalysisService(client, polling, (message) =>
         logger.write(`${message}\n`),
       ),
+      jobs: new JobsService(client),
     });
 
     printJson(stdout, result);

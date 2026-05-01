@@ -29,9 +29,15 @@ export type {
 export type {
   Job,
   JobFailed,
+  JobListStatus,
   JobRunning,
   JobStatus,
   JobSucceeded,
+  JobSummary,
+  JobTriggerType,
+  JobType,
+  ListJobsQuery,
+  ListJobsResponse,
   ScreenAnalysisJobType,
 } from "./types/jobs.js";
 export type {

@@ -286,4 +286,56 @@ describe("Midlyr SDK", () => {
 
     await expect(client.jobs.get("job_123")).rejects.toBeInstanceOf(MidlyrNetworkError);
   });
+
+  it("lists jobs with query parameters", async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({
+        results: [
+          {
+            jobId: "job_1",
+            jobType: "screen_analysis",
+            status: "completed",
+            triggerType: "manual",
+            createdAt: "2026-04-01T00:00:00.000Z",
+            updatedAt: "2026-04-01T00:00:05.000Z",
+          },
+        ],
+        pagination: { nextCursor: "cur_2", hasMore: true, approximateTotal: 0 },
+      }),
+    );
+    const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
+
+    const page = await client.jobs.list({
+      jobType: ["screen_analysis"],
+      start: "2026-04-01T00:00:00.000Z",
+      end: "2026-04-30T23:59:59.000Z",
+      limit: 25,
+      cursor: "cur_1",
+    });
+
+    expect(page.results).toHaveLength(1);
+    expect(page.results[0]!.jobId).toBe("job_1");
+    expect(page.pagination.nextCursor).toBe("cur_2");
+
+    const [url, init] = fetch.mock.calls[0]!;
+    expect(String(url)).toBe(
+      "https://api.example.com/api/v1/jobs/?jobType=screen_analysis&start=2026-04-01T00%3A00%3A00.000Z&end=2026-04-30T23%3A59%3A59.000Z&limit=25&cursor=cur_1",
+    );
+    expect(init?.method).toBe("GET");
+  });
+
+  it("defaults to no query parameters when listing jobs", async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({
+        results: [],
+        pagination: { nextCursor: null, hasMore: false, approximateTotal: 0 },
+      }),
+    );
+    const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
+
+    await client.jobs.list();
+
+    const [url] = fetch.mock.calls[0]!;
+    expect(String(url)).toBe("https://api.example.com/api/v1/jobs/");
+  });
 });

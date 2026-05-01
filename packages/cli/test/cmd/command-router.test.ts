@@ -8,6 +8,7 @@ describe("command names", () => {
       "describe-document",
       "read-document-content",
       "screen-analysis",
+      "list-jobs",
       "config",
       "login",
     ]);

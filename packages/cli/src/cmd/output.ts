@@ -104,6 +104,28 @@ Endpoints: POST /api/v1/analysis/screen, GET /api/v1/jobs/:id
 `,
   },
   {
+    command: "list-jobs",
+    label: "list-jobs",
+    summary: "List historical jobs for the current team",
+    details: `midlyr list-jobs [options]
+
+List historical jobs for the current team. Returns slim summaries; use the
+job id with the SDK or REST API to fetch full details.
+
+Options:
+  --job-type <type>       (repeatable) Filter by job type. Allowed values:
+                          screen_analysis, regulation_recommendation,
+                          context_generation, regulation_discovery.
+                          Today only screen_analysis surfaces in REST results.
+  --start <iso>           ISO datetime lower bound (defaults to 30 days ago when omitted).
+  --end <iso>             ISO datetime upper bound.
+  --cursor <token>        Pagination cursor from a previous response.
+  --limit <n>             Page size (1-200, default 50).
+
+Endpoint: GET /api/v1/jobs
+`,
+  },
+  {
     command: "login",
     label: "login",
     summary: "Browser-based OAuth to provision an API key",
