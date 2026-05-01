@@ -1,12 +1,5 @@
 import type { RegulationCitation } from "./regulations.js";
 
-export type {
-  /** @deprecated Use `RegulationCitationChunk` from regulations.ts. */
-  RegulationCitationChunk as ScreenAnalysisCitationChunk,
-  /** @deprecated Use `RegulationCitation` from regulations.ts. */
-  RegulationCitation as ScreenAnalysisCitation,
-} from "./regulations.js";
-
 export const SCREEN_ANALYSIS_SCENARIOS = [
   "marketing_asset",
   "dispute",

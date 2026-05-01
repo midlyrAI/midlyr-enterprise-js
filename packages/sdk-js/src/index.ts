@@ -16,8 +16,6 @@ export { RegulationAPI } from "./resources/regulations.js";
 export type { ErrorDetail, PaginationResult } from "./types/common.js";
 export { SCREEN_ANALYSIS_SCENARIOS } from "./types/analysis.js";
 export type {
-  ScreenAnalysisCitation,
-  ScreenAnalysisCitationChunk,
   ScreenAnalysisContent,
   ScreenAnalysisJobResult,
   ScreenAnalysisScenario,
