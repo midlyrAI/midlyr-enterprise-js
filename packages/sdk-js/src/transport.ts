@@ -12,6 +12,19 @@ import {
   type MidlyrResponseHeaders,
 } from "./errors.js";
 import type { ErrorDetail } from "./types/common.js";
+import { SDK_CLIENT_IDENTITY } from "./version.js";
+
+const CLIENT_IDENTITY_PATTERN = /^[a-z0-9._-]+\/[A-Za-z0-9.+_~-]+$/;
+
+function validateClientIdentity(value: string | undefined): string | undefined {
+  if (value === undefined) return undefined;
+  if (!CLIENT_IDENTITY_PATTERN.test(value)) {
+    throw new MidlyrError(
+      `Invalid clientIdentity "${value}" — expected "<product>/<version>" matching /${CLIENT_IDENTITY_PATTERN.source}/`,
+    );
+  }
+  return value;
+}
 
 export type HttpMethod = "GET" | "POST";
 
@@ -26,6 +39,7 @@ export interface TransportOptions {
   maxRetries?: number;
   retryDelayMs?: number;
   fetch?: FetchLike;
+  clientIdentity?: string;
 }
 
 export interface RequestConfig extends MidlyrRequestOptions {
@@ -42,6 +56,7 @@ export class Transport {
   readonly #maxRetries: number;
   readonly #retryDelayMs: number;
   readonly #fetch: FetchLike;
+  readonly #clientIdentity: string;
 
   constructor(options: TransportOptions) {
     this.#apiKey = options.apiKey;
@@ -50,6 +65,7 @@ export class Transport {
     this.#maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES;
     this.#retryDelayMs = options.retryDelayMs ?? DEFAULT_RETRY_DELAY_MS;
     this.#fetch = options.fetch ?? getDefaultFetch();
+    this.#clientIdentity = validateClientIdentity(options.clientIdentity) ?? SDK_CLIENT_IDENTITY;
   }
 
   async request<T>(config: RequestConfig): Promise<T> {
@@ -129,6 +145,7 @@ export class Transport {
         accept: "application/json",
         ...(body === undefined ? {} : { "content-type": "application/json" }),
         "x-api-key": this.#apiKey,
+        "x-midlyr-client": this.#clientIdentity,
       },
       body,
       signal: createTimeoutSignal(config.timeoutMs ?? this.#timeoutMs),

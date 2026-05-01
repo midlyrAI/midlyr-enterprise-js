@@ -9,6 +9,7 @@ export {
   type MidlyrRequestOptions,
 } from "./config.js";
 export { MidlyrAPIError, MidlyrError, MidlyrNetworkError } from "./errors.js";
+export { SDK_VERSION, SDK_CLIENT_PRODUCT, SDK_CLIENT_IDENTITY } from "./version.js";
 export { AnalysisAPI } from "./resources/analysis.js";
 export { JobAPI } from "./resources/jobs.js";
 export { RegulationAPI } from "./resources/regulations.js";

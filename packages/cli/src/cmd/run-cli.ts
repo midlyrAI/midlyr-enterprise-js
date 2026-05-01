@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import type { FetchLike } from "@midlyr/sdk-js";
 import { DocumentsService } from "../domain/documents.js";
 import type { CredentialsStore } from "../domain/credentials.js";
@@ -9,6 +8,7 @@ import {
 } from "../domain/polling.js";
 import { ScreenAnalysisService } from "../domain/screen-analysis.js";
 import { MidlyrClient } from "../sdk/midlyr-client.js";
+import { CLI_VERSION } from "../version.js";
 import { runCommand, runConfigCommand } from "./commands.js";
 import { resolveCliConfig } from "./config.js";
 import { runLoginCommand, type LoginRuntime } from "./login.js";
@@ -38,9 +38,10 @@ export interface CliRuntime {
 
 type NoCredsCommand = "config" | "login";
 const NO_CREDS_COMMANDS: ReadonlySet<string> = new Set<NoCredsCommand>(["config", "login"]);
-const PACKAGE_JSON_URL = new URL("../../package.json", import.meta.url);
 
-let cachedCliVersion: string | undefined;
+function resolveCliVersion(runtime: CliRuntime): string {
+  return runtime.version ?? CLI_VERSION;
+}
 
 export async function runCli(argv: readonly string[], runtime: CliRuntime = {}): Promise<number> {
   const stdout = runtime.stdout ?? defaultStdout();
@@ -53,7 +54,7 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
     const wantsVersion = parsed.hasBoolean("version") || parsed.hasBoolean("v");
 
     if (wantsVersion) {
-      stdout.write(`${runtime.version ?? (await readCliVersion())}\n`);
+      stdout.write(`${resolveCliVersion(runtime)}\n`);
       return 0;
     }
 
@@ -74,7 +75,11 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
 
     const credentials = runtime.credentialsStore ? await runtime.credentialsStore.read() : {};
     const config = resolveCliConfig(parsed, runtime.env ?? {}, credentials);
-    const client = new MidlyrClient({ ...config, fetch: runtime.fetch });
+    const client = new MidlyrClient({
+      ...config,
+      fetch: runtime.fetch,
+      clientIdentity: `midlyr-cli/${resolveCliVersion(runtime)}`,
+    });
     const polling = new ScreenAnalysisPollingService(client, {
       now: runtime.now ?? Date.now,
       sleep: runtime.sleep ?? defaultSleep,
@@ -127,22 +132,6 @@ async function dispatchNoCreds(
   }
   await runLoginCommand(loginRuntime, parsed);
   return 0;
-}
-
-async function readCliVersion(): Promise<string> {
-  if (cachedCliVersion) {
-    return cachedCliVersion;
-  }
-
-  const packageJson = JSON.parse(await readFile(PACKAGE_JSON_URL, "utf8")) as {
-    version?: unknown;
-  };
-  if (typeof packageJson.version !== "string" || !packageJson.version) {
-    throw new Error("Unable to read @midlyr/cli package version.");
-  }
-
-  cachedCliVersion = packageJson.version;
-  return cachedCliVersion;
 }
 
 function defaultStdout(): Writable {

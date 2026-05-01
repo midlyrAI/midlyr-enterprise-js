@@ -12,6 +12,7 @@ export interface MidlyrClientOptions {
   maxRetries?: number;
   retryDelayMs?: number;
   fetch?: FetchLike;
+  clientIdentity?: string;
 }
 
 export interface MidlyrRequestOptions {

@@ -11,6 +11,7 @@ export type MidlyrClientOptions = {
   baseUrl: string;
   requestTimeoutMs?: number;
   fetch?: FetchLike;
+  clientIdentity?: string;
 };
 
 type PublicMidlyrSdk = Pick<MidlyrSdk, "regulations" | "analysis" | "jobs">;
@@ -26,6 +27,7 @@ export class MidlyrClient {
         baseUrl: options.baseUrl,
         timeoutMs: options.requestTimeoutMs,
         fetch: options.fetch,
+        clientIdentity: options.clientIdentity,
       });
   }
 
