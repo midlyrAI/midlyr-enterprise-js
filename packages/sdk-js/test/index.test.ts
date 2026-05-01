@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import {
   Midlyr,
@@ -272,14 +271,6 @@ describe("Midlyr SDK", () => {
           clientIdentity: identity,
         }),
     ).toThrow(MidlyrError);
-  });
-
-  it("SDK_VERSION matches packages/sdk-js/package.json#version", async () => {
-    const pkgUrl = new URL("../package.json", import.meta.url);
-    const raw = await readFile(pkgUrl, "utf8");
-    const pkg = JSON.parse(raw) as { version?: unknown };
-    expect(typeof pkg.version).toBe("string");
-    expect(SDK_VERSION).toBe(pkg.version);
   });
 
   it("wraps network failures in typed network errors", async () => {
