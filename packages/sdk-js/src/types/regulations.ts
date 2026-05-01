@@ -154,7 +154,6 @@ export interface RegulationCitationChunk {
   startOffset: number | null;
   endOffset: number | null;
   sectionPath: string | null;
-  citation: string | null;
 }
 
 /**

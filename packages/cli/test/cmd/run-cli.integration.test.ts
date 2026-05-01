@@ -253,7 +253,6 @@ describe("midlyr CLI", () => {
                 startOffset: 12450,
                 endOffset: 13120,
                 sectionPath: "§ 1005.11",
-                citation: "12 CFR 1005.11",
               },
             ],
           },
