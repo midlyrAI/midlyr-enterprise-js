@@ -145,28 +145,28 @@ export interface QueryRegulationsBody {
   filters?: QueryRegulationsFilters;
 }
 
-export interface QueryRegulationsRegulation {
-  id: string;
-  externalId: string | null;
-  name: string;
-  type: string;
-  authority: string[];
-  jurisdiction: string[];
-  agency: string | null;
+/**
+ * Shared chunk shape returned by any API that surfaces regulation excerpts —
+ * screen-analysis citations and the regulation query endpoint both use this.
+ */
+export interface RegulationCitationChunk {
+  text: string;
+  startOffset: number | null;
+  endOffset: number | null;
+  sectionPath: string | null;
+  citation: string | null;
 }
 
-export interface QueryRegulationsChunk {
-  chunkId: string;
-  score: number;
-  text: string;
-  chunkIndex: number;
-  totalChunks: number;
-  sectionPath: string | null;
-  sectionId: string | null;
-  citation: string | null;
-  regulation: QueryRegulationsRegulation;
+/**
+ * A regulation paired with one or more excerpts from it. Returned by both
+ * screen-analysis (as evidence supporting a finding) and the query endpoint
+ * (as a search result grouped by parent regulation).
+ */
+export interface RegulationCitation {
+  regulation: RegulationSummary;
+  chunks: RegulationCitationChunk[];
 }
 
 export interface QueryRegulationsResponse {
-  results: QueryRegulationsChunk[];
+  results: RegulationCitation[];
 }

@@ -1,4 +1,11 @@
-import type { RegulationSummary } from "./regulations.js";
+import type { RegulationCitation } from "./regulations.js";
+
+export type {
+  /** @deprecated Use `RegulationCitationChunk` from regulations.ts. */
+  RegulationCitationChunk as ScreenAnalysisCitationChunk,
+  /** @deprecated Use `RegulationCitation` from regulations.ts. */
+  RegulationCitation as ScreenAnalysisCitation,
+} from "./regulations.js";
 
 export const SCREEN_ANALYSIS_SCENARIOS = [
   "marketing_asset",
@@ -26,22 +33,11 @@ export interface StartScreenAnalysisResponse {
 
 export type ViolationPriority = "p1" | "p2" | "p3";
 
-export interface ScreenAnalysisCitationChunk {
-  text: string;
-  startOffset: number | null;
-  endOffset: number | null;
-}
-
-export interface ScreenAnalysisCitation {
-  regulation: RegulationSummary;
-  chunks: ScreenAnalysisCitationChunk[];
-}
-
 export interface ScreenAnalysisViolationResult {
   priority: ViolationPriority;
   title: string;
   details: string;
-  citations: ScreenAnalysisCitation[];
+  citations: RegulationCitation[];
 }
 
 export interface ScreenAnalysisJobResult {

@@ -237,23 +237,25 @@ describe("midlyr CLI", () => {
       jsonResponse({
         results: [
           {
-            chunkId: "chunk_1",
-            score: 0.92,
-            text: "If the financial institution is unable to complete its investigation within 10 business days...",
-            chunkIndex: 0,
-            totalChunks: 5,
-            sectionPath: "§ 1005.11",
-            sectionId: "1005.11",
-            citation: "12 CFR 1005.11",
             regulation: {
               id: "cdoc_001",
-              externalId: "ecfr-title12-part1005",
-              name: "Electronic Fund Transfers",
-              type: "regulation",
-              authority: ["CFPB"],
-              jurisdiction: ["us-federal"],
-              agency: "CFPB",
+              category: "regulation",
+              title: "Electronic Fund Transfers",
+              authorities: ["cfpb"],
+              jurisdictions: ["us-federal"],
+              description: "Regulation E error-resolution requirements.",
+              updatedAt: "2026-04-09T00:00:00.000Z",
+              sourceUrl: "https://www.ecfr.gov/current/title-12/part-1005",
             },
+            chunks: [
+              {
+                text: "If the financial institution is unable to complete its investigation within 10 business days...",
+                startOffset: 12450,
+                endOffset: 13120,
+                sectionPath: "§ 1005.11",
+                citation: "12 CFR 1005.11",
+              },
+            ],
           },
         ],
       }),
@@ -290,7 +292,12 @@ describe("midlyr CLI", () => {
       filters: { authorities: ["CFPB"] },
     });
     expect(parseJsonOutput(io.stdout())).toMatchObject({
-      results: [{ chunkId: "chunk_1", score: 0.92 }],
+      results: [
+        {
+          regulation: { id: "cdoc_001", title: "Electronic Fund Transfers" },
+          chunks: [{ sectionPath: "§ 1005.11" }],
+        },
+      ],
     });
   });
 
