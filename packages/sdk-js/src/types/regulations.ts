@@ -133,11 +133,9 @@ export interface ReadRegulationContentQuery {
 }
 
 export interface QueryRegulationsFilters {
-  commonDocumentIds?: string[];
-  types?: string[];
+  ids?: string[];
   authorities?: string[];
   jurisdictions?: string[];
-  agencies?: string[];
 }
 
 export interface QueryRegulationsBody {
@@ -148,7 +146,7 @@ export interface QueryRegulationsBody {
 }
 
 export interface QueryRegulationsRegulation {
-  commonDocumentId: string;
+  id: string;
   externalId: string | null;
   name: string;
   type: string;

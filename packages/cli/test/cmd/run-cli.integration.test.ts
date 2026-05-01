@@ -246,7 +246,7 @@ describe("midlyr CLI", () => {
             sectionId: "1005.11",
             citation: "12 CFR 1005.11",
             regulation: {
-              commonDocumentId: "cdoc_001",
+              id: "cdoc_001",
               externalId: "ecfr-title12-part1005",
               name: "Electronic Fund Transfers",
               type: "regulation",

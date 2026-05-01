@@ -96,11 +96,9 @@ Required:
 Optional:
   --limit <n>                 Max chunks to return (1..50, default 10)
   --score-threshold <n>       Drop chunks with a similarity score below this (0..1)
-  --common-document-id <id>   Restrict to specific document(s)  (repeatable)
-  --type <t>                  Filter by document type            (repeatable)
+  --id <id>                   Restrict to specific regulation(s) (repeatable)
   --authority <name>          Filter by authority                (repeatable)
   --jurisdiction <code>       Filter by jurisdiction             (repeatable)
-  --agency <name>             Filter by agency                   (repeatable)
 
 Returns chunks with score, text, chunkIndex/totalChunks, sectionPath/sectionId,
 citation, and the parent regulation's metadata.

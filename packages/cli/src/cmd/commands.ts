@@ -130,16 +130,12 @@ function buildQueryDocumentBody(args: ParsedArgs): QueryRegulationsBody {
   }
 
   const filters: QueryRegulationsFilters = {};
-  const commonDocumentIds = args.multiOption("common-document-id");
-  if (commonDocumentIds) filters.commonDocumentIds = commonDocumentIds;
-  const types = args.multiOption("type");
-  if (types) filters.types = types;
+  const ids = args.multiOption("id");
+  if (ids) filters.ids = ids;
   const authorities = args.multiOption("authority");
   if (authorities) filters.authorities = authorities;
   const jurisdictions = args.multiOption("jurisdiction");
   if (jurisdictions) filters.jurisdictions = jurisdictions;
-  const agencies = args.multiOption("agency");
-  if (agencies) filters.agencies = agencies;
 
   const body: QueryRegulationsBody = { query };
   const limit = args.numberOption("limit");

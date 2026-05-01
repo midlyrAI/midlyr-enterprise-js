@@ -136,12 +136,8 @@ describe("command handlers", () => {
         "CFPB",
         "--jurisdiction",
         "us-federal",
-        "--type",
-        "regulation",
-        "--common-document-id",
+        "--id",
         "cdoc_001",
-        "--agency",
-        "OCC",
       ]),
       services,
     );
@@ -151,11 +147,9 @@ describe("command handlers", () => {
       limit: 5,
       scoreThreshold: 0.7,
       filters: {
-        commonDocumentIds: ["cdoc_001"],
-        types: ["regulation"],
+        ids: ["cdoc_001"],
         authorities: ["CFPB"],
         jurisdictions: ["us-federal"],
-        agencies: ["OCC"],
       },
     });
   });
