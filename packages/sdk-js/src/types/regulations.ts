@@ -139,8 +139,15 @@ export interface QueryRegulationsFilters {
 }
 
 export interface QueryRegulationsBody {
+  /** Natural-language query. Embedded server-side and matched against the corpus. 1–2000 characters. */
   query: string;
+  /** Maximum number of chunks to return. Range 1–50. Defaults to 10 server-side. */
   limit?: number;
+  /**
+   * Cosine-similarity cutoff (range 0–1). Chunks scoring below this value are
+   * dropped from the response. Higher = stricter. Omit to receive all top-`limit`
+   * chunks regardless of score.
+   */
   scoreThreshold?: number;
   filters?: QueryRegulationsFilters;
 }
@@ -150,9 +157,19 @@ export interface QueryRegulationsBody {
  * screen-analysis citations and the regulation query endpoint both use this.
  */
 export interface RegulationCitationChunk {
+  /** Verbatim regulation text — not generated content. */
   text: string;
+  /** Byte offset where the excerpt begins in the regulation's plain text. `null` when unavailable (e.g., legacy ingestion). */
   startOffset: number | null;
+  /** Byte offset where the excerpt ends. `null` when unavailable. */
   endOffset: number | null;
+  /**
+   * Slash-delimited breadcrumb showing where the chunk lives within its
+   * document (e.g., `Regulation E > § 1005.11 > (c)(2)`). For documents
+   * without extractable section structure (typically single-section rules
+   * or unstructured statutes), falls back to the document title alone.
+   * `null` when nothing could be derived.
+   */
   sectionPath: string | null;
 }
 

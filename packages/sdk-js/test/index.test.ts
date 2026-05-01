@@ -204,6 +204,52 @@ describe("Midlyr SDK", () => {
     });
   });
 
+  it("decodes a populated regulations.query response into RegulationCitation[]", async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({
+        results: [
+          {
+            regulation: {
+              id: "cdoc_001",
+              category: "regulation",
+              title: "Electronic Fund Transfers",
+              authorities: ["cfpb"],
+              jurisdictions: ["us-federal"],
+              description: "Reg E error-resolution requirements.",
+              updatedAt: "2026-04-09T00:00:00.000Z",
+              sourceUrl: "https://www.ecfr.gov/current/title-12/part-1005",
+            },
+            chunks: [
+              {
+                text: "If the financial institution is unable to complete its investigation within 10 business days...",
+                startOffset: 12450,
+                endOffset: 13120,
+                sectionPath: "Regulation E > § 1005.11 > (c)(2)",
+              },
+              {
+                text: "The institution may extend the investigation period to 45 days...",
+                startOffset: 13121,
+                endOffset: 13680,
+                sectionPath: null,
+              },
+            ],
+          },
+        ],
+      }),
+    );
+    const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
+
+    const { results } = await client.regulations.query({ query: "provisional credit" });
+
+    expect(results).toHaveLength(1);
+    expect(results[0]!.regulation.id).toBe("cdoc_001");
+    expect(results[0]!.regulation.title).toBe("Electronic Fund Transfers");
+    expect(results[0]!.chunks).toHaveLength(2);
+    expect(results[0]!.chunks[0]!.startOffset).toBe(12450);
+    expect(results[0]!.chunks[0]!.sectionPath).toBe("Regulation E > § 1005.11 > (c)(2)");
+    expect(results[0]!.chunks[1]!.sectionPath).toBeNull();
+  });
+
   it("does not retry mutating POST requests by default", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({ error: { code: "internal_error", message: "try again" } }, { status: 503 }),
