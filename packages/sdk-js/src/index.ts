@@ -15,6 +15,7 @@ export { JobAPI } from "./resources/jobs.js";
 export { RegulationAPI } from "./resources/regulations.js";
 export type { ErrorDetail, PaginationResult } from "./types/common.js";
 export { SCREEN_ANALYSIS_SCENARIOS } from "./types/analysis.js";
+export { JOB_TYPES } from "./types/jobs.js";
 export type {
   ScreenAnalysisCitation,
   ScreenAnalysisCitationChunk,
@@ -35,7 +36,6 @@ export type {
   JobSucceeded,
   JobSummary,
   JobTriggerType,
-  JobType,
   ListJobsQuery,
   ListJobsResponse,
   ScreenAnalysisJobType,

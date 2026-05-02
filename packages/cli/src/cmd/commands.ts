@@ -1,7 +1,8 @@
 import {
+  JOB_TYPES,
   SCREEN_ANALYSIS_SCENARIOS,
-  type JobType,
   type ListJobsQuery,
+  type ScreenAnalysisJobType,
   type StartScreenAnalysisBody,
   type ScreenAnalysisScenario,
 } from "@midlyr/sdk-js";
@@ -103,15 +104,10 @@ function isScenario(value: string): value is ScreenAnalysisScenario {
   return VALID_SCENARIOS.has(value);
 }
 
-const KNOWN_JOB_TYPES: ReadonlySet<JobType> = new Set<JobType>([
-  "screen_analysis",
-  "regulation_recommendation",
-  "context_generation",
-  "regulation_discovery",
-]);
+const VALID_JOB_TYPES: ReadonlySet<string> = new Set(JOB_TYPES);
 
-function isJobType(value: string): value is JobType {
-  return KNOWN_JOB_TYPES.has(value as JobType);
+function isJobType(value: string): value is ScreenAnalysisJobType {
+  return VALID_JOB_TYPES.has(value);
 }
 
 function buildListJobsQuery(args: ParsedArgs): ListJobsQuery {
@@ -120,13 +116,13 @@ function buildListJobsQuery(args: ParsedArgs): ListJobsQuery {
     for (const t of jobTypes) {
       if (!isJobType(t)) {
         throw new CliInputError(
-          `Invalid --job-type '${t}'. Must be one of: ${[...KNOWN_JOB_TYPES].join(", ")}.`,
+          `Invalid --job-type '${t}'. Must be one of: ${JOB_TYPES.join(", ")}.`,
         );
       }
     }
   }
   return {
-    jobType: jobTypes as JobType[] | undefined,
+    jobType: jobTypes as ScreenAnalysisJobType[] | undefined,
     start: args.option("start"),
     end: args.option("end"),
     cursor: args.option("cursor"),

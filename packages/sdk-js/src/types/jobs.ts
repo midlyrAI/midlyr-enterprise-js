@@ -1,7 +1,13 @@
 import type { ErrorDetail, PaginationResult } from "./common.js";
 import type { ScreenAnalysisJobResult } from "./analysis.js";
 
-export type ScreenAnalysisJobType = "screen_analysis";
+/**
+ * Job types exposed by the public REST API. Server-internal types
+ * (regulation_recommendation, context_generation, regulation_discovery) are
+ * intentionally absent from this list and are filtered out server-side.
+ */
+export const JOB_TYPES = ["screen_analysis"] as const;
+export type ScreenAnalysisJobType = (typeof JOB_TYPES)[number];
 
 export type JobStatus = "running" | "succeeded" | "failed";
 
@@ -37,20 +43,17 @@ export type Job = JobSucceeded | JobRunning | JobFailed;
  * list response, which differs from `Job` (`jobId` vs `id`, `jobType` vs `type`,
  * status enum uses `completed` instead of `succeeded`). Mirrored verbatim so
  * callers see what's on the wire.
+ *
+ * Only `screen_analysis` is exposed via the public REST API today; other server
+ * job types are internal and intentionally absent from this SDK surface.
  */
-export type JobType =
-  | "screen_analysis"
-  | "regulation_recommendation"
-  | "context_generation"
-  | "regulation_discovery";
-
 export type JobListStatus = "running" | "completed" | "failed";
 
 export type JobTriggerType = "manual" | "automatic";
 
 export interface JobSummary {
   jobId: string;
-  jobType: JobType;
+  jobType: ScreenAnalysisJobType;
   status: JobListStatus;
   triggerType: JobTriggerType;
   createdAt: string;
@@ -58,7 +61,7 @@ export interface JobSummary {
 }
 
 export interface ListJobsQuery {
-  jobType?: JobType | JobType[];
+  jobType?: ScreenAnalysisJobType | ScreenAnalysisJobType[];
   start?: string;
   end?: string;
   cursor?: string;

@@ -113,10 +113,7 @@ List historical jobs for the current team. Returns slim summaries; use the
 job id with the SDK or REST API to fetch full details.
 
 Options:
-  --job-type <type>       (repeatable) Filter by job type. Allowed values:
-                          screen_analysis, regulation_recommendation,
-                          context_generation, regulation_discovery.
-                          Today only screen_analysis surfaces in REST results.
+  --job-type <type>       (repeatable) Filter by job type. Allowed values: screen_analysis.
   --start <iso>           ISO datetime lower bound (defaults to 30 days ago when omitted).
   --end <iso>             ISO datetime upper bound.
   --cursor <token>        Pagination cursor from a previous response.
