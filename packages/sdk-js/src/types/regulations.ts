@@ -1,13 +1,15 @@
 import type { PaginationResult } from "./common.js";
 
-export type DocumentCategory =
-  | "statute"
-  | "regulation"
-  | "interagencyGuidance"
-  | "agencyGuidance"
-  | "examinationHandbook"
-  | "interpretiveAction"
-  | "sroRule";
+export const DocumentCategory = {
+  STATUTE: "statute",
+  REGULATION: "regulation",
+  INTERAGENCY_GUIDANCE: "interagencyGuidance",
+  AGENCY_GUIDANCE: "agencyGuidance",
+  EXAMINATION_HANDBOOK: "examinationHandbook",
+  INTERPRETIVE_ACTION: "interpretiveAction",
+  SRO_RULE: "sroRule",
+} as const;
+export type DocumentCategory = (typeof DocumentCategory)[keyof typeof DocumentCategory];
 
 export interface RegulationSummary {
   id: string;

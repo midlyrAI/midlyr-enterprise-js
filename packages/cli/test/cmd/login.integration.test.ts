@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { FetchLike } from "@midlyr/sdk-js";
 import { runCli } from "../../src/cli.js";
-import type { LoginRuntime } from "../../src/cmd/login.js";
+import type { LoginRuntime } from "../../src/cmd/commands/index.js";
 import type { CredentialsStore, Credentials } from "../../src/domain/credentials.js";
 import type {
   BrowserOpener,

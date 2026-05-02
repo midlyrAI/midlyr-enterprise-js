@@ -1,14 +1,14 @@
 import type { RegulationCitation } from "./regulations.js";
 
-export const SCREEN_ANALYSIS_SCENARIOS = [
-  "marketing_asset",
-  "dispute",
-  "debt_collection",
-  "complaint",
-  "generic",
-] as const;
-
-export type ScreenAnalysisScenario = (typeof SCREEN_ANALYSIS_SCENARIOS)[number];
+export const ScreenAnalysisScenario = {
+  MARKETING_ASSET: "marketing_asset",
+  DISPUTE: "dispute",
+  DEBT_COLLECTION: "debt_collection",
+  COMPLAINT: "complaint",
+  GENERIC: "generic",
+} as const;
+export type ScreenAnalysisScenario =
+  (typeof ScreenAnalysisScenario)[keyof typeof ScreenAnalysisScenario];
 
 export interface ScreenAnalysisContent {
   type: "text";
@@ -24,7 +24,12 @@ export interface StartScreenAnalysisResponse {
   id: string;
 }
 
-export type ViolationPriority = "p1" | "p2" | "p3";
+export const ViolationPriority = {
+  P1: "p1",
+  P2: "p2",
+  P3: "p3",
+} as const;
+export type ViolationPriority = (typeof ViolationPriority)[keyof typeof ViolationPriority];
 
 export interface ScreenAnalysisViolationResult {
   priority: ViolationPriority;

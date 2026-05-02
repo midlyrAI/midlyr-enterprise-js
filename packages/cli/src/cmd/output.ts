@@ -1,6 +1,7 @@
 import { MidlyrAPIError, MidlyrError, MidlyrNetworkError } from "@midlyr/sdk-js";
 import { CliInputError, CliInterruptedError, CliJobTimeoutError } from "../domain/errors.js";
 import { LoginError } from "../domain/login/errors.js";
+import { ALL_HELP } from "./commands/index.js";
 
 export type Writable = {
   write(chunk: string): unknown;
@@ -14,142 +15,6 @@ export function printError(stderr: Writable, error: unknown): void {
   stderr.write(`${JSON.stringify(toErrorPayload(error), null, 2)}\n`);
 }
 
-interface HelpEntry {
-  readonly command: string;
-  readonly label: string;
-  readonly summary: string;
-  readonly details: string;
-}
-
-const HELP_ENTRIES: readonly HelpEntry[] = [
-  {
-    command: "browse-document",
-    label: "browse-document",
-    summary: "List regulatory documents with optional filters",
-    details: `midlyr browse-document [options]
-
-List regulatory documents with optional filters.
-
-Options:
-  --query <text>
-  --category <cat>        (repeatable)
-  --authority <name>      (repeatable)
-  --jurisdiction <code>   (repeatable)
-  --limit <n>
-  --cursor <token>
-
-Returns a paginated list of document summaries (id, title, jurisdictions, updatedAt).
-Does NOT return content bodies — use read-document-content for that.
-
-Endpoint: GET /api/v1/regulations/
-`,
-  },
-  {
-    command: "describe-document",
-    label: "describe-document",
-    summary: "Get metadata for one document by id",
-    details: `midlyr describe-document <id>
-
-Get metadata for one document by id — title, authorities, jurisdictions, description,
-table of contents, sourceUrl, totalBytes, updatedAt. Does NOT return the body text.
-
-Arguments:
-  <id>                    Document id (or pass via --id).
-
-Endpoint: GET /api/v1/regulations/:id
-`,
-  },
-  {
-    command: "read-document-content",
-    label: "read-document-content",
-    summary: "Get the full text body of a document by id",
-    details: `midlyr read-document-content <id> [options]
-
-Get the full text body of a document by id. Long documents are returned in byte-range
-chunks; use --offset and --limit to page.
-
-Arguments:
-  <id>                    Document id (or pass via --id).
-
-Options:
-  --offset <bytes>
-  --limit <bytes>
-
-Returns text plus the same metadata block that describe-document returns.
-
-Endpoint: GET /api/v1/regulations/:id/content
-`,
-  },
-  {
-    command: "query-document",
-    label: "query-document",
-    summary: "Vector-search document chunks by natural-language query",
-    details: `midlyr query-document --query <text> [options]
-
-Vector-search the regulatory corpus and return the top relevant chunks. This is a
-retrieval primitive — no LLM is invoked and no answer is generated. Compose it with
-your own model to build retrieval-augmented generation.
-
-Required:
-  --query <text>              Natural-language query (positional args also accepted)
-
-Optional:
-  --limit <n>                 Max chunks to return (1..50, default 10)
-  --score-threshold <n>       Drop chunks with a similarity score below this (0..1)
-  --id <id>                   Restrict to specific regulation(s) (repeatable)
-  --authority <name>          Filter by authority                (repeatable)
-  --jurisdiction <code>       Filter by jurisdiction             (repeatable)
-
-Returns chunks with score, text, chunkIndex/totalChunks, sectionPath/sectionId,
-citation, and the parent regulation's metadata.
-
-Endpoint: POST /api/v1/regulations/query
-`,
-  },
-  {
-    command: "screen-analysis",
-    label: "screen-analysis",
-    summary: "Submit text for compliance screening and poll the job",
-    details: `midlyr screen-analysis --scenario <type> --text <content> [options]
-
-Submit text for compliance screening and (by default) poll the resulting job until
-it succeeds or fails.
-
-Required:
-  --scenario <type>       One of: marketing_asset, dispute, debt_collection, complaint, generic
-  --text <content>        The text content to screen (positional args also accepted)
-
-Optional:
-  --timeout-ms <ms>       Total poll budget
-  --poll-interval-ms <ms> Polling interval
-  --no-wait               Submit only, return the job id without polling
-
-Returns the terminal job record (status, riskScore, findings) or a pending job when --no-wait.
-
-Endpoints: POST /api/v1/analysis/screen, GET /api/v1/jobs/:id
-`,
-  },
-  {
-    command: "login",
-    label: "login",
-    summary: "Browser-based OAuth to provision an API key",
-    details: `midlyr login
-
-Browser-based OAuth flow that provisions an API key and writes it to
-~/.config/midlyr/credentials.json. No arguments.
-`,
-  },
-  {
-    command: "config",
-    label: "config set api-key",
-    summary: "Save an API key to ~/.config/midlyr/credentials.json",
-    details: `midlyr config set api-key <key>
-
-Save an API key to ~/.config/midlyr/credentials.json so subsequent commands can use it
-without setting MIDLYR_API_KEY. Prefer \`midlyr login\` for normal use.
-`,
-  },
-];
 
 const GLOBAL_HELP_FOOTER = `Global options:
   --help, -h                  Show help.
@@ -167,9 +32,9 @@ Output:
 `;
 
 export function formatTopHelp(): string {
-  const labelWidth = Math.max(...HELP_ENTRIES.map((entry) => entry.label.length));
-  const commandLines = HELP_ENTRIES.map(
-    (entry) => `  ${entry.label.padEnd(labelWidth)}  ${entry.summary}`,
+  const labelWidth = Math.max(...ALL_HELP.map((entry) => entry.help.label.length));
+  const commandLines = ALL_HELP.map(
+    (entry) => `  ${entry.help.label.padEnd(labelWidth)}  ${entry.help.summary}`,
   ).join("\n");
 
   return `midlyr — CLI for the Midlyr compliance and regulation REST API.
@@ -186,8 +51,7 @@ ${GLOBAL_HELP_FOOTER}`;
 }
 
 export function formatCommandHelp(command: string): string | undefined {
-  const entry = HELP_ENTRIES.find((candidate) => candidate.command === command);
-  return entry?.details;
+  return ALL_HELP.find((candidate) => candidate.name === command)?.help.details;
 }
 
 export function toErrorPayload(error: unknown): Record<string, unknown> {

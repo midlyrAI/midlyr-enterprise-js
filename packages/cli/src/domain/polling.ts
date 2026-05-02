@@ -1,10 +1,14 @@
-import type { Job } from "@midlyr/sdk-js";
+import { JobStatus, type Job } from "@midlyr/sdk-js";
 import type { MidlyrClient } from "../sdk/midlyr-client.js";
 import { CliInterruptedError, CliJobTimeoutError } from "./errors.js";
 
 type JobClient = Pick<MidlyrClient, "getJob">;
 
-export type SignalName = "SIGINT" | "SIGTERM";
+export const SignalName = {
+  SIGINT: "SIGINT",
+  SIGTERM: "SIGTERM",
+} as const;
+export type SignalName = (typeof SignalName)[keyof typeof SignalName];
 export type SignalHandler = () => void;
 
 export interface PollingRuntime {
@@ -30,10 +34,10 @@ export class ScreenAnalysisPollingService {
   async poll(jobId: string, policy: PollingPolicy): Promise<Job> {
     const startedAt = this.runtime.now();
     let interrupted = false;
-    this.runtime.onSignal("SIGINT", () => {
+    this.runtime.onSignal(SignalName.SIGINT, () => {
       interrupted = true;
     });
-    this.runtime.onSignal("SIGTERM", () => {
+    this.runtime.onSignal(SignalName.SIGTERM, () => {
       interrupted = true;
     });
 
@@ -48,7 +52,7 @@ export class ScreenAnalysisPollingService {
       }
 
       const job = await this.client.getJob(jobId);
-      if (job.status === "succeeded" || job.status === "failed") {
+      if (job.status === JobStatus.SUCCEEDED || job.status === JobStatus.FAILED) {
         return job;
       }
     }

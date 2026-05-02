@@ -2,14 +2,19 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export type CliEnv = "local" | "staging" | "production";
+export const CliEnv = {
+  LOCAL: "local",
+  STAGING: "staging",
+  PRODUCTION: "production",
+} as const;
+export type CliEnv = (typeof CliEnv)[keyof typeof CliEnv];
 
-const ENVS = new Set<CliEnv>(["local", "staging", "production"]);
+const ENVS: ReadonlySet<string> = new Set(Object.values(CliEnv));
 
 export function resolveCliEnv(env: Record<string, string | undefined>): CliEnv {
   const raw = env["MIDLYR_CLI_ENV"];
-  if (raw && ENVS.has(raw as CliEnv)) return raw as CliEnv;
-  return "production";
+  if (raw && ENVS.has(raw)) return raw as CliEnv;
+  return CliEnv.PRODUCTION;
 }
 
 /**
