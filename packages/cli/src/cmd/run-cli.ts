@@ -11,9 +11,8 @@ import { CommandName } from "./command-names.js";
 import { ScreenAnalysisService } from "../domain/screen-analysis.js";
 import { MidlyrClient } from "../sdk/midlyr-client.js";
 import { CLI_VERSION } from "../version.js";
-import { runCommand, runConfigCommand } from "./commands.js";
+import { runCommand, runConfigCommand, runLoginCommand, type LoginRuntime } from "./commands/index.js";
 import { resolveCliConfig } from "./config.js";
-import { runLoginCommand, type LoginRuntime } from "./login.js";
 import {
   formatCommandHelp,
   formatTopHelp,

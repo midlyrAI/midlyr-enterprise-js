@@ -1,10 +1,12 @@
 import type { FetchLike } from "@midlyr/sdk-js";
 import { DEFAULT_BASE_URL } from "@midlyr/sdk-js";
-import type { CliRuntime } from "./run-cli.js";
-import type { Writable } from "./output.js";
-import { runLogin } from "../domain/login/login-service.js";
-import type { BrowserOpener, LocalhostServer } from "../domain/login/types.js";
-import type { ParsedArgs } from "./parser.js";
+import type { CliRuntime } from "../run-cli.js";
+import type { Writable } from "../output.js";
+import { runLogin } from "../../domain/login/login-service.js";
+import type { BrowserOpener, LocalhostServer } from "../../domain/login/types.js";
+import { CommandName } from "../command-names.js";
+import type { ParsedArgs } from "../parser.js";
+import type { HelpEntry } from "./types.js";
 
 const DEFAULT_APP_URL = "https://app.midlyr.com";
 
@@ -15,7 +17,7 @@ const SignalName = {
 type SignalName = (typeof SignalName)[keyof typeof SignalName];
 type SignalHandler = () => void;
 
-// LoginRuntime extends CliRuntime — narrow type used ONLY inside login.ts and bin.ts.
+// LoginRuntime extends CliRuntime — narrow type used ONLY by the login command and bin.ts.
 // CliRuntime itself does NOT add these fields.
 export interface LoginRuntime extends CliRuntime {
   browserOpener: BrowserOpener;
@@ -26,6 +28,19 @@ export interface LoginRuntime extends CliRuntime {
   setTimeout: (handler: () => void, ms: number) => ReturnType<typeof globalThis.setTimeout>;
   clearTimeout: (handle: ReturnType<typeof globalThis.setTimeout>) => void;
 }
+
+export const loginHelp: { name: typeof CommandName.LOGIN; help: HelpEntry } = {
+  name: CommandName.LOGIN,
+  help: {
+    label: "login",
+    summary: "Browser-based OAuth to provision an API key",
+    details: `midlyr login
+
+Browser-based OAuth flow that provisions an API key and writes it to
+~/.config/midlyr/credentials.json. No arguments.
+`,
+  },
+};
 
 export async function runLoginCommand(runtime: LoginRuntime, _parsed: ParsedArgs): Promise<void> {
   const stdout: Writable = runtime.stdout ?? defaultStdout();

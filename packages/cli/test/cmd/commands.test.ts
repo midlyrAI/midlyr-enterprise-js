@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { CliInputError } from "../../src/domain/errors.js";
-import { runCommand } from "../../src/cmd/commands.js";
+import { runCommand } from "../../src/cmd/commands/index.js";
 import { parseArgs } from "../../src/cmd/parser.js";
 
 function createServices() {
