@@ -268,8 +268,6 @@ describe("midlyr CLI", () => {
         "provisional credit",
         "--limit",
         "5",
-        "--score-threshold",
-        "0.7",
         "--authority",
         "CFPB",
       ],
@@ -287,7 +285,6 @@ describe("midlyr CLI", () => {
     expect(JSON.parse(String(init?.body))).toEqual({
       query: "provisional credit",
       limit: 5,
-      scoreThreshold: 0.7,
       filters: { authorities: ["CFPB"] },
     });
     expect(parseJsonOutput(io.stdout())).toMatchObject({

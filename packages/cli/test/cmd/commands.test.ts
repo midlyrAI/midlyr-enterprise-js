@@ -188,8 +188,6 @@ describe("command handlers", () => {
         "provisional credit",
         "--limit",
         "5",
-        "--score-threshold",
-        "0.7",
         "--authority",
         "CFPB",
         "--jurisdiction",
@@ -203,7 +201,6 @@ describe("command handlers", () => {
     expect(services.documents.query).toHaveBeenCalledWith({
       query: "provisional credit",
       limit: 5,
-      scoreThreshold: 0.7,
       filters: {
         ids: ["cdoc_001"],
         authorities: ["CFPB"],

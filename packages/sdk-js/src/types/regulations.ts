@@ -148,12 +148,6 @@ export interface QueryRegulationsBody {
   query: string;
   /** Maximum number of chunks to return. Range 1–50. Defaults to 10 server-side. */
   limit?: number;
-  /**
-   * Cosine-similarity cutoff (range 0–1). Chunks scoring below this value are
-   * dropped from the response. Higher = stricter. Omit to receive all top-`limit`
-   * chunks regardless of score.
-   */
-  scoreThreshold?: number;
   filters?: QueryRegulationsFilters;
 }
 
