@@ -28,7 +28,8 @@ Optional:
   --authority <name>          Filter by authority                (repeatable)
   --jurisdiction <code>       Filter by jurisdiction             (repeatable)
 
-Returns chunks with score, text, byte offsets, and the parent regulation's metadata.
+Returns matches grouped by parent regulation, each with one or more excerpts
+(text, byte offsets, section path) and the regulation's metadata.
 
 Endpoint: POST /api/v1/regulations/query
 `,
