@@ -4,7 +4,11 @@ import type { CredentialsStore } from "../credentials.js";
 import { CliInterruptedError } from "../errors.js";
 import type { FetchLike } from "@midlyr/sdk-js";
 
-type SignalName = "SIGINT" | "SIGTERM";
+const SignalName = {
+  SIGINT: "SIGINT",
+  SIGTERM: "SIGTERM",
+} as const;
+type SignalName = (typeof SignalName)[keyof typeof SignalName];
 type SignalHandler = () => void;
 
 type Writable = { write(chunk: string): unknown };

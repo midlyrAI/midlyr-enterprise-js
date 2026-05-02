@@ -7,6 +7,7 @@ import {
   type SignalName,
 } from "../domain/polling.js";
 import { JobsService } from "../domain/jobs.js";
+import { CommandName } from "./command-names.js";
 import { ScreenAnalysisService } from "../domain/screen-analysis.js";
 import { MidlyrClient } from "../sdk/midlyr-client.js";
 import { CLI_VERSION } from "../version.js";
@@ -37,8 +38,12 @@ export interface CliRuntime {
   version?: string;
 }
 
-type NoCredsCommand = "config" | "login";
-const NO_CREDS_COMMANDS: ReadonlySet<string> = new Set<NoCredsCommand>(["config", "login"]);
+const NoCredsCommand = {
+  CONFIG: CommandName.CONFIG,
+  LOGIN: CommandName.LOGIN,
+} as const;
+type NoCredsCommand = (typeof NoCredsCommand)[keyof typeof NoCredsCommand];
+const NO_CREDS_COMMANDS: ReadonlySet<string> = new Set(Object.values(NoCredsCommand));
 
 function resolveCliVersion(runtime: CliRuntime): string {
   return runtime.version ?? CLI_VERSION;
@@ -111,7 +116,7 @@ async function dispatchNoCreds(
   runtime: CliRuntime,
   stdout: Writable,
 ): Promise<number> {
-  if (commandName === "config") {
+  if (commandName === NoCredsCommand.CONFIG) {
     if (!runtime.credentialsStore) {
       throw new Error("credentialsStore is required for the config command");
     }

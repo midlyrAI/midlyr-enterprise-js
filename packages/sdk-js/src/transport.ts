@@ -26,7 +26,11 @@ function validateClientIdentity(value: string | undefined): string | undefined {
   return value;
 }
 
-export type HttpMethod = "GET" | "POST";
+export const HttpMethod = {
+  GET: "GET",
+  POST: "POST",
+} as const;
+export type HttpMethod = (typeof HttpMethod)[keyof typeof HttpMethod];
 
 type QueryPrimitive = string | number | boolean;
 type QueryValue = QueryPrimitive | readonly QueryPrimitive[];

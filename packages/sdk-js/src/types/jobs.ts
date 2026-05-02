@@ -4,34 +4,41 @@ import type { ScreenAnalysisJobResult } from "./analysis.js";
 /**
  * Job types exposed by the public REST API. Server-internal types
  * (regulation_recommendation, context_generation, regulation_discovery) are
- * intentionally absent from this list and are filtered out server-side.
+ * intentionally absent and are filtered out server-side.
  */
-export const JOB_TYPES = ["screen_analysis"] as const;
-export type ScreenAnalysisJobType = (typeof JOB_TYPES)[number];
+export const JobType = {
+  SCREEN_ANALYSIS: "screen_analysis",
+} as const;
+export type JobType = (typeof JobType)[keyof typeof JobType];
 
-export type JobStatus = "running" | "succeeded" | "failed";
+export const JobStatus = {
+  RUNNING: "running",
+  SUCCEEDED: "succeeded",
+  FAILED: "failed",
+} as const;
+export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus];
 
 interface JobBase {
   id: string;
-  type: ScreenAnalysisJobType;
+  type: JobType;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface JobSucceeded extends JobBase {
-  status: "succeeded";
+  status: typeof JobStatus.SUCCEEDED;
   result: ScreenAnalysisJobResult;
   error: null;
 }
 
 export interface JobRunning extends JobBase {
-  status: "running";
+  status: typeof JobStatus.RUNNING;
   result: null;
   error: null;
 }
 
 export interface JobFailed extends JobBase {
-  status: "failed";
+  status: typeof JobStatus.FAILED;
   result: null;
   error: ErrorDetail;
 }
@@ -47,13 +54,22 @@ export type Job = JobSucceeded | JobRunning | JobFailed;
  * Only `screen_analysis` is exposed via the public REST API today; other server
  * job types are internal and intentionally absent from this SDK surface.
  */
-export type JobListStatus = "running" | "completed" | "failed";
+export const JobListStatus = {
+  RUNNING: "running",
+  COMPLETED: "completed",
+  FAILED: "failed",
+} as const;
+export type JobListStatus = (typeof JobListStatus)[keyof typeof JobListStatus];
 
-export type JobTriggerType = "manual" | "automatic";
+export const JobTriggerType = {
+  MANUAL: "manual",
+  AUTOMATIC: "automatic",
+} as const;
+export type JobTriggerType = (typeof JobTriggerType)[keyof typeof JobTriggerType];
 
 export interface JobSummary {
   jobId: string;
-  jobType: ScreenAnalysisJobType;
+  jobType: JobType;
   status: JobListStatus;
   triggerType: JobTriggerType;
   createdAt: string;
@@ -61,7 +77,7 @@ export interface JobSummary {
 }
 
 export interface ListJobsQuery {
-  jobType?: ScreenAnalysisJobType | ScreenAnalysisJobType[];
+  jobType?: JobType | JobType[];
   start?: string;
   end?: string;
   cursor?: string;

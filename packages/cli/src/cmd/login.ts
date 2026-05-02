@@ -8,7 +8,11 @@ import type { ParsedArgs } from "./parser.js";
 
 const DEFAULT_APP_URL = "https://app.midlyr.com";
 
-type SignalName = "SIGINT" | "SIGTERM";
+const SignalName = {
+  SIGINT: "SIGINT",
+  SIGTERM: "SIGTERM",
+} as const;
+type SignalName = (typeof SignalName)[keyof typeof SignalName];
 type SignalHandler = () => void;
 
 // LoginRuntime extends CliRuntime — narrow type used ONLY inside login.ts and bin.ts.

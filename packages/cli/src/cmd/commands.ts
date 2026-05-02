@@ -1,17 +1,15 @@
 import {
-  JOB_TYPES,
-  SCREEN_ANALYSIS_SCENARIOS,
+  JobType,
+  ScreenAnalysisScenario,
   type ListJobsQuery,
-  type ScreenAnalysisJobType,
   type StartScreenAnalysisBody,
-  type ScreenAnalysisScenario,
 } from "@midlyr/sdk-js";
 import { CliInputError } from "../domain/errors.js";
 import type { CredentialsStore } from "../domain/credentials.js";
 import type { DocumentsService } from "../domain/documents.js";
 import type { JobsService } from "../domain/jobs.js";
 import type { ScreenAnalysisService } from "../domain/screen-analysis.js";
-import { isCommandName } from "./command-names.js";
+import { CommandName, isCommandName } from "./command-names.js";
 import type { ParsedArgs } from "./parser.js";
 import type { Writable } from "./output.js";
 
@@ -52,7 +50,7 @@ export async function runCommand(
   }
 
   switch (commandName) {
-    case "browse-document":
+    case CommandName.BROWSE_DOCUMENT:
       return services.documents.browse({
         query: args.option("query"),
         categories: args.multiOption("category"),
@@ -62,16 +60,16 @@ export async function runCommand(
         cursor: args.option("cursor"),
       });
 
-    case "describe-document":
+    case CommandName.DESCRIBE_DOCUMENT:
       return services.documents.getDetails(getDocumentId(args));
 
-    case "read-document-content":
+    case CommandName.READ_DOCUMENT_CONTENT:
       return services.documents.readContent(getDocumentId(args), {
         offset: args.numberOption("offset"),
         limit: args.numberOption("limit"),
       });
 
-    case "screen-analysis":
+    case CommandName.SCREEN_ANALYSIS:
       return services.screenAnalysis.run({
         body: buildScreenAnalysisBody(args),
         wait: !args.hasBoolean("no-wait"),
@@ -79,13 +77,13 @@ export async function runCommand(
         pollIntervalMs: args.numberOption("poll-interval-ms"),
       });
 
-    case "list-jobs":
+    case CommandName.LIST_JOBS:
       return services.jobs.list(buildListJobsQuery(args));
 
-    case "config":
+    case CommandName.CONFIG:
       throw new Error("config command should be handled before this point");
 
-    case "login":
+    case CommandName.LOGIN:
       throw new Error("login command should be handled in run-cli.ts before runCommand");
   }
 }
@@ -98,31 +96,29 @@ function getDocumentId(args: ParsedArgs): string {
   return id;
 }
 
-const VALID_SCENARIOS: ReadonlySet<string> = new Set(SCREEN_ANALYSIS_SCENARIOS);
+const VALID_SCENARIOS: ReadonlySet<string> = new Set(Object.values(ScreenAnalysisScenario));
 
 function isScenario(value: string): value is ScreenAnalysisScenario {
   return VALID_SCENARIOS.has(value);
 }
 
-const VALID_JOB_TYPES: ReadonlySet<string> = new Set(JOB_TYPES);
+const VALID_JOB_TYPES: ReadonlySet<string> = new Set(Object.values(JobType));
 
-function isJobType(value: string): value is ScreenAnalysisJobType {
+function isJobType(value: string): value is JobType {
   return VALID_JOB_TYPES.has(value);
 }
 
 function buildListJobsQuery(args: ParsedArgs): ListJobsQuery {
-  const jobTypes = args.multiOption("job-type");
-  if (jobTypes) {
-    for (const t of jobTypes) {
-      if (!isJobType(t)) {
-        throw new CliInputError(
-          `Invalid --job-type '${t}'. Must be one of: ${JOB_TYPES.join(", ")}.`,
-        );
-      }
+  const jobType = args.multiOption("job-type")?.map((t): JobType => {
+    if (!isJobType(t)) {
+      throw new CliInputError(
+        `Invalid --job-type '${t}'. Must be one of: ${Object.values(JobType).join(", ")}.`,
+      );
     }
-  }
+    return t;
+  });
   return {
-    jobType: jobTypes as ScreenAnalysisJobType[] | undefined,
+    jobType,
     start: args.option("start"),
     end: args.option("end"),
     cursor: args.option("cursor"),
@@ -137,7 +133,7 @@ function buildScreenAnalysisBody(args: ParsedArgs): StartScreenAnalysisBody {
   }
   if (!isScenario(scenario)) {
     throw new CliInputError(
-      `Invalid --scenario '${scenario}'. Must be one of: ${SCREEN_ANALYSIS_SCENARIOS.join(", ")}.`,
+      `Invalid --scenario '${scenario}'. Must be one of: ${Object.values(ScreenAnalysisScenario).join(", ")}.`,
     );
   }
 
