@@ -14,31 +14,31 @@ export { AnalysisAPI } from "./resources/analysis.js";
 export { JobAPI } from "./resources/jobs.js";
 export { RegulationAPI } from "./resources/regulations.js";
 export type { ErrorDetail, PaginationResult } from "./types/common.js";
-export { SCREEN_ANALYSIS_SCENARIOS } from "./types/analysis.js";
+export { ScreenAnalysisScenario, ViolationPriority } from "./types/analysis.js";
+export { JobType, JobStatus, JobListStatus, JobTriggerType } from "./types/jobs.js";
+export { DocumentCategory } from "./types/regulations.js";
 export type {
   ScreenAnalysisCitation,
   ScreenAnalysisCitationChunk,
   ScreenAnalysisContent,
   ScreenAnalysisJobResult,
-  ScreenAnalysisScenario,
   ScreenAnalysisViolationResult,
   StartScreenAnalysisBody,
   StartScreenAnalysisResponse,
-  ViolationPriority,
 } from "./types/analysis.js";
 export type {
   Job,
   JobFailed,
   JobRunning,
-  JobStatus,
   JobSucceeded,
-  ScreenAnalysisJobType,
+  JobSummary,
+  ListJobsQuery,
+  ListJobsResponse,
 } from "./types/jobs.js";
 export type {
   AgencyGuidanceAttributes,
   BrowseRegulationsQuery,
   BrowseRegulationsResponse,
-  DocumentCategory,
   ExaminationHandbookAttributes,
   InteragencyGuidanceAttributes,
   InterpretiveActionAttributes,
