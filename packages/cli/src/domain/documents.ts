@@ -1,9 +1,13 @@
-import type { BrowseRegulationsQuery, ReadRegulationContentQuery } from "@midlyr/sdk-js";
+import type {
+  BrowseRegulationsQuery,
+  QueryRegulationsBody,
+  ReadRegulationContentQuery,
+} from "@midlyr/sdk-js";
 import type { MidlyrClient } from "../sdk/midlyr-client.js";
 
 type DocumentsClient = Pick<
   MidlyrClient,
-  "browseDocuments" | "getDocumentDetails" | "readDocumentContent"
+  "browseDocuments" | "getDocumentDetails" | "readDocumentContent" | "queryDocuments"
 >;
 
 export class DocumentsService {
@@ -19,5 +23,9 @@ export class DocumentsService {
 
   readContent(id: string, input: ReadRegulationContentQuery) {
     return this.client.readDocumentContent(id, input);
+  }
+
+  query(input: QueryRegulationsBody) {
+    return this.client.queryDocuments(input);
   }
 }

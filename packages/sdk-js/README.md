@@ -41,6 +41,21 @@ const details = await midlyr.regulations.getDetails(page.results[0]!.id);
 const content = await midlyr.regulations.readContent(page.results[0]!.id, {
   limit: 4_000,
 });
+
+// Vector-search the corpus and get back the top relevant chunks grouped by
+// parent regulation. Pure retrieval — no LLM is invoked.
+const { results } = await midlyr.regulations.query({
+  query: "provisional credit timing requirements",
+  limit: 5,
+  filters: { authorities: ["cfpb"] },
+});
+
+for (const citation of results) {
+  console.log(citation.regulation.title);
+  for (const chunk of citation.chunks) {
+    console.log(chunk.sectionPath, chunk.text);
+  }
+}
 ```
 
 ## Analysis APIs
@@ -111,3 +126,14 @@ Out of scope for this package pass:
 - job polling helpers;
 - a separate resilience package;
 - a runtime dependency on `ky` or another HTTP client.
+
+## Breaking changes in 0.2.0
+
+- **Removed**: `ScreenAnalysisCitation` and `ScreenAnalysisCitationChunk` type exports. The screen-analysis API now returns `RegulationCitation[]` / `RegulationCitationChunk[]` (same shape, shared with `regulations.query()`). Replace any imports:
+  ```ts
+  // before
+  import type { ScreenAnalysisCitation, ScreenAnalysisCitationChunk } from "@midlyr/sdk-js";
+  // after
+  import type { RegulationCitation, RegulationCitationChunk } from "@midlyr/sdk-js";
+  ```
+- **Added**: `regulations.query()` for vector-search retrieval (see Regulation API above).

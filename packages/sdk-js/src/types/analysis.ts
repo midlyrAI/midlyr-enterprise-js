@@ -1,4 +1,4 @@
-import type { RegulationSummary } from "./regulations.js";
+import type { RegulationCitation } from "./regulations.js";
 
 export const ScreenAnalysisScenario = {
   MARKETING_ASSET: "marketing_asset",
@@ -31,22 +31,11 @@ export const ViolationPriority = {
 } as const;
 export type ViolationPriority = (typeof ViolationPriority)[keyof typeof ViolationPriority];
 
-export interface ScreenAnalysisCitationChunk {
-  text: string;
-  startOffset: number | null;
-  endOffset: number | null;
-}
-
-export interface ScreenAnalysisCitation {
-  regulation: RegulationSummary;
-  chunks: ScreenAnalysisCitationChunk[];
-}
-
 export interface ScreenAnalysisViolationResult {
   priority: ViolationPriority;
   title: string;
   details: string;
-  citations: ScreenAnalysisCitation[];
+  citations: RegulationCitation[];
 }
 
 export interface ScreenAnalysisJobResult {

@@ -2,6 +2,7 @@ export const CommandName = {
   BROWSE_DOCUMENT: "browse-document",
   DESCRIBE_DOCUMENT: "describe-document",
   READ_DOCUMENT_CONTENT: "read-document-content",
+  QUERY_DOCUMENT: "query-document",
   SCREEN_ANALYSIS: "screen-analysis",
   LIST_JOBS: "list-jobs",
   CONFIG: "config",

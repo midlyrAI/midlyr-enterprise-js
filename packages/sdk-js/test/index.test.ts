@@ -179,6 +179,96 @@ describe("Midlyr SDK", () => {
     }
   });
 
+  it("POSTs regulations.query with the body and JSON content-type", async () => {
+    const fetch = vi.fn<FetchLike>(async () => jsonResponse({ results: [] }));
+    const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
+
+    await client.regulations.query({
+      query: "provisional credit",
+      limit: 5,
+      filters: { authorities: ["CFPB"] },
+    });
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const [url, init] = fetch.mock.calls[0]!;
+    expect(String(url)).toBe("https://api.example.com/api/v1/regulations/query");
+    expect(init?.method).toBe("POST");
+    expect(init?.headers).toMatchObject({
+      "x-api-key": "mlyr_test",
+      "content-type": "application/json",
+    });
+    expect(JSON.parse(String(init?.body))).toEqual({
+      query: "provisional credit",
+      limit: 5,
+      filters: { authorities: ["CFPB"] },
+    });
+  });
+
+  it("decodes a populated regulations.query response into RegulationCitation[]", async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({
+        results: [
+          {
+            regulation: {
+              id: "cdoc_001",
+              category: "regulation",
+              title: "Electronic Fund Transfers",
+              authorities: ["cfpb"],
+              jurisdictions: ["us-federal"],
+              description: "Reg E error-resolution requirements.",
+              updatedAt: "2026-04-09T00:00:00.000Z",
+              sourceUrl: "https://www.ecfr.gov/current/title-12/part-1005",
+            },
+            chunks: [
+              {
+                text: "If the financial institution is unable to complete its investigation within 10 business days...",
+                startOffset: 12450,
+                endOffset: 13120,
+                sectionPath: "Regulation E > § 1005.11 > (c)(2)",
+              },
+              {
+                text: "The institution may extend the investigation period to 45 days...",
+                startOffset: 13121,
+                endOffset: 13680,
+                sectionPath: null,
+              },
+            ],
+          },
+        ],
+      }),
+    );
+    const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
+
+    const { results } = await client.regulations.query({ query: "provisional credit" });
+
+    expect(results).toHaveLength(1);
+    expect(results[0]!.regulation.id).toBe("cdoc_001");
+    expect(results[0]!.regulation.title).toBe("Electronic Fund Transfers");
+    expect(results[0]!.chunks).toHaveLength(2);
+    expect(results[0]!.chunks[0]!.startOffset).toBe(12450);
+    expect(results[0]!.chunks[0]!.sectionPath).toBe("Regulation E > § 1005.11 > (c)(2)");
+    expect(results[0]!.chunks[1]!.sectionPath).toBeNull();
+  });
+
+  it("normalizes singular-string filter values into the wire array shape", async () => {
+    const fetch = vi.fn<FetchLike>(async () => jsonResponse({ results: [] }));
+    const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
+
+    await client.regulations.query({
+      query: "anything",
+      filters: { authorities: "cfpb", jurisdictions: "us-federal", ids: "cdoc_001" },
+    });
+
+    expect(JSON.parse(String(fetch.mock.calls[0]![1]?.body))).toEqual({
+      query: "anything",
+      filters: {
+        ids: ["cdoc_001"],
+        authorities: ["cfpb"],
+        jurisdictions: ["us-federal"],
+      },
+    });
+  });
+
   it("does not retry mutating POST requests by default", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({ error: { code: "internal_error", message: "try again" } }, { status: 503 }),

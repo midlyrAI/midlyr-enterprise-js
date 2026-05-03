@@ -6,6 +6,7 @@ import { configHelp, runConfigCommand } from "./config.js";
 import { DescribeDocumentCommand } from "./describe-document.js";
 import { ListJobsCommand } from "./list-jobs.js";
 import { loginHelp, runLoginCommand, type LoginRuntime } from "./login.js";
+import { QueryDocumentCommand } from "./query-document.js";
 import { ReadDocumentContentCommand } from "./read-document-content.js";
 import { ScreenAnalysisCommand } from "./screen-analysis.js";
 import { Command, type CommandServices, type HelpEntry } from "./types.js";
@@ -17,6 +18,7 @@ const CREDENTIALED_COMMANDS: readonly Command<unknown, unknown>[] = [
   new BrowseDocumentCommand(),
   new DescribeDocumentCommand(),
   new ReadDocumentContentCommand(),
+  new QueryDocumentCommand(),
   new ScreenAnalysisCommand(),
   new ListJobsCommand(),
 ] as readonly Command<unknown, unknown>[];

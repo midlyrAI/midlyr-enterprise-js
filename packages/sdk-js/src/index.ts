@@ -18,8 +18,6 @@ export { ScreenAnalysisScenario, ViolationPriority } from "./types/analysis.js";
 export { JobType, JobStatus, JobListStatus, JobTriggerType } from "./types/jobs.js";
 export { DocumentCategory } from "./types/regulations.js";
 export type {
-  ScreenAnalysisCitation,
-  ScreenAnalysisCitationChunk,
   ScreenAnalysisContent,
   ScreenAnalysisJobResult,
   ScreenAnalysisViolationResult,
@@ -42,9 +40,14 @@ export type {
   ExaminationHandbookAttributes,
   InteragencyGuidanceAttributes,
   InterpretiveActionAttributes,
+  QueryRegulationsBody,
+  QueryRegulationsFilters,
+  QueryRegulationsResponse,
   ReadRegulationContentQuery,
   RegulationAttributes,
   RegulationCategoryAttributes,
+  RegulationCitation,
+  RegulationCitationChunk,
   RegulationContent,
   RegulationDetails,
   RegulationSummary,

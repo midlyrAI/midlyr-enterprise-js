@@ -3,6 +3,7 @@ import {
   type BrowseRegulationsQuery,
   type FetchLike,
   type ListJobsQuery,
+  type QueryRegulationsBody,
   type ReadRegulationContentQuery,
   type StartScreenAnalysisBody,
 } from "@midlyr/sdk-js";
@@ -42,6 +43,10 @@ export class MidlyrClient {
 
   readDocumentContent(id: string, input: ReadRegulationContentQuery) {
     return this.sdk.regulations.readContent(id, input);
+  }
+
+  queryDocuments(input: QueryRegulationsBody) {
+    return this.sdk.regulations.query(input);
   }
 
   startScreenAnalysis(input: StartScreenAnalysisBody) {
