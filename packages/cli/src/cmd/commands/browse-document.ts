@@ -1,9 +1,9 @@
-import type { BrowseRegulationsQuery, BrowseRegulationsResponse } from "@midlyr/sdk-js";
+import type { ListRegulationsRequest, ListRegulationsResponse } from "@midlyr/sdk-js";
 import { CommandName } from "../command-names.js";
 import type { ParsedArgs } from "../parser.js";
 import { Command, type CommandServices, type HelpEntry } from "./types.js";
 
-export class BrowseDocumentCommand extends Command<BrowseRegulationsQuery, BrowseRegulationsResponse> {
+export class BrowseDocumentCommand extends Command<ListRegulationsRequest, ListRegulationsResponse> {
   readonly name = CommandName.BROWSE_DOCUMENT;
   readonly help: HelpEntry = {
     label: "browse-document",
@@ -27,7 +27,7 @@ Endpoint: GET /api/v1/regulations/
 `,
   };
 
-  parse(args: ParsedArgs): BrowseRegulationsQuery {
+  parse(args: ParsedArgs): ListRegulationsRequest {
     return {
       query: args.option("query"),
       categories: args.multiOption("category"),
@@ -38,7 +38,7 @@ Endpoint: GET /api/v1/regulations/
     };
   }
 
-  execute(input: BrowseRegulationsQuery, services: CommandServices) {
+  execute(input: ListRegulationsRequest, services: CommandServices) {
     return services.documents.browse(input);
   }
 }

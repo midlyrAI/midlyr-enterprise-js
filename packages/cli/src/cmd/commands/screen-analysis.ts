@@ -1,6 +1,6 @@
 import {
   ScreenAnalysisScenario,
-  type StartScreenAnalysisBody,
+  type CreateScreenAnalysisJobRequest,
 } from "@midlyr/sdk-js";
 import { CliInputError } from "../../domain/errors.js";
 import { CommandName } from "../command-names.js";
@@ -8,7 +8,7 @@ import type { ParsedArgs } from "../parser.js";
 import { Command, type CommandServices, type HelpEntry } from "./types.js";
 
 interface ScreenAnalysisInput {
-  body: StartScreenAnalysisBody;
+  body: CreateScreenAnalysisJobRequest;
   wait: boolean;
   timeoutMs: number | undefined;
   pollIntervalMs: number | undefined;

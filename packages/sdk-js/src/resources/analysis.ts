@@ -1,6 +1,6 @@
 import type { MidlyrRequestOptions } from "../config.js";
 import type { Transport } from "../transport.js";
-import type { StartScreenAnalysisBody, StartScreenAnalysisResponse } from "../types/analysis.js";
+import type { CreateScreenAnalysisJobRequest, CreateScreenAnalysisJobResponse } from "../types/analysis.js";
 
 export class AnalysisAPI {
   readonly #transport: Transport;
@@ -9,8 +9,8 @@ export class AnalysisAPI {
     this.#transport = transport;
   }
 
-  screen(body: StartScreenAnalysisBody, options: MidlyrRequestOptions = {}) {
-    return this.#transport.request<StartScreenAnalysisResponse>({
+  screen(body: CreateScreenAnalysisJobRequest, options: MidlyrRequestOptions = {}) {
+    return this.#transport.request<CreateScreenAnalysisJobResponse>({
       method: "POST",
       path: "/api/v1/analysis/screen",
       body,

@@ -1,5 +1,5 @@
 import type {
-  QueryRegulationsBody,
+  QueryRegulationsRequest,
   QueryRegulationsFilters,
   QueryRegulationsResponse,
 } from "@midlyr/sdk-js";
@@ -8,7 +8,7 @@ import { CommandName } from "../command-names.js";
 import type { ParsedArgs } from "../parser.js";
 import { Command, type CommandServices, type HelpEntry } from "./types.js";
 
-export class QueryDocumentCommand extends Command<QueryRegulationsBody, QueryRegulationsResponse> {
+export class QueryDocumentCommand extends Command<QueryRegulationsRequest, QueryRegulationsResponse> {
   readonly name = CommandName.QUERY_DOCUMENT;
   readonly help: HelpEntry = {
     label: "query-document",
@@ -35,7 +35,7 @@ Endpoint: POST /api/v1/regulations/query
 `,
   };
 
-  parse(args: ParsedArgs): QueryRegulationsBody {
+  parse(args: ParsedArgs): QueryRegulationsRequest {
     const query = args.option("query") ?? args.positionals.join(" ");
     if (!query) {
       throw new CliInputError(
@@ -51,7 +51,7 @@ Endpoint: POST /api/v1/regulations/query
     const jurisdictions = args.multiOption("jurisdiction");
     if (jurisdictions) filters.jurisdictions = jurisdictions;
 
-    const body: QueryRegulationsBody = { query };
+    const body: QueryRegulationsRequest = { query };
     const limit = args.numberOption("limit");
     if (limit !== undefined) body.limit = limit;
     if (Object.keys(filters).length > 0) body.filters = filters;
@@ -59,7 +59,7 @@ Endpoint: POST /api/v1/regulations/query
     return body;
   }
 
-  execute(input: QueryRegulationsBody, services: CommandServices) {
+  execute(input: QueryRegulationsRequest, services: CommandServices) {
     return services.documents.query(input);
   }
 }

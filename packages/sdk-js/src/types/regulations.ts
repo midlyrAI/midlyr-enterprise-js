@@ -115,7 +115,7 @@ export interface RegulationContent {
   details: RegulationDetails;
 }
 
-export interface BrowseRegulationsQuery {
+export interface ListRegulationsRequest {
   query?: string;
   categories?: string | string[];
   authorities?: string | string[];
@@ -124,12 +124,12 @@ export interface BrowseRegulationsQuery {
   cursor?: string;
 }
 
-export interface BrowseRegulationsResponse {
+export interface ListRegulationsResponse {
   results: RegulationSummary[];
   pagination: PaginationResult;
 }
 
-export interface ReadRegulationContentQuery {
+export interface GetRegulationContentRequest {
   offset?: number;
   limit?: number;
 }
@@ -143,7 +143,7 @@ export interface QueryRegulationsFilters {
   jurisdictions?: string | string[];
 }
 
-export interface QueryRegulationsBody {
+export interface QueryRegulationsRequest {
   /** Natural-language query. Embedded server-side and matched against the corpus. 1–2000 characters. */
   query: string;
   /** Maximum number of chunks to return. Range 1–50. Defaults to 10 server-side. */

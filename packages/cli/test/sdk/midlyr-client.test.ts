@@ -16,9 +16,9 @@ describe("MidlyrClient", () => {
   it("adapts CLI capabilities to public SDK resources", async () => {
     const sdk = {
       regulations: {
-        browse: vi.fn(async () => ({ results: [], pagination: {} })),
-        getDetails: vi.fn(async () => ({ id: "reg_1" })),
-        readContent: vi.fn(async () => ({ id: "reg_1", text: "content" })),
+        list: vi.fn(async () => ({ results: [], pagination: {} })),
+        get: vi.fn(async () => ({ id: "reg_1" })),
+        getContent: vi.fn(async () => ({ id: "reg_1", text: "content" })),
       },
       analysis: {
         screen: vi.fn(async () => ({ id: "job_1" })),
@@ -41,9 +41,9 @@ describe("MidlyrClient", () => {
     });
     await client.getJob("job_1");
 
-    expect(sdk.regulations.browse).toHaveBeenCalledWith({ query: "fair" });
-    expect(sdk.regulations.getDetails).toHaveBeenCalledWith("reg_1");
-    expect(sdk.regulations.readContent).toHaveBeenCalledWith("reg_1", { limit: 10 });
+    expect(sdk.regulations.list).toHaveBeenCalledWith({ query: "fair" });
+    expect(sdk.regulations.get).toHaveBeenCalledWith("reg_1");
+    expect(sdk.regulations.getContent).toHaveBeenCalledWith("reg_1", { limit: 10 });
     expect(sdk.analysis.screen).toHaveBeenCalledWith({
       content: { type: "text", text: "test" },
       scenario: "generic",

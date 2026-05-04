@@ -1,7 +1,7 @@
 import type {
-  BrowseRegulationsQuery,
-  QueryRegulationsBody,
-  ReadRegulationContentQuery,
+  ListRegulationsRequest,
+  QueryRegulationsRequest,
+  GetRegulationContentRequest,
 } from "@midlyr/sdk-js";
 import type { MidlyrClient } from "../sdk/midlyr-client.js";
 
@@ -13,7 +13,7 @@ type DocumentsClient = Pick<
 export class DocumentsService {
   constructor(private readonly client: DocumentsClient) {}
 
-  browse(input: BrowseRegulationsQuery) {
+  browse(input: ListRegulationsRequest) {
     return this.client.browseDocuments(input);
   }
 
@@ -21,11 +21,11 @@ export class DocumentsService {
     return this.client.getDocumentDetails(id);
   }
 
-  readContent(id: string, input: ReadRegulationContentQuery) {
+  readContent(id: string, input: GetRegulationContentRequest) {
     return this.client.readDocumentContent(id, input);
   }
 
-  query(input: QueryRegulationsBody) {
+  query(input: QueryRegulationsRequest) {
     return this.client.queryDocuments(input);
   }
 }

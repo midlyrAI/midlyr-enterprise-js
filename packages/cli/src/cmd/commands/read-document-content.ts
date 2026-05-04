@@ -1,5 +1,5 @@
 import type {
-  ReadRegulationContentQuery,
+  GetRegulationContentRequest,
   RegulationContent,
 } from "@midlyr/sdk-js";
 import { CliInputError } from "../../domain/errors.js";
@@ -9,7 +9,7 @@ import { Command, type CommandServices, type HelpEntry } from "./types.js";
 
 interface ReadDocumentContentInput {
   id: string;
-  query: ReadRegulationContentQuery;
+  query: GetRegulationContentRequest;
 }
 
 export class ReadDocumentContentCommand extends Command<ReadDocumentContentInput, RegulationContent> {

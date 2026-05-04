@@ -15,12 +15,12 @@ export interface ScreenAnalysisContent {
   text: string;
 }
 
-export interface StartScreenAnalysisBody {
+export interface CreateScreenAnalysisJobRequest {
   content: ScreenAnalysisContent;
   scenario: ScreenAnalysisScenario;
 }
 
-export interface StartScreenAnalysisResponse {
+export interface CreateScreenAnalysisJobResponse {
   id: string;
 }
 
@@ -38,7 +38,7 @@ export interface ScreenAnalysisViolationResult {
   citations: RegulationCitation[];
 }
 
-export interface ScreenAnalysisJobResult {
+export interface ScreenAnalysisResult {
   type: "analysis.screen.result";
   riskScore: number;
   findings: ScreenAnalysisViolationResult[];

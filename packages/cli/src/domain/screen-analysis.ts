@@ -1,4 +1,4 @@
-import type { StartScreenAnalysisBody } from "@midlyr/sdk-js";
+import type { CreateScreenAnalysisJobRequest } from "@midlyr/sdk-js";
 import type { MidlyrClient } from "../sdk/midlyr-client.js";
 import { CliInputError } from "./errors.js";
 import {
@@ -12,7 +12,7 @@ type ScreenAnalysisClient = Pick<MidlyrClient, "startScreenAnalysis">;
 export type ScreenAnalysisLogger = (message: string) => void;
 
 export interface ScreenAnalysisInput {
-  body: StartScreenAnalysisBody;
+  body: CreateScreenAnalysisJobRequest;
   wait?: boolean;
   timeoutMs?: number;
   pollIntervalMs?: number;

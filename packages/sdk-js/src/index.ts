@@ -15,14 +15,14 @@ export { JobAPI } from "./resources/jobs.js";
 export { RegulationAPI } from "./resources/regulations.js";
 export type { ErrorDetail, PaginationResult } from "./types/common.js";
 export { ScreenAnalysisScenario, ViolationPriority } from "./types/analysis.js";
-export { JobType, JobStatus, JobListStatus, JobTriggerType } from "./types/jobs.js";
+export { JobType, JobStatus, JobTriggerType } from "./types/jobs.js";
 export { DocumentCategory } from "./types/regulations.js";
 export type {
   ScreenAnalysisContent,
-  ScreenAnalysisJobResult,
+  ScreenAnalysisResult,
   ScreenAnalysisViolationResult,
-  StartScreenAnalysisBody,
-  StartScreenAnalysisResponse,
+  CreateScreenAnalysisJobRequest,
+  CreateScreenAnalysisJobResponse,
 } from "./types/analysis.js";
 export type {
   Job,
@@ -30,20 +30,20 @@ export type {
   JobRunning,
   JobSucceeded,
   JobSummary,
-  ListJobsQuery,
+  ListJobsRequest,
   ListJobsResponse,
 } from "./types/jobs.js";
 export type {
   AgencyGuidanceAttributes,
-  BrowseRegulationsQuery,
-  BrowseRegulationsResponse,
+  ListRegulationsRequest,
+  ListRegulationsResponse,
   ExaminationHandbookAttributes,
   InteragencyGuidanceAttributes,
   InterpretiveActionAttributes,
-  QueryRegulationsBody,
+  QueryRegulationsRequest,
   QueryRegulationsFilters,
   QueryRegulationsResponse,
-  ReadRegulationContentQuery,
+  GetRegulationContentRequest,
   RegulationAttributes,
   RegulationCategoryAttributes,
   RegulationCitation,
