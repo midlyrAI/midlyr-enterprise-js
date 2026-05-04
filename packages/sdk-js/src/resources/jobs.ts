@@ -1,6 +1,6 @@
 import type { MidlyrRequestOptions } from "../config.js";
 import type { Transport } from "../transport.js";
-import type { Job, ListJobsQuery, ListJobsResponse } from "../types/jobs.js";
+import type { Job, ListJobsRequest, ListJobsResponse } from "../types/jobs.js";
 
 export class JobAPI {
   readonly #transport: Transport;
@@ -9,7 +9,7 @@ export class JobAPI {
     this.#transport = transport;
   }
 
-  list(query: ListJobsQuery = {}, options: MidlyrRequestOptions = {}) {
+  list(query: ListJobsRequest = {}, options: MidlyrRequestOptions = {}) {
     return this.#transport.request<ListJobsResponse>({
       method: "GET",
       path: "/api/v1/jobs/",

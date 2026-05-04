@@ -30,7 +30,7 @@ describe("Midlyr SDK", () => {
     );
     const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
 
-    await client.regulations.browse({
+    await client.regulations.list({
       query: "fair lending",
       categories: ["regulation", "guidance"],
       limit: 2,
@@ -74,7 +74,7 @@ describe("Midlyr SDK", () => {
     );
     const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
 
-    await client.regulations.readContent("reg_123", { limit: 100 });
+    await client.regulations.getContent("reg_123", { limit: 100 });
 
     expect(String(fetch.mock.calls[0]![0])).toBe(
       "https://api.example.com/api/v1/regulations/reg_123/content?limit=100",
@@ -90,7 +90,7 @@ describe("Midlyr SDK", () => {
     );
     const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
 
-    await expect(client.regulations.getDetails("missing")).rejects.toMatchObject({
+    await expect(client.regulations.get("missing")).rejects.toMatchObject({
       name: "MidlyrAPIError",
       status: 404,
       code: "document_not_found",
@@ -296,7 +296,7 @@ describe("Midlyr SDK", () => {
     );
     const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
 
-    await client.regulations.browse({ query: "x" });
+    await client.regulations.list({ query: "x" });
 
     const [, init] = fetch.mock.calls[0]!;
     expect(init?.headers).toMatchObject({
@@ -320,7 +320,7 @@ describe("Midlyr SDK", () => {
       clientIdentity: "midlyr-cli/9.9.9",
     });
 
-    await client.regulations.browse({ query: "x" });
+    await client.regulations.list({ query: "x" });
 
     const [, init] = fetch.mock.calls[0]!;
     expect(init?.headers).toMatchObject({

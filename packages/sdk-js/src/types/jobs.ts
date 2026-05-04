@@ -1,5 +1,5 @@
 import type { ErrorDetail, PaginationResult } from "./common.js";
-import type { ScreenAnalysisJobResult } from "./analysis.js";
+import type { ScreenAnalysisResult } from "./analysis.js";
 
 /**
  * Job types exposed by the public REST API. Server-internal types
@@ -27,7 +27,7 @@ interface JobBase {
 
 export interface JobSucceeded extends JobBase {
   status: typeof JobStatus.SUCCEEDED;
-  result: ScreenAnalysisJobResult;
+  result: ScreenAnalysisResult;
   error: null;
 }
 
@@ -46,21 +46,13 @@ export interface JobFailed extends JobBase {
 export type Job = JobSucceeded | JobRunning | JobFailed;
 
 /**
- * Job summary returned by `GET /api/v1/jobs`. Field naming follows the server's
- * list response, which differs from `Job` (`jobId` vs `id`, `jobType` vs `type`,
- * status enum uses `completed` instead of `succeeded`). Mirrored verbatim so
- * callers see what's on the wire.
+ * Job summary returned by `GET /api/v1/jobs`. Field naming differs from `Job`
+ * (`jobId` vs `id`, `jobType` vs `type`) — mirrored verbatim so callers see
+ * what's on the wire. Status enum is now aligned with `JobStatus`.
  *
  * Only `screen_analysis` is exposed via the public REST API today; other server
  * job types are internal and intentionally absent from this SDK surface.
  */
-export const JobListStatus = {
-  RUNNING: "running",
-  COMPLETED: "completed",
-  FAILED: "failed",
-} as const;
-export type JobListStatus = (typeof JobListStatus)[keyof typeof JobListStatus];
-
 export const JobTriggerType = {
   MANUAL: "manual",
   AUTOMATIC: "automatic",
@@ -70,13 +62,13 @@ export type JobTriggerType = (typeof JobTriggerType)[keyof typeof JobTriggerType
 export interface JobSummary {
   jobId: string;
   jobType: JobType;
-  status: JobListStatus;
+  status: JobStatus;
   triggerType: JobTriggerType;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ListJobsQuery {
+export interface ListJobsRequest {
   jobType?: JobType | JobType[];
   start?: string;
   end?: string;

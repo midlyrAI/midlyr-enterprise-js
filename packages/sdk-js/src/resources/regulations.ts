@@ -1,11 +1,11 @@
 import type { MidlyrRequestOptions } from "../config.js";
 import type { Transport } from "../transport.js";
 import type {
-  BrowseRegulationsQuery,
-  BrowseRegulationsResponse,
-  QueryRegulationsBody,
+  ListRegulationsRequest,
+  ListRegulationsResponse,
+  QueryRegulationsRequest,
   QueryRegulationsResponse,
-  ReadRegulationContentQuery,
+  GetRegulationContentRequest,
   RegulationContent,
   RegulationDetails,
 } from "../types/regulations.js";
@@ -17,8 +17,8 @@ export class RegulationAPI {
     this.#transport = transport;
   }
 
-  browse(query: BrowseRegulationsQuery = {}, options: MidlyrRequestOptions = {}) {
-    return this.#transport.request<BrowseRegulationsResponse>({
+  list(query: ListRegulationsRequest = {}, options: MidlyrRequestOptions = {}) {
+    return this.#transport.request<ListRegulationsResponse>({
       method: "GET",
       path: "/api/v1/regulations/",
       query,
@@ -26,7 +26,7 @@ export class RegulationAPI {
     });
   }
 
-  getDetails(id: string, options: MidlyrRequestOptions = {}) {
+  get(id: string, options: MidlyrRequestOptions = {}) {
     return this.#transport.request<RegulationDetails>({
       method: "GET",
       path: `/api/v1/regulations/${encodeURIComponent(id)}`,
@@ -34,9 +34,9 @@ export class RegulationAPI {
     });
   }
 
-  readContent(
+  getContent(
     id: string,
-    query: ReadRegulationContentQuery = {},
+    query: GetRegulationContentRequest = {},
     options: MidlyrRequestOptions = {},
   ) {
     return this.#transport.request<RegulationContent>({
@@ -65,7 +65,7 @@ export class RegulationAPI {
    * await midlyr.regulations.query(body, { maxRetries: 2 });
    * ```
    */
-  query(body: QueryRegulationsBody, options: MidlyrRequestOptions = {}) {
+  query(body: QueryRegulationsRequest, options: MidlyrRequestOptions = {}) {
     return this.#transport.request<QueryRegulationsResponse>({
       method: "POST",
       path: "/api/v1/regulations/query",
@@ -78,9 +78,9 @@ export class RegulationAPI {
 /**
  * Normalize singular-string filter values into wire-shape arrays so the
  * customer can write either `authorities: "cfpb"` or `authorities: ["cfpb"]`
- * — mirrors `BrowseRegulationsQuery`'s ergonomics.
+ * — mirrors `ListRegulationsRequest`'s ergonomics.
  */
-function normalizeQueryBody(body: QueryRegulationsBody): QueryRegulationsBody {
+function normalizeQueryBody(body: QueryRegulationsRequest): QueryRegulationsRequest {
   if (!body.filters) return body;
   return {
     ...body,

@@ -1,4 +1,4 @@
-import { JobType, type ListJobsQuery, type ListJobsResponse } from "@midlyr/sdk-js";
+import { JobType, type ListJobsRequest, type ListJobsResponse } from "@midlyr/sdk-js";
 import { CliInputError } from "../../domain/errors.js";
 import { CommandName } from "../command-names.js";
 import type { ParsedArgs } from "../parser.js";
@@ -10,7 +10,7 @@ function isJobType(value: string): value is JobType {
   return VALID_JOB_TYPES.has(value);
 }
 
-export class ListJobsCommand extends Command<ListJobsQuery, ListJobsResponse> {
+export class ListJobsCommand extends Command<ListJobsRequest, ListJobsResponse> {
   readonly name = CommandName.LIST_JOBS;
   readonly help: HelpEntry = {
     label: "list-jobs",
@@ -31,7 +31,7 @@ Endpoint: GET /api/v1/jobs
 `,
   };
 
-  parse(args: ParsedArgs): ListJobsQuery {
+  parse(args: ParsedArgs): ListJobsRequest {
     const jobType = args.multiOption("job-type")?.map((t): JobType => {
       if (!isJobType(t)) {
         throw new CliInputError(
@@ -49,7 +49,7 @@ Endpoint: GET /api/v1/jobs
     };
   }
 
-  execute(input: ListJobsQuery, services: CommandServices) {
+  execute(input: ListJobsRequest, services: CommandServices) {
     return services.jobs.list(input);
   }
 }

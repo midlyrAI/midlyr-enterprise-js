@@ -1,11 +1,11 @@
 import {
   Midlyr as MidlyrSdk,
-  type BrowseRegulationsQuery,
+  type ListRegulationsRequest,
   type FetchLike,
-  type ListJobsQuery,
-  type QueryRegulationsBody,
-  type ReadRegulationContentQuery,
-  type StartScreenAnalysisBody,
+  type ListJobsRequest,
+  type QueryRegulationsRequest,
+  type GetRegulationContentRequest,
+  type CreateScreenAnalysisJobRequest,
 } from "@midlyr/sdk-js";
 
 export type MidlyrClientOptions = {
@@ -33,23 +33,23 @@ export class MidlyrClient {
       });
   }
 
-  browseDocuments(input: BrowseRegulationsQuery) {
-    return this.sdk.regulations.browse(input);
+  browseDocuments(input: ListRegulationsRequest) {
+    return this.sdk.regulations.list(input);
   }
 
   getDocumentDetails(id: string) {
-    return this.sdk.regulations.getDetails(id);
+    return this.sdk.regulations.get(id);
   }
 
-  readDocumentContent(id: string, input: ReadRegulationContentQuery) {
-    return this.sdk.regulations.readContent(id, input);
+  readDocumentContent(id: string, input: GetRegulationContentRequest) {
+    return this.sdk.regulations.getContent(id, input);
   }
 
-  queryDocuments(input: QueryRegulationsBody) {
+  queryDocuments(input: QueryRegulationsRequest) {
     return this.sdk.regulations.query(input);
   }
 
-  startScreenAnalysis(input: StartScreenAnalysisBody) {
+  startScreenAnalysis(input: CreateScreenAnalysisJobRequest) {
     return this.sdk.analysis.screen(input);
   }
 
@@ -57,7 +57,7 @@ export class MidlyrClient {
     return this.sdk.jobs.get(jobId);
   }
 
-  listJobs(query: ListJobsQuery) {
+  listJobs(query: ListJobsRequest) {
     return this.sdk.jobs.list(query);
   }
 }
