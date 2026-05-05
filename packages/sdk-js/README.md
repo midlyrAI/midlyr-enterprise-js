@@ -30,17 +30,19 @@ Requests authenticate with the `x-api-key` header.
 ## Regulation API
 
 ```ts
-const page = await midlyr.regulations.browse({
+const page = await midlyr.regulations.list({
   query: "fair lending",
   jurisdictions: "us-federal",
   limit: 25,
 });
 
-const details = await midlyr.regulations.getDetails(page.results[0]!.id);
+const details = await midlyr.regulations.get(page.results[0]!.id);
 
-const content = await midlyr.regulations.readContent(page.results[0]!.id, {
+const content = await midlyr.regulations.getContent(page.results[0]!.id, {
   limit: 4_000,
 });
+
+console.log(content.regulation.title, content.content.text);
 
 // Vector-search the corpus and get back the top relevant chunks grouped by
 // parent regulation. Pure retrieval — no LLM is invoked.
@@ -71,7 +73,7 @@ const job = await midlyr.jobs.get(response.id);
 
 ## Job API
 
-The SDK exposes `jobs.get(id)` only. Jobs use a discriminated union on `status`: `"running"`, `"succeeded"`, or `"failed"`. It does not provide a polling helper; MCP and CLI layers can decide their own polling or display behavior later.
+The SDK exposes `jobs.list(query)` and `jobs.get(id)`. Jobs use a discriminated union on `status`: `"running"`, `"succeeded"`, or `"failed"`. It does not provide a polling helper; MCP and CLI layers can decide their own polling or display behavior later.
 
 ## Timeout and retries
 
@@ -88,7 +90,7 @@ const midlyr = new Midlyr({
 You can also override them per request:
 
 ```ts
-await midlyr.regulations.browse({ query: "Regulation B" }, { timeoutMs: 10_000, maxRetries: 2 });
+await midlyr.regulations.list({ query: "Regulation B" }, { timeoutMs: 10_000, maxRetries: 2 });
 ```
 
 Retries are intentionally conservative:
@@ -103,7 +105,7 @@ Retries are intentionally conservative:
 import { MidlyrAPIError, MidlyrNetworkError } from "@midlyr/sdk-js";
 
 try {
-  await midlyr.regulations.getDetails("missing");
+  await midlyr.regulations.get("missing");
 } catch (error) {
   if (error instanceof MidlyrAPIError) {
     console.error(error.status, error.code, error.message);
@@ -117,7 +119,16 @@ try {
 
 ## Current scope
 
-`@midlyr/sdk-js` v0 wraps the current regulation/compliance REST endpoints:
+`@midlyr/sdk-js` wraps the current regulation, compliance analysis, and job REST endpoints.
+
+The public SDK surface includes:
+
+- `regulations.list()` for browsing regulation metadata;
+- `regulations.get()` for document details;
+- `regulations.getContent()` for document text ranges, returned as `{ regulation, content }`;
+- `regulations.query()` for vector-search retrieval;
+- `analysis.screen()` for starting screen-analysis jobs;
+- `jobs.list()` and `jobs.get()` for job history and status.
 
 Out of scope for this package pass:
 
@@ -126,14 +137,3 @@ Out of scope for this package pass:
 - job polling helpers;
 - a separate resilience package;
 - a runtime dependency on `ky` or another HTTP client.
-
-## Breaking changes in 0.2.0
-
-- **Removed**: `ScreenAnalysisCitation` and `ScreenAnalysisCitationChunk` type exports. The screen-analysis API now returns `RegulationCitation[]` / `RegulationCitationChunk[]` (same shape, shared with `regulations.query()`). Replace any imports:
-  ```ts
-  // before
-  import type { ScreenAnalysisCitation, ScreenAnalysisCitationChunk } from "@midlyr/sdk-js";
-  // after
-  import type { RegulationCitation, RegulationCitationChunk } from "@midlyr/sdk-js";
-  ```
-- **Added**: `regulations.query()` for vector-search retrieval (see Regulation API above).

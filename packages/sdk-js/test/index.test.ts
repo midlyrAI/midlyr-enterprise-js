@@ -51,13 +51,7 @@ describe("Midlyr SDK", () => {
   it("omits undefined query parameters", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({
-        id: "reg_123",
-        text: "content",
-        offset: 0,
-        limit: 100,
-        totalBytes: 1000,
-        hasMore: false,
-        details: {
+        regulation: {
           id: "reg_123",
           category: "regulation",
           title: "Regulation B",
@@ -70,12 +64,29 @@ describe("Midlyr SDK", () => {
           tableOfContents: { entries: [] },
           attributes: { category: "regulation", cfrTitle: 12, cfrPart: 1002 },
         },
+        content: {
+          text: "content",
+          startOffset: 0,
+          endOffset: 100,
+          limit: 100,
+          totalBytes: 1000,
+          hasMore: false,
+        },
       }),
     );
     const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
 
-    await client.regulations.getContent("reg_123", { limit: 100 });
+    const content = await client.regulations.getContent("reg_123", { limit: 100 });
 
+    expect(content.regulation.id).toBe("reg_123");
+    expect(content.content).toMatchObject({
+      text: "content",
+      startOffset: 0,
+      endOffset: 100,
+      limit: 100,
+      totalBytes: 1000,
+      hasMore: false,
+    });
     expect(String(fetch.mock.calls[0]![0])).toBe(
       "https://api.example.com/api/v1/regulations/reg_123/content?limit=100",
     );
@@ -345,23 +356,20 @@ describe("Midlyr SDK", () => {
     ).not.toThrow();
   });
 
-  it.each([
-    ["midlyr-cli"],
-    ["/0.1.2"],
-    ["midlyr-cli/"],
-    ["midlyr cli/0.1.2"],
-    [""],
-  ])("rejects malformed clientIdentity %j", (identity) => {
-    expect(
-      () =>
-        new Midlyr({
-          apiKey: "mlyr_test",
-          baseUrl: "https://api.example.com",
-          fetch: vi.fn<FetchLike>(),
-          clientIdentity: identity,
-        }),
-    ).toThrow(MidlyrError);
-  });
+  it.each([["midlyr-cli"], ["/0.1.2"], ["midlyr-cli/"], ["midlyr cli/0.1.2"], [""]])(
+    "rejects malformed clientIdentity %j",
+    (identity) => {
+      expect(
+        () =>
+          new Midlyr({
+            apiKey: "mlyr_test",
+            baseUrl: "https://api.example.com",
+            fetch: vi.fn<FetchLike>(),
+            clientIdentity: identity,
+          }),
+      ).toThrow(MidlyrError);
+    },
+  );
 
   it("wraps network failures in typed network errors", async () => {
     const fetch = vi.fn<FetchLike>(async () => {
@@ -384,7 +392,7 @@ describe("Midlyr SDK", () => {
           {
             jobId: "job_1",
             jobType: "screen_analysis",
-            status: "completed",
+            status: "succeeded",
             triggerType: "manual",
             createdAt: "2026-04-01T00:00:00.000Z",
             updatedAt: "2026-04-01T00:00:05.000Z",

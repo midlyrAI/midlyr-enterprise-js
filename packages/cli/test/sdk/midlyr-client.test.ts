@@ -18,7 +18,17 @@ describe("MidlyrClient", () => {
       regulations: {
         list: vi.fn(async () => ({ results: [], pagination: {} })),
         get: vi.fn(async () => ({ id: "reg_1" })),
-        getContent: vi.fn(async () => ({ id: "reg_1", text: "content" })),
+        getContent: vi.fn(async () => ({
+          regulation: { id: "reg_1" },
+          content: {
+            text: "content",
+            startOffset: 0,
+            endOffset: 7,
+            limit: 40000,
+            totalBytes: 7,
+            hasMore: false,
+          },
+        })),
       },
       analysis: {
         screen: vi.fn(async () => ({ id: "job_1" })),

@@ -1,7 +1,4 @@
-import type {
-  GetRegulationContentRequest,
-  RegulationContent,
-} from "@midlyr/sdk-js";
+import type { GetRegulationContentRequest, RegulationContent } from "@midlyr/sdk-js";
 import { CliInputError } from "../../domain/errors.js";
 import { CommandName } from "../command-names.js";
 import type { ParsedArgs } from "../parser.js";
@@ -12,7 +9,10 @@ interface ReadDocumentContentInput {
   query: GetRegulationContentRequest;
 }
 
-export class ReadDocumentContentCommand extends Command<ReadDocumentContentInput, RegulationContent> {
+export class ReadDocumentContentCommand extends Command<
+  ReadDocumentContentInput,
+  RegulationContent
+> {
   readonly name = CommandName.READ_DOCUMENT_CONTENT;
   readonly help: HelpEntry = {
     label: "read-document-content",
@@ -29,7 +29,7 @@ Options:
   --offset <bytes>
   --limit <bytes>
 
-Returns text plus the same metadata block that describe-document returns.
+Returns a regulation metadata object plus a content object containing the requested text byte range.
 
 Endpoint: GET /api/v1/regulations/:id/content
 `,

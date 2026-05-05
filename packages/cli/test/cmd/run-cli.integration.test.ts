@@ -196,13 +196,7 @@ describe("midlyr CLI", () => {
   it("constructs read-document-content requests with env-configured api key", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({
-        id: "reg_123",
-        text: "content",
-        offset: 10,
-        limit: 100,
-        totalBytes: 1000,
-        hasMore: true,
-        details: {
+        regulation: {
           id: "reg_123",
           category: "regulation",
           title: "Regulation B",
@@ -214,6 +208,14 @@ describe("midlyr CLI", () => {
           totalBytes: 1000,
           tableOfContents: { entries: [] },
           attributes: { category: "regulation", cfrTitle: 12, cfrPart: 1002 },
+        },
+        content: {
+          text: "content",
+          startOffset: 10,
+          endOffset: 110,
+          limit: 100,
+          totalBytes: 1000,
+          hasMore: true,
         },
       }),
     );
@@ -262,15 +264,7 @@ describe("midlyr CLI", () => {
     const io = createRuntime(fetch, { env: { MIDLYR_API_KEY: "env_key" } });
 
     const exitCode = await runCli(
-      [
-        "query-document",
-        "--query",
-        "provisional credit",
-        "--limit",
-        "5",
-        "--authority",
-        "CFPB",
-      ],
+      ["query-document", "--query", "provisional credit", "--limit", "5", "--authority", "CFPB"],
       io.runtime,
     );
 
