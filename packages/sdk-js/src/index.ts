@@ -49,6 +49,7 @@ export type {
   RegulationCitation,
   RegulationCitationChunk,
   RegulationContent,
+  RegulationContentBody,
   RegulationDetails,
   RegulationSummary,
   RegulationTableOfContents,

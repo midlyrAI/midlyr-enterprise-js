@@ -12,13 +12,15 @@ function createClient(): MidlyrClient {
     })),
     getDocumentDetails: vi.fn(),
     readDocumentContent: vi.fn(async () => ({
-      id: "reg_1",
-      text: "content",
-      offset: 0,
-      limit: 40000,
-      totalBytes: 7,
-      hasMore: false,
-      details: {},
+      regulation: { id: "reg_1" },
+      content: {
+        text: "content",
+        startOffset: 0,
+        endOffset: 7,
+        limit: 40000,
+        totalBytes: 7,
+        hasMore: false,
+      },
     })),
     startScreenAnalysis: vi.fn(async () => ({
       id: "job_1",

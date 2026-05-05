@@ -105,14 +105,18 @@ export interface RegulationDetails extends RegulationSummary {
   attributes: RegulationAttributes | null;
 }
 
-export interface RegulationContent {
-  id: string;
+export interface RegulationContentBody {
   text: string;
-  offset: number;
+  startOffset: number;
+  endOffset: number;
   limit: number;
   totalBytes: number;
   hasMore: boolean;
-  details: RegulationDetails;
+}
+
+export interface RegulationContent {
+  regulation: RegulationDetails;
+  content: RegulationContentBody;
 }
 
 export interface ListRegulationsRequest {
