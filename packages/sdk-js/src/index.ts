@@ -11,6 +11,7 @@ export {
 export { MidlyrAPIError, MidlyrError, MidlyrNetworkError } from "./errors.js";
 export { SDK_VERSION, SDK_CLIENT_PRODUCT, SDK_CLIENT_IDENTITY } from "./version.js";
 export { AnalysisAPI } from "./resources/analysis.js";
+export { EventAPI } from "./resources/events.js";
 export { JobAPI } from "./resources/jobs.js";
 export { RegulationAPI } from "./resources/regulations.js";
 export type { ErrorDetail, PaginationResult } from "./types/common.js";
@@ -24,6 +25,13 @@ export type {
   CreateScreenAnalysisJobRequest,
   CreateScreenAnalysisJobResponse,
 } from "./types/analysis.js";
+export type {
+  EventContent,
+  EventTextContent,
+  EventJsonContent,
+  CreateEventRequest,
+  CreateEventResponse,
+} from "./types/events.js";
 export type {
   Job,
   JobFailed,

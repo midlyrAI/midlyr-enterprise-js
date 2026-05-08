@@ -1,6 +1,7 @@
 import type { CommandName } from "../command-names.js";
 import type { ParsedArgs } from "../parser.js";
 import type { DocumentsService } from "../../domain/documents.js";
+import type { EventIntakeService } from "../../domain/event-intake.js";
 import type { JobsService } from "../../domain/jobs.js";
 import type { ScreenAnalysisService } from "../../domain/screen-analysis.js";
 
@@ -13,6 +14,7 @@ export interface HelpEntry {
 export interface CommandServices {
   documents: DocumentsService;
   screenAnalysis: ScreenAnalysisService;
+  eventIntake: EventIntakeService;
   jobs: JobsService;
 }
 

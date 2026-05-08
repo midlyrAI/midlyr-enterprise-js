@@ -14,6 +14,9 @@ function createServices() {
     screenAnalysis: {
       run: vi.fn(async () => ({ ok: true })),
     },
+    eventIntake: {
+      run: vi.fn(async () => ({ ok: true })),
+    },
     jobs: {
       list: vi.fn(async () => ({ ok: true })),
       get: vi.fn(async () => ({ ok: true })),
@@ -118,6 +121,113 @@ describe("command handlers", () => {
       runCommand(
         "screen-analysis",
         parseArgs(["screen-analysis", "--scenario", "invalid", "--text", "test"]),
+        createServices(),
+      ),
+    ).rejects.toBeInstanceOf(CliInputError);
+  });
+
+  it("maps log-event with text content and external-ref", async () => {
+    const services = createServices();
+
+    await runCommand(
+      "log-event",
+      parseArgs([
+        "log-event",
+        "--scenario",
+        "complaint",
+        "--text",
+        "Customer reports delayed refund.",
+        "--external-ref",
+        "ext-001",
+      ]),
+      services,
+    );
+
+    expect(services.eventIntake.run).toHaveBeenCalledWith({
+      body: {
+        scenario: "complaint",
+        content: { type: "text", text: "Customer reports delayed refund." },
+        externalRef: "ext-001",
+      },
+    });
+  });
+
+  it("maps log-event with --json content", async () => {
+    const services = createServices();
+
+    await runCommand(
+      "log-event",
+      parseArgs([
+        "log-event",
+        "--scenario",
+        "dispute",
+        "--json",
+        '{"transactionId":"tx_1","amount":42}',
+      ]),
+      services,
+    );
+
+    expect(services.eventIntake.run).toHaveBeenCalledWith({
+      body: {
+        scenario: "dispute",
+        content: { type: "json", json: { transactionId: "tx_1", amount: 42 } },
+      },
+    });
+  });
+
+  it("validates log-event requires --scenario", async () => {
+    await expect(
+      runCommand(
+        "log-event",
+        parseArgs(["log-event", "--text", "no scenario"]),
+        createServices(),
+      ),
+    ).rejects.toBeInstanceOf(CliInputError);
+  });
+
+  it("validates log-event rejects invalid scenario", async () => {
+    await expect(
+      runCommand(
+        "log-event",
+        parseArgs(["log-event", "--scenario", "not_real", "--text", "x"]),
+        createServices(),
+      ),
+    ).rejects.toBeInstanceOf(CliInputError);
+  });
+
+  it("validates log-event requires --text or --json", async () => {
+    await expect(
+      runCommand(
+        "log-event",
+        parseArgs(["log-event", "--scenario", "complaint"]),
+        createServices(),
+      ),
+    ).rejects.toBeInstanceOf(CliInputError);
+  });
+
+  it("validates log-event rejects both --text and --json", async () => {
+    await expect(
+      runCommand(
+        "log-event",
+        parseArgs([
+          "log-event",
+          "--scenario",
+          "complaint",
+          "--text",
+          "x",
+          "--json",
+          "{}",
+        ]),
+        createServices(),
+      ),
+    ).rejects.toBeInstanceOf(CliInputError);
+  });
+
+  it("validates log-event rejects malformed --json", async () => {
+    await expect(
+      runCommand(
+        "log-event",
+        parseArgs(["log-event", "--scenario", "complaint", "--json", "not-json"]),
         createServices(),
       ),
     ).rejects.toBeInstanceOf(CliInputError);
