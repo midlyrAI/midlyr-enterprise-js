@@ -6,6 +6,7 @@ import {
   type QueryRegulationsRequest,
   type GetRegulationContentRequest,
   type CreateScreenAnalysisJobRequest,
+  type CreateEventRequest,
 } from "@midlyr/sdk-js";
 
 export type MidlyrClientOptions = {
@@ -16,7 +17,7 @@ export type MidlyrClientOptions = {
   clientIdentity?: string;
 };
 
-type PublicMidlyrSdk = Pick<MidlyrSdk, "regulations" | "analysis" | "jobs">;
+type PublicMidlyrSdk = Pick<MidlyrSdk, "regulations" | "analysis" | "events" | "jobs">;
 
 export class MidlyrClient {
   private readonly sdk: PublicMidlyrSdk;
@@ -51,6 +52,10 @@ export class MidlyrClient {
 
   startScreenAnalysis(input: CreateScreenAnalysisJobRequest) {
     return this.sdk.analysis.screen(input);
+  }
+
+  createEvent(input: CreateEventRequest) {
+    return this.sdk.events.create(input);
   }
 
   getJob(jobId: string) {

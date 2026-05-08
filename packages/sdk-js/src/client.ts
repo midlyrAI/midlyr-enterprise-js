@@ -1,6 +1,7 @@
 import { DEFAULT_BASE_URL, type MidlyrClientOptions } from "./config.js";
 import { MidlyrError } from "./errors.js";
 import { AnalysisAPI } from "./resources/analysis.js";
+import { EventAPI } from "./resources/events.js";
 import { JobAPI } from "./resources/jobs.js";
 import { RegulationAPI } from "./resources/regulations.js";
 import { Transport } from "./transport.js";
@@ -8,6 +9,7 @@ import { Transport } from "./transport.js";
 export class Midlyr {
   readonly regulations: RegulationAPI;
   readonly analysis: AnalysisAPI;
+  readonly events: EventAPI;
   readonly jobs: JobAPI;
 
   constructor(options: MidlyrClientOptions) {
@@ -27,6 +29,7 @@ export class Midlyr {
 
     this.regulations = new RegulationAPI(transport);
     this.analysis = new AnalysisAPI(transport);
+    this.events = new EventAPI(transport);
     this.jobs = new JobAPI(transport);
   }
 }

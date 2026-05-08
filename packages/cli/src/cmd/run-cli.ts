@@ -1,6 +1,7 @@
 import type { FetchLike } from "@midlyr/sdk-js";
 import { DocumentsService } from "../domain/documents.js";
 import type { CredentialsStore } from "../domain/credentials.js";
+import { EventIntakeService } from "../domain/event-intake.js";
 import {
   ScreenAnalysisPollingService,
   type SignalHandler,
@@ -96,6 +97,7 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
       screenAnalysis: new ScreenAnalysisService(client, polling, (message) =>
         logger.write(`${message}\n`),
       ),
+      eventIntake: new EventIntakeService(client),
       jobs: new JobsService(client),
     });
 
