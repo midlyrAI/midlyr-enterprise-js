@@ -1,4 +1,4 @@
-import type { ScreenAnalysisScenario } from "./analysis.js";
+import type { ScreenAnalysisScenario } from "./scenario.js";
 
 export interface EventTextContent {
   type: "text";

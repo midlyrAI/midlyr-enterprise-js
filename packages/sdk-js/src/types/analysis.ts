@@ -1,14 +1,7 @@
 import type { RegulationCitation } from "./regulations.js";
+import { ScreenAnalysisScenario } from "./scenario.js";
 
-export const ScreenAnalysisScenario = {
-  MARKETING_ASSET: "marketing_asset",
-  DISPUTE: "dispute",
-  DEBT_COLLECTION: "debt_collection",
-  COMPLAINT: "complaint",
-  GENERIC: "generic",
-} as const;
-export type ScreenAnalysisScenario =
-  (typeof ScreenAnalysisScenario)[keyof typeof ScreenAnalysisScenario];
+export { ScreenAnalysisScenario };
 
 export interface ScreenAnalysisContent {
   type: "text";
