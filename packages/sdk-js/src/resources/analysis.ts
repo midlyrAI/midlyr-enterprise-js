@@ -1,6 +1,11 @@
 import type { MidlyrRequestOptions } from "../config.js";
 import type { Transport } from "../transport.js";
-import type { CreateScreenAnalysisJobRequest, CreateScreenAnalysisJobResponse } from "../types/analysis.js";
+import type {
+  CreateRiskAssessmentJobRequest,
+  CreateRiskAssessmentJobResponse,
+  CreateScreenAnalysisJobRequest,
+  CreateScreenAnalysisJobResponse,
+} from "../types/analysis.js";
 
 export class AnalysisAPI {
   readonly #transport: Transport;
@@ -13,6 +18,15 @@ export class AnalysisAPI {
     return this.#transport.request<CreateScreenAnalysisJobResponse>({
       method: "POST",
       path: "/api/v1/analysis/screen",
+      body,
+      ...options,
+    });
+  }
+
+  risk(body: CreateRiskAssessmentJobRequest, options: MidlyrRequestOptions = {}) {
+    return this.#transport.request<CreateRiskAssessmentJobResponse>({
+      method: "POST",
+      path: "/api/v1/analysis/risk",
       body,
       ...options,
     });

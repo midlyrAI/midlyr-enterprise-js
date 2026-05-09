@@ -23,6 +23,7 @@ export interface PollingPolicy {
 }
 
 export const DEFAULT_SCREEN_ANALYSIS_TIMEOUT_MS = 300_000;
+export const DEFAULT_RISK_ASSESSMENT_TIMEOUT_MS = 60_000;
 export const DEFAULT_POLL_INTERVAL_MS = 2_000;
 
 export class ScreenAnalysisPollingService {

@@ -14,6 +14,9 @@ function createServices() {
     screenAnalysis: {
       run: vi.fn(async () => ({ ok: true })),
     },
+    riskAssessment: {
+      run: vi.fn(async () => ({ ok: true })),
+    },
     eventIntake: {
       run: vi.fn(async () => ({ ok: true })),
     },
@@ -121,6 +124,65 @@ describe("command handlers", () => {
       runCommand(
         "screen-analysis",
         parseArgs(["screen-analysis", "--scenario", "invalid", "--text", "test"]),
+        createServices(),
+      ),
+    ).rejects.toBeInstanceOf(CliInputError);
+  });
+
+  it("maps risk-assessment options with scenario and text", async () => {
+    const services = createServices();
+
+    await runCommand(
+      "risk-assessment",
+      parseArgs([
+        "risk-assessment",
+        "--scenario",
+        "marketing_asset",
+        "--text",
+        "Get 0% APR for life!",
+        "--timeout-ms",
+        "100",
+        "--no-wait",
+      ]),
+      services,
+    );
+
+    expect(services.riskAssessment.run).toHaveBeenCalledWith({
+      body: {
+        content: { type: "text", text: "Get 0% APR for life!" },
+        scenario: "marketing_asset",
+      },
+      wait: false,
+      timeoutMs: 100,
+      pollIntervalMs: undefined,
+    });
+  });
+
+  it("validates risk-assessment requires --scenario", async () => {
+    await expect(
+      runCommand(
+        "risk-assessment",
+        parseArgs(["risk-assessment", "--text", "some content"]),
+        createServices(),
+      ),
+    ).rejects.toBeInstanceOf(CliInputError);
+  });
+
+  it("validates risk-assessment requires text", async () => {
+    await expect(
+      runCommand(
+        "risk-assessment",
+        parseArgs(["risk-assessment", "--scenario", "generic"]),
+        createServices(),
+      ),
+    ).rejects.toBeInstanceOf(CliInputError);
+  });
+
+  it("validates risk-assessment rejects invalid scenario", async () => {
+    await expect(
+      runCommand(
+        "risk-assessment",
+        parseArgs(["risk-assessment", "--scenario", "invalid", "--text", "test"]),
         createServices(),
       ),
     ).rejects.toBeInstanceOf(CliInputError);

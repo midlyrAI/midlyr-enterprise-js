@@ -4,6 +4,7 @@ export const CommandName = {
   READ_DOCUMENT_CONTENT: "read-document-content",
   QUERY_DOCUMENT: "query-document",
   SCREEN_ANALYSIS: "screen-analysis",
+  RISK_ASSESSMENT: "risk-assessment",
   LOG_EVENT: "log-event",
   LIST_JOBS: "list-jobs",
   CONFIG: "config",

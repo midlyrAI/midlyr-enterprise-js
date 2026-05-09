@@ -9,6 +9,7 @@ import { LogEventCommand } from "./log-event.js";
 import { loginHelp, runLoginCommand, type LoginRuntime } from "./login.js";
 import { QueryDocumentCommand } from "./query-document.js";
 import { ReadDocumentContentCommand } from "./read-document-content.js";
+import { RiskAssessmentCommand } from "./risk-assessment.js";
 import { ScreenAnalysisCommand } from "./screen-analysis.js";
 import { Command, type CommandServices, type HelpEntry } from "./types.js";
 
@@ -21,6 +22,7 @@ const CREDENTIALED_COMMANDS: readonly Command<unknown, unknown>[] = [
   new ReadDocumentContentCommand(),
   new QueryDocumentCommand(),
   new ScreenAnalysisCommand(),
+  new RiskAssessmentCommand(),
   new LogEventCommand(),
   new ListJobsCommand(),
 ] as readonly Command<unknown, unknown>[];

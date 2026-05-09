@@ -36,3 +36,21 @@ export interface ScreenAnalysisResult {
   riskScore: number;
   findings: ScreenAnalysisViolationResult[];
 }
+
+export interface CreateRiskAssessmentJobRequest {
+  content: ScreenAnalysisContent;
+  scenario: ScreenAnalysisScenario;
+}
+
+export interface CreateRiskAssessmentJobResponse {
+  id: string;
+}
+
+/**
+ * Lighter-weight sibling of `ScreenAnalysisResult` — emits only a riskScore
+ * (no findings / citations). Suited for triage and live-feedback flows.
+ */
+export interface RiskAssessmentResult {
+  type: "risk_assessment_result";
+  riskScore: number;
+}

@@ -1,5 +1,5 @@
 import type { ErrorDetail, PaginationResult } from "./common.js";
-import type { ScreenAnalysisResult } from "./analysis.js";
+import type { RiskAssessmentResult, ScreenAnalysisResult } from "./analysis.js";
 
 /**
  * Job types exposed by the public REST API. Server-internal types
@@ -8,8 +8,11 @@ import type { ScreenAnalysisResult } from "./analysis.js";
  */
 export const JobType = {
   SCREEN_ANALYSIS: "screen_analysis",
+  RISK_ASSESSMENT: "risk_assessment",
 } as const;
 export type JobType = (typeof JobType)[keyof typeof JobType];
+
+export type JobResult = ScreenAnalysisResult | RiskAssessmentResult;
 
 export const JobStatus = {
   RUNNING: "running",
@@ -27,7 +30,7 @@ interface JobBase {
 
 export interface JobSucceeded extends JobBase {
   status: typeof JobStatus.SUCCEEDED;
-  result: ScreenAnalysisResult;
+  result: JobResult;
   error: null;
 }
 
@@ -50,8 +53,9 @@ export type Job = JobSucceeded | JobRunning | JobFailed;
  * (`jobId` vs `id`, `jobType` vs `type`) — mirrored verbatim so callers see
  * what's on the wire. Status enum is now aligned with `JobStatus`.
  *
- * Only `screen_analysis` is exposed via the public REST API today; other server
- * job types are internal and intentionally absent from this SDK surface.
+ * Only `screen_analysis` and `risk_assessment` are exposed via the public REST
+ * API today; other server job types are internal and intentionally absent from
+ * this SDK surface.
  */
 export const JobTriggerType = {
   MANUAL: "manual",

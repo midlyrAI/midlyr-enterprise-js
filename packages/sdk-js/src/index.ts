@@ -24,6 +24,9 @@ export type {
   ScreenAnalysisViolationResult,
   CreateScreenAnalysisJobRequest,
   CreateScreenAnalysisJobResponse,
+  RiskAssessmentResult,
+  CreateRiskAssessmentJobRequest,
+  CreateRiskAssessmentJobResponse,
 } from "./types/analysis.js";
 export type {
   EventContent,
@@ -35,6 +38,7 @@ export type {
 export type {
   Job,
   JobFailed,
+  JobResult,
   JobRunning,
   JobSucceeded,
   JobSummary,
