@@ -1,11 +1,11 @@
 export const CommandName = {
-  BROWSE_DOCUMENT: "browse-document",
-  DESCRIBE_DOCUMENT: "describe-document",
-  READ_DOCUMENT_CONTENT: "read-document-content",
-  QUERY_DOCUMENT: "query-document",
-  SCREEN_ANALYSIS: "screen-analysis",
-  LOG_EVENT: "log-event",
-  LIST_JOBS: "list-jobs",
+  REGULATIONS_LIST: "regulations list",
+  REGULATIONS_GET: "regulations get",
+  REGULATIONS_GET_CONTENT: "regulations get-content",
+  REGULATIONS_QUERY: "regulations query",
+  ANALYSIS_SCREEN: "analysis screen",
+  EVENTS_CREATE: "events create",
+  JOBS_LIST: "jobs list",
   CONFIG: "config",
   LOGIN: "login",
 } as const;
@@ -15,4 +15,12 @@ const VALID_COMMAND_NAMES: ReadonlySet<string> = new Set(Object.values(CommandNa
 
 export function isCommandName(command: string): command is CommandName {
   return VALID_COMMAND_NAMES.has(command);
+}
+
+/**
+ * Returns the canonical set of command names for parser-driven two-token resolution.
+ * Includes both two-token (e.g., "regulations list") and single-token (e.g., "config") forms.
+ */
+export function getValidCommandNames(): ReadonlySet<string> {
+  return VALID_COMMAND_NAMES;
 }

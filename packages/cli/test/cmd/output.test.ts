@@ -22,11 +22,18 @@ describe("cmd output", () => {
 
   it("formats the top-level help with every command listed", () => {
     const help = formatTopHelp();
-    // Every command is listed
-    expect(help).toContain("browse-document");
-    expect(help).toContain("describe-document");
-    expect(help).toContain("read-document-content");
-    expect(help).toContain("screen-analysis");
+    // Resource groups
+    expect(help).toMatch(/\n {2}regulations\n/);
+    expect(help).toMatch(/\n {2}analysis\n/);
+    expect(help).toMatch(/\n {2}events\n/);
+    expect(help).toMatch(/\n {2}jobs\n/);
+    // Verbs
+    expect(help).toContain("list");
+    expect(help).toContain("get-content");
+    expect(help).toContain("query");
+    expect(help).toContain("screen");
+    expect(help).toContain("create");
+    // Flat commands
     expect(help).toContain("config set api-key");
     expect(help).toContain("login");
     // Top help points to per-command help for details
@@ -39,12 +46,15 @@ describe("cmd output", () => {
   });
 
   it("formats per-command help with endpoints and options for each command", () => {
-    expect(formatCommandHelp("browse-document")).toContain("GET /api/v1/regulations/");
-    expect(formatCommandHelp("describe-document")).toContain("GET /api/v1/regulations/:id");
-    expect(formatCommandHelp("read-document-content")).toContain(
+    expect(formatCommandHelp("regulations list")).toContain("GET /api/v1/regulations/");
+    expect(formatCommandHelp("regulations get")).toContain("GET /api/v1/regulations/:id");
+    expect(formatCommandHelp("regulations get-content")).toContain(
       "GET /api/v1/regulations/:id/content",
     );
-    expect(formatCommandHelp("screen-analysis")).toContain("POST /api/v1/analysis/screen");
+    expect(formatCommandHelp("regulations query")).toContain("POST /api/v1/regulations/query");
+    expect(formatCommandHelp("analysis screen")).toContain("POST /api/v1/analysis/screen");
+    expect(formatCommandHelp("events create")).toContain("POST /api/v1/events");
+    expect(formatCommandHelp("jobs list")).toContain("GET /api/v1/jobs");
     expect(formatCommandHelp("login")).toContain("OAuth");
     expect(formatCommandHelp("config")).toContain("config set api-key");
     expect(formatCommandHelp("unknown-command")).toBeUndefined();

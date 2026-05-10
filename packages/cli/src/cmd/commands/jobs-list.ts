@@ -10,12 +10,12 @@ function isJobType(value: string): value is JobType {
   return VALID_JOB_TYPES.has(value);
 }
 
-export class ListJobsCommand extends Command<ListJobsRequest, ListJobsResponse> {
-  readonly name = CommandName.LIST_JOBS;
+export class JobsListCommand extends Command<ListJobsRequest, ListJobsResponse> {
+  readonly name = CommandName.JOBS_LIST;
   readonly help: HelpEntry = {
-    label: "list-jobs",
+    label: "jobs list",
     summary: "List historical jobs for the current team",
-    details: `midlyr list-jobs [options]
+    details: `midlyr jobs list [options]
 
 List historical jobs for the current team. Returns slim summaries; use the
 job id with the SDK or REST API to fetch full details.

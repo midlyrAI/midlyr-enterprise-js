@@ -43,24 +43,34 @@ function parseJsonOutput(output: string) {
 }
 
 describe("midlyr CLI", () => {
-  it("prints help with exactly the v1 command names", async () => {
+  it("prints help with the v0.4.0 stripe-style command names grouped by resource", async () => {
     const io = createRuntime();
     const exitCode = await runCli(["--help"], io.runtime);
 
     expect(exitCode).toBe(0);
     const help = io.stdout();
-    expect(help).toContain("browse-document");
-    expect(help).toContain("describe-document");
-    expect(help).toContain("read-document-content");
-    expect(help).toContain("query-document");
-    expect(help).toContain("screen-analysis");
-    // No removed top-level commands should appear as a command heading (2-space indent + name on its own line)
-    expect(help).not.toMatch(/\n {2}jobs\b/);
-    expect(help).not.toMatch(/\n {2}mcp\b/);
-    expect(help).not.toMatch(/\n {2}platform\b/);
-    expect(help).not.toMatch(/\n {2}agents\b/);
-    expect(help).not.toMatch(/\n {2}enterprise\b/);
-    expect(help).not.toMatch(/\n {2}consumer\b/);
+    // Resource group headings render at 2-space indent.
+    expect(help).toMatch(/\n {2}regulations\n/);
+    expect(help).toMatch(/\n {2}analysis\n/);
+    expect(help).toMatch(/\n {2}events\n/);
+    expect(help).toMatch(/\n {2}jobs\n/);
+    // Verbs render under their resource heading.
+    expect(help).toContain("list");
+    expect(help).toContain("get-content");
+    expect(help).toContain("query");
+    expect(help).toContain("screen");
+    expect(help).toContain("create");
+    // Flat single-token commands.
+    expect(help).toContain("login");
+    expect(help).toContain("config");
+    // Old command names must not appear.
+    expect(help).not.toContain("browse-document");
+    expect(help).not.toContain("describe-document");
+    expect(help).not.toContain("read-document-content");
+    expect(help).not.toContain("query-document");
+    expect(help).not.toContain("screen-analysis");
+    expect(help).not.toContain("log-event");
+    expect(help).not.toContain("list-jobs");
     // Public surface should not advertise the removed global flags.
     expect(help).not.toContain("--api-key");
     expect(help).not.toContain("--base-url");
@@ -90,16 +100,16 @@ describe("midlyr CLI", () => {
 
   it("prints per-command help when --help follows a known command", async () => {
     const io = createRuntime();
-    const exitCode = await runCli(["screen-analysis", "--help"], io.runtime);
+    const exitCode = await runCli(["analysis", "screen", "--help"], io.runtime);
 
     expect(exitCode).toBe(0);
     const help = io.stdout();
     // Per-command help shows the command-specific detail block...
-    expect(help).toContain("midlyr screen-analysis");
+    expect(help).toContain("midlyr analysis screen");
     expect(help).toContain("--scenario");
     expect(help).toContain("POST /api/v1/analysis/screen");
     // ...and does NOT include unrelated commands' details.
-    expect(help).not.toContain("browse-document");
+    expect(help).not.toContain("regulations list");
     expect(help).not.toContain("Run 'midlyr <command> --help'");
   });
 
@@ -115,7 +125,7 @@ describe("midlyr CLI", () => {
 
   it("exits non-zero when no API key is configured", async () => {
     const io = createRuntime(undefined, { env: { MIDLYR_API_KEY: undefined } });
-    const exitCode = await runCli(["browse-document"], io.runtime);
+    const exitCode = await runCli(["regulations", "list"], io.runtime);
 
     expect(exitCode).toBe(1);
     expect(parseJsonOutput(io.stderr())).toMatchObject({
@@ -127,7 +137,7 @@ describe("midlyr CLI", () => {
     });
   });
 
-  it("uses MIDLYR_API_KEY and MIDLYR_BASE_URL to construct browse-document requests", async () => {
+  it("uses MIDLYR_API_KEY and MIDLYR_BASE_URL to construct regulations list requests", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({
         results: [],
@@ -138,7 +148,8 @@ describe("midlyr CLI", () => {
 
     const exitCode = await runCli(
       [
-        "browse-document",
+        "regulations",
+        "list",
         "--query",
         "fair lending",
         "--category",
@@ -166,7 +177,7 @@ describe("midlyr CLI", () => {
     expect(parseJsonOutput(io.stdout())).toMatchObject({ results: [] });
   });
 
-  it("constructs describe-document requests from a positional id", async () => {
+  it("constructs regulations get requests from a positional id", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({
         id: "reg_123",
@@ -184,7 +195,7 @@ describe("midlyr CLI", () => {
     );
     const io = createRuntime(fetch, { env: { MIDLYR_API_KEY: "env_key" } });
 
-    const exitCode = await runCli(["describe-document", "reg_123"], io.runtime);
+    const exitCode = await runCli(["regulations", "get", "reg_123"], io.runtime);
 
     expect(exitCode).toBe(0);
     const [url, init] = fetch.mock.calls[0]!;
@@ -193,7 +204,7 @@ describe("midlyr CLI", () => {
     expect(parseJsonOutput(io.stdout())).toMatchObject({ id: "reg_123", title: "Regulation B" });
   });
 
-  it("constructs read-document-content requests with env-configured api key", async () => {
+  it("constructs regulations get-content requests with env-configured api key", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({
         regulation: {
@@ -222,7 +233,7 @@ describe("midlyr CLI", () => {
     const io = createRuntime(fetch, { env: { MIDLYR_API_KEY: "env_key" } });
 
     const exitCode = await runCli(
-      ["read-document-content", "reg_123", "--offset", "10", "--limit", "100"],
+      ["regulations", "get-content", "reg_123", "--offset", "10", "--limit", "100"],
       io.runtime,
     );
 
@@ -234,7 +245,7 @@ describe("midlyr CLI", () => {
     expect(init?.headers).toMatchObject({ "x-api-key": "env_key" });
   });
 
-  it("POSTs query-document with the parsed body and prints the response", async () => {
+  it("POSTs regulations query with the parsed body and prints the response", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({
         results: [
@@ -264,7 +275,7 @@ describe("midlyr CLI", () => {
     const io = createRuntime(fetch, { env: { MIDLYR_API_KEY: "env_key" } });
 
     const exitCode = await runCli(
-      ["query-document", "--query", "provisional credit", "--limit", "5", "--authority", "CFPB"],
+      ["regulations", "query", "--query", "provisional credit", "--limit", "5", "--authority", "CFPB"],
       io.runtime,
     );
 
@@ -291,7 +302,7 @@ describe("midlyr CLI", () => {
     });
   });
 
-  it("submits screen-analysis and polls until terminal job", async () => {
+  it("submits analysis screen and polls until terminal job", async () => {
     const fetch = vi
       .fn<FetchLike>()
       .mockResolvedValueOnce(jsonResponse({ id: "job_123" }, { status: 202 }))
@@ -321,7 +332,8 @@ describe("midlyr CLI", () => {
 
     const exitCode = await runCli(
       [
-        "screen-analysis",
+        "analysis",
+        "screen",
         "--scenario",
         "marketing_asset",
         "--text",
@@ -345,14 +357,14 @@ describe("midlyr CLI", () => {
     expect(parseJsonOutput(io.stdout())).toMatchObject({ id: "job_123", status: "succeeded" });
   });
 
-  it("preserves job id when screen-analysis times out", async () => {
+  it("preserves job id when analysis screen times out", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({ id: "job_timeout" }, { status: 202 }),
     );
     const io = createRuntime(fetch);
 
     const exitCode = await runCli(
-      ["screen-analysis", "--scenario", "generic", "--text", "test content", "--timeout-ms", "0"],
+      ["analysis", "screen", "--scenario", "generic", "--text", "test content", "--timeout-ms", "0"],
       io.runtime,
     );
 
@@ -362,7 +374,7 @@ describe("midlyr CLI", () => {
     });
   });
 
-  it("does not poll after screen-analysis timeout elapses during sleep", async () => {
+  it("does not poll after analysis screen timeout elapses during sleep", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({ id: "job_sleep_timeout" }, { status: 202 }),
     );
@@ -376,7 +388,8 @@ describe("midlyr CLI", () => {
 
     const exitCode = await runCli(
       [
-        "screen-analysis",
+        "analysis",
+        "screen",
         "--scenario",
         "generic",
         "--text",
@@ -396,7 +409,7 @@ describe("midlyr CLI", () => {
     });
   });
 
-  it("preserves job id when screen-analysis is interrupted after submission", async () => {
+  it("preserves job id when analysis screen is interrupted after submission", async () => {
     const fetch = vi.fn<FetchLike>(async () =>
       jsonResponse({ id: "job_interrupted" }, { status: 202 }),
     );
@@ -412,7 +425,8 @@ describe("midlyr CLI", () => {
 
     const exitCode = await runCli(
       [
-        "screen-analysis",
+        "analysis",
+        "screen",
         "--scenario",
         "complaint",
         "--text",

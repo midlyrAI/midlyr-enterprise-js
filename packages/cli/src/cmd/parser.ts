@@ -1,4 +1,5 @@
 import { CliInputError } from "../domain/errors.js";
+import { getValidCommandNames } from "./command-names.js";
 
 const VALUELESS_LONG_OPTIONS: ReadonlySet<string> = new Set(["help", "version"]);
 const VALUELESS_SHORT_OPTIONS: ReadonlySet<string> = new Set(["h", "v"]);
@@ -39,7 +40,10 @@ export class ParsedArgs {
   }
 }
 
-export function parseArgs(argv: readonly string[]): ParsedArgs {
+export function parseArgs(
+  argv: readonly string[],
+  validCommandNames: ReadonlySet<string> = getValidCommandNames(),
+): ParsedArgs {
   const options = new Map<string, string[]>();
   const booleans = new Set<string>();
   const positionals: string[] = [];
@@ -91,6 +95,19 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
     }
 
     if (!command) {
+      // Two-token command resolution: try "<a> <b>" against the registry first,
+      // fall back to single-token "<a>" otherwise. Drives off the registry so
+      // we don't hardcode resource prefixes.
+      const next = argv[index + 1];
+      const isNextBareWord = next !== undefined && next !== "--" && !next.startsWith("-");
+      if (isNextBareWord) {
+        const twoToken = `${arg} ${next}`;
+        if (validCommandNames.has(twoToken)) {
+          command = twoToken;
+          index += 1;
+          continue;
+        }
+      }
       command = arg;
       continue;
     }

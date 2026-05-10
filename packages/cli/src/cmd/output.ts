@@ -33,9 +33,45 @@ Output:
 
 export function formatTopHelp(): string {
   const labelWidth = Math.max(...ALL_HELP.map((entry) => entry.help.label.length));
-  const commandLines = ALL_HELP.map(
-    (entry) => `  ${entry.help.label.padEnd(labelWidth)}  ${entry.help.summary}`,
-  ).join("\n");
+
+  /**
+   * Group two-token commands by resource and render them under a resource heading.
+   * Single-token commands (config, login) render flat at the bottom.
+   *
+   * Each entry's `name` is the canonical command id (e.g., "regulations list" or
+   * "config"), and `help.label` is the human-facing label (which may include
+   * placeholders like "<id>"). We split by name to pick the resource group, but
+   * render the full label so users see argument hints.
+   */
+  const groups = new Map<string, { label: string; summary: string }[]>();
+  const flat: { label: string; summary: string }[] = [];
+
+  for (const entry of ALL_HELP) {
+    const spaceIndex = entry.name.indexOf(" ");
+    if (spaceIndex === -1) {
+      flat.push({ label: entry.help.label, summary: entry.help.summary });
+      continue;
+    }
+    const resource = entry.name.slice(0, spaceIndex);
+    const verbLabel = entry.help.label.startsWith(`${resource} `)
+      ? entry.help.label.slice(resource.length + 1)
+      : entry.help.label;
+    const list = groups.get(resource) ?? [];
+    list.push({ label: verbLabel, summary: entry.help.summary });
+    groups.set(resource, list);
+  }
+
+  const sections: string[] = [];
+  for (const [resource, entries] of groups) {
+    const indented = entries
+      .map((e) => `    ${e.label.padEnd(labelWidth - 4)}  ${e.summary}`)
+      .join("\n");
+    sections.push(`  ${resource}\n${indented}`);
+  }
+  for (const entry of flat) {
+    sections.push(`  ${entry.label.padEnd(labelWidth)}  ${entry.summary}`);
+  }
+  const commandLines = sections.join("\n");
 
   return `midlyr — CLI for the Midlyr compliance and regulation REST API.
 
