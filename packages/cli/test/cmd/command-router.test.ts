@@ -4,17 +4,18 @@ import { CommandName, isCommandName } from "../../src/cmd/command-names.js";
 describe("command names", () => {
   it("lists and recognizes the exact command surface", () => {
     expect(Object.values(CommandName)).toEqual([
-      "browse-document",
-      "describe-document",
-      "read-document-content",
-      "query-document",
-      "screen-analysis",
-      "log-event",
-      "list-jobs",
+      "regulations list",
+      "regulations get",
+      "regulations get-content",
+      "regulations query",
+      "analysis screen",
+      "events create",
+      "jobs list",
       "config",
       "login",
     ]);
-    expect(isCommandName("screen-analysis")).toBe(true);
+    expect(isCommandName("analysis screen")).toBe(true);
     expect(isCommandName("jobs")).toBe(false);
+    expect(isCommandName("screen-analysis")).toBe(false);
   });
 });

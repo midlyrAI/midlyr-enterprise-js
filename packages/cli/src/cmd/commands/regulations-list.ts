@@ -3,12 +3,12 @@ import { CommandName } from "../command-names.js";
 import type { ParsedArgs } from "../parser.js";
 import { Command, type CommandServices, type HelpEntry } from "./types.js";
 
-export class BrowseDocumentCommand extends Command<ListRegulationsRequest, ListRegulationsResponse> {
-  readonly name = CommandName.BROWSE_DOCUMENT;
+export class RegulationsListCommand extends Command<ListRegulationsRequest, ListRegulationsResponse> {
+  readonly name = CommandName.REGULATIONS_LIST;
   readonly help: HelpEntry = {
-    label: "browse-document",
+    label: "regulations list",
     summary: "List regulatory documents with optional filters",
-    details: `midlyr browse-document [options]
+    details: `midlyr regulations list [options]
 
 List regulatory documents with optional filters.
 
@@ -21,7 +21,7 @@ Options:
   --cursor <token>
 
 Returns a paginated list of document summaries (id, title, jurisdictions, updatedAt).
-Does NOT return content bodies — use read-document-content for that.
+Does NOT return content bodies — use regulations get-content for that.
 
 Endpoint: GET /api/v1/regulations/
 `,

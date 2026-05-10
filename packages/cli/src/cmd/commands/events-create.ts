@@ -8,7 +8,7 @@ import { CommandName } from "../command-names.js";
 import type { ParsedArgs } from "../parser.js";
 import { Command, type CommandServices, type HelpEntry } from "./types.js";
 
-interface LogEventInput {
+interface EventsCreateInput {
   body: CreateEventRequest;
 }
 
@@ -40,7 +40,7 @@ function parseContent(args: ParsedArgs): EventContent {
   const json = args.option("json");
 
   if (text && json) {
-    throw new CliInputError("log-event accepts either --text or --json, not both.");
+    throw new CliInputError("events create accepts either --text or --json, not both.");
   }
   if (json) {
     return { type: "json", json: parseJson(json) };
@@ -49,19 +49,19 @@ function parseContent(args: ParsedArgs): EventContent {
     return { type: "text", text };
   }
   throw new CliInputError(
-    "log-event requires --text (or a positional text argument) or --json.",
+    "events create requires --text (or a positional text argument) or --json.",
   );
 }
 
-export class LogEventCommand extends Command<LogEventInput, unknown> {
-  readonly name = CommandName.LOG_EVENT;
+export class EventsCreateCommand extends Command<EventsCreateInput, unknown> {
+  readonly name = CommandName.EVENTS_CREATE;
   readonly help: HelpEntry = {
-    label: "log-event",
+    label: "events create",
     summary: "Log a compliance event synchronously (no AI screening)",
-    details: `midlyr log-event --scenario <type> (--text <content> | --json <object>) [--external-ref <id>]
+    details: `midlyr events create --scenario <type> (--text <content> | --json <object>) [--external-ref <id>]
 
 Submit a compliance event for audit and triage. The event is persisted as a ticket
-synchronously without AI classification — use screen-analysis when you want compliance
+synchronously without AI classification — use analysis screen when you want compliance
 findings.
 
 Required:
@@ -80,10 +80,10 @@ Endpoint: POST /api/v1/events
 `,
   };
 
-  parse(args: ParsedArgs): LogEventInput {
+  parse(args: ParsedArgs): EventsCreateInput {
     const scenario = args.option("scenario");
     if (!scenario) {
-      throw new CliInputError("log-event requires --scenario.");
+      throw new CliInputError("events create requires --scenario.");
     }
     if (!isScenario(scenario)) {
       throw new CliInputError(
@@ -103,7 +103,7 @@ Endpoint: POST /api/v1/events
     };
   }
 
-  execute(input: LogEventInput, services: CommandServices) {
+  execute(input: EventsCreateInput, services: CommandServices) {
     return services.eventIntake.run(input);
   }
 }

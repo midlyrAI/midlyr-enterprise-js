@@ -1,28 +1,28 @@
 import { CliInputError } from "../../domain/errors.js";
 import { isCommandName } from "../command-names.js";
 import type { ParsedArgs } from "../parser.js";
-import { BrowseDocumentCommand } from "./browse-document.js";
+import { AnalysisScreenCommand } from "./analysis-screen.js";
 import { configHelp, runConfigCommand } from "./config.js";
-import { DescribeDocumentCommand } from "./describe-document.js";
-import { ListJobsCommand } from "./list-jobs.js";
-import { LogEventCommand } from "./log-event.js";
+import { EventsCreateCommand } from "./events-create.js";
+import { JobsListCommand } from "./jobs-list.js";
 import { loginHelp, runLoginCommand, type LoginRuntime } from "./login.js";
-import { QueryDocumentCommand } from "./query-document.js";
-import { ReadDocumentContentCommand } from "./read-document-content.js";
-import { ScreenAnalysisCommand } from "./screen-analysis.js";
+import { RegulationsGetCommand } from "./regulations-get.js";
+import { RegulationsGetContentCommand } from "./regulations-get-content.js";
+import { RegulationsListCommand } from "./regulations-list.js";
+import { RegulationsQueryCommand } from "./regulations-query.js";
 import { Command, type CommandServices, type HelpEntry } from "./types.js";
 
 export type { CommandServices, HelpEntry, LoginRuntime };
 export { Command, runConfigCommand, runLoginCommand };
 
 const CREDENTIALED_COMMANDS: readonly Command<unknown, unknown>[] = [
-  new BrowseDocumentCommand(),
-  new DescribeDocumentCommand(),
-  new ReadDocumentContentCommand(),
-  new QueryDocumentCommand(),
-  new ScreenAnalysisCommand(),
-  new LogEventCommand(),
-  new ListJobsCommand(),
+  new RegulationsListCommand(),
+  new RegulationsGetCommand(),
+  new RegulationsGetContentCommand(),
+  new RegulationsQueryCommand(),
+  new AnalysisScreenCommand(),
+  new EventsCreateCommand(),
+  new JobsListCommand(),
 ] as readonly Command<unknown, unknown>[];
 
 const COMMANDS_BY_NAME = new Map(

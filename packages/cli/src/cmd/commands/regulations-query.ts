@@ -8,12 +8,15 @@ import { CommandName } from "../command-names.js";
 import type { ParsedArgs } from "../parser.js";
 import { Command, type CommandServices, type HelpEntry } from "./types.js";
 
-export class QueryDocumentCommand extends Command<QueryRegulationsRequest, QueryRegulationsResponse> {
-  readonly name = CommandName.QUERY_DOCUMENT;
+export class RegulationsQueryCommand extends Command<
+  QueryRegulationsRequest,
+  QueryRegulationsResponse
+> {
+  readonly name = CommandName.REGULATIONS_QUERY;
   readonly help: HelpEntry = {
-    label: "query-document",
-    summary: "Vector-search document chunks by natural-language query",
-    details: `midlyr query-document --query <text> [options]
+    label: "regulations query",
+    summary: "Vector-search regulation chunks by natural-language query",
+    details: `midlyr regulations query --query <text> [options]
 
 Vector-search the regulatory corpus and return the top relevant chunks. This is a
 retrieval primitive — no LLM is invoked and no answer is generated. Compose it with
@@ -39,7 +42,7 @@ Endpoint: POST /api/v1/regulations/query
     const query = args.option("query") ?? args.positionals.join(" ");
     if (!query) {
       throw new CliInputError(
-        "query-document requires --query or text as a positional argument.",
+        "regulations query requires --query or text as a positional argument.",
       );
     }
 

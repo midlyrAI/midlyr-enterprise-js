@@ -6,7 +6,7 @@ import { parseArgs } from "../../src/cmd/parser.js";
 
 describe("resolveCliConfig", () => {
   it("uses env vars and --request-timeout-ms flag", () => {
-    const args = parseArgs(["browse-document", "--request-timeout-ms", "1234"]);
+    const args = parseArgs(["regulations", "list", "--request-timeout-ms", "1234"]);
     const config = resolveCliConfig(args, {
       MIDLYR_API_KEY: "env",
       MIDLYR_BASE_URL: "https://env.example.com",
@@ -20,7 +20,7 @@ describe("resolveCliConfig", () => {
   });
 
   it("falls back to credentials file and SDK default base URL", () => {
-    const args = parseArgs(["browse-document"]);
+    const args = parseArgs(["regulations", "list"]);
     const config = resolveCliConfig(args, {}, { apiKey: "from-file" });
 
     expect(config.apiKey).toBe("from-file");
@@ -28,7 +28,7 @@ describe("resolveCliConfig", () => {
   });
 
   it("throws a CLI input error when the API key is missing", () => {
-    const args = parseArgs(["browse-document"]);
+    const args = parseArgs(["regulations", "list"]);
     expect(() => resolveCliConfig(args, {})).toThrow(CliInputError);
   });
 });
