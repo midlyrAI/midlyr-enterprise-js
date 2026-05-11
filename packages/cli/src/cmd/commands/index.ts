@@ -1,6 +1,7 @@
 import { CliInputError } from "../../domain/errors.js";
 import { isCommandName } from "../command-names.js";
 import type { ParsedArgs } from "../parser.js";
+import { AnalysisRiskCommand } from "./analysis-risk.js";
 import { AnalysisScreenCommand } from "./analysis-screen.js";
 import { configHelp, runConfigCommand } from "./config.js";
 import { EventsCreateCommand } from "./events-create.js";
@@ -21,6 +22,7 @@ const CREDENTIALED_COMMANDS: readonly Command<unknown, unknown>[] = [
   new RegulationsGetContentCommand(),
   new RegulationsQueryCommand(),
   new AnalysisScreenCommand(),
+  new AnalysisRiskCommand(),
   new EventsCreateCommand(),
   new JobsListCommand(),
 ] as readonly Command<unknown, unknown>[];

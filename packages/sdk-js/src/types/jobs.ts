@@ -1,5 +1,5 @@
 import type { ErrorDetail, PaginationResult } from "./common.js";
-import type { ScreenAnalysisResult } from "./analysis.js";
+import type { RiskAssessmentResult, ScreenAnalysisResult } from "./analysis.js";
 
 /**
  * Job types exposed by the public REST API. Server-internal types
@@ -8,8 +8,11 @@ import type { ScreenAnalysisResult } from "./analysis.js";
  */
 export const JobType = {
   SCREEN_ANALYSIS: "screen_analysis",
+  RISK_ASSESSMENT: "risk_assessment",
 } as const;
 export type JobType = (typeof JobType)[keyof typeof JobType];
+
+export type JobResult = ScreenAnalysisResult | RiskAssessmentResult;
 
 export const JobStatus = {
   RUNNING: "running",
@@ -27,7 +30,7 @@ interface JobBase {
 
 export interface JobSucceeded extends JobBase {
   status: typeof JobStatus.SUCCEEDED;
-  result: ScreenAnalysisResult;
+  result: JobResult;
   error: null;
 }
 

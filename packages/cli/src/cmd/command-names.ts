@@ -4,6 +4,7 @@ export const CommandName = {
   REGULATIONS_GET_CONTENT: "regulations get-content",
   REGULATIONS_QUERY: "regulations query",
   ANALYSIS_SCREEN: "analysis screen",
+  ANALYSIS_RISK: "analysis risk",
   EVENTS_CREATE: "events create",
   JOBS_LIST: "jobs list",
   CONFIG: "config",
