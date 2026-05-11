@@ -1,6 +1,6 @@
 {
   "name": "@midlyr/sdk-js",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "MidLyr Enterprise TypeScript SDK for REST APIs.",
   "license": "MIT",
   "publishConfig": {
