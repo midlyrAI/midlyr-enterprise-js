@@ -171,7 +171,7 @@ describe("midlyr CLI", () => {
     expect(exitCode).toBe(0);
     const [url, init] = fetch.mock.calls[0]!;
     expect(String(url)).toBe(
-      "https://api.example.com/api/v1/regulations/?query=fair+lending&categories=regulation&categories=agencyGuidance&authorities=CFPB&jurisdictions=us-federal&limit=25&cursor=next_1",
+      "https://api.example.com/api/v1/regulations?query=fair+lending&categories=regulation&categories=agencyGuidance&authorities=CFPB&jurisdictions=us-federal&limit=25&cursor=next_1",
     );
     expect(init?.headers).toMatchObject({ "x-api-key": "env_key" });
     expect(parseJsonOutput(io.stdout())).toMatchObject({ results: [] });
