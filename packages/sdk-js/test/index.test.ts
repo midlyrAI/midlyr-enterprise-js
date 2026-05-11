@@ -39,7 +39,7 @@ describe("Midlyr SDK", () => {
     expect(fetch).toHaveBeenCalledTimes(1);
     const [url, init] = fetch.mock.calls[0]!;
     expect(String(url)).toBe(
-      "https://api.example.com/api/v1/regulations/?query=fair+lending&categories=regulation&categories=guidance&limit=2",
+      "https://api.example.com/api/v1/regulations?query=fair+lending&categories=regulation&categories=guidance&limit=2",
     );
     expect(init?.method).toBe("GET");
     expect(init?.headers).toMatchObject({
@@ -417,7 +417,7 @@ describe("Midlyr SDK", () => {
 
     const [url, init] = fetch.mock.calls[0]!;
     expect(String(url)).toBe(
-      "https://api.example.com/api/v1/jobs/?jobType=screen_analysis&start=2026-04-01T00%3A00%3A00.000Z&end=2026-04-30T23%3A59%3A59.000Z&limit=25&cursor=cur_1",
+      "https://api.example.com/api/v1/jobs?jobType=screen_analysis&start=2026-04-01T00%3A00%3A00.000Z&end=2026-04-30T23%3A59%3A59.000Z&limit=25&cursor=cur_1",
     );
     expect(init?.method).toBe("GET");
   });
@@ -434,7 +434,7 @@ describe("Midlyr SDK", () => {
     await client.jobs.list();
 
     const [url] = fetch.mock.calls[0]!;
-    expect(String(url)).toBe("https://api.example.com/api/v1/jobs/");
+    expect(String(url)).toBe("https://api.example.com/api/v1/jobs");
   });
 
   it("POSTs events.create to the trailing-slash path the server expects", async () => {
@@ -449,9 +449,9 @@ describe("Midlyr SDK", () => {
     });
 
     const [url, init] = fetch.mock.calls[0]!;
-    // Server is registered at POST /api/v1/events/ — without the trailing slash
+    // Server is registered at POST /api/v1/events
     // Fastify (default routing) returns 404. Lock the canonical path here.
-    expect(String(url)).toBe("https://api.example.com/api/v1/events/");
+    expect(String(url)).toBe("https://api.example.com/api/v1/events");
     expect(init?.method).toBe("POST");
   });
 

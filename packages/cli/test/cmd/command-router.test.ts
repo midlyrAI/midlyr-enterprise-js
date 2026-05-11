@@ -12,6 +12,7 @@ describe("command names", () => {
       "analysis risk",
       "events create",
       "jobs list",
+      "jobs get",
       "config",
       "login",
     ]);

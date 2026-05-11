@@ -12,7 +12,7 @@ export class JobAPI {
   list(query: ListJobsRequest = {}, options: MidlyrRequestOptions = {}) {
     return this.#transport.request<ListJobsResponse>({
       method: "GET",
-      path: "/api/v1/jobs/",
+      path: "/api/v1/jobs",
       query,
       ...options,
     });

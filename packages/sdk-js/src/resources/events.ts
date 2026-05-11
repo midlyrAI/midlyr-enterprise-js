@@ -12,7 +12,7 @@ export class EventAPI {
   create(body: CreateEventRequest, options: MidlyrRequestOptions = {}) {
     return this.#transport.request<CreateEventResponse>({
       method: "POST",
-      path: "/api/v1/events/",
+      path: "/api/v1/events",
       body,
       ...options,
     });

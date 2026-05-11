@@ -46,7 +46,7 @@ describe("cmd output", () => {
   });
 
   it("formats per-command help with endpoints and options for each command", () => {
-    expect(formatCommandHelp("regulations list")).toContain("GET /api/v1/regulations/");
+    expect(formatCommandHelp("regulations list")).toContain("GET /api/v1/regulations");
     expect(formatCommandHelp("regulations get")).toContain("GET /api/v1/regulations/:id");
     expect(formatCommandHelp("regulations get-content")).toContain(
       "GET /api/v1/regulations/:id/content",

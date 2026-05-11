@@ -23,7 +23,7 @@ Options:
 Returns a paginated list of document summaries (id, title, jurisdictions, updatedAt).
 Does NOT return content bodies — use regulations get-content for that.
 
-Endpoint: GET /api/v1/regulations/
+Endpoint: GET /api/v1/regulations
 `,
   };
 

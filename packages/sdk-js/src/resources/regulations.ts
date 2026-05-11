@@ -20,7 +20,7 @@ export class RegulationAPI {
   list(query: ListRegulationsRequest = {}, options: MidlyrRequestOptions = {}) {
     return this.#transport.request<ListRegulationsResponse>({
       method: "GET",
-      path: "/api/v1/regulations/",
+      path: "/api/v1/regulations",
       query,
       ...options,
     });

@@ -7,6 +7,7 @@ export const CommandName = {
   ANALYSIS_RISK: "analysis risk",
   EVENTS_CREATE: "events create",
   JOBS_LIST: "jobs list",
+  JOBS_GET: "jobs get",
   CONFIG: "config",
   LOGIN: "login",
 } as const;

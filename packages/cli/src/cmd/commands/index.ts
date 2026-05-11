@@ -5,6 +5,7 @@ import { AnalysisRiskCommand } from "./analysis-risk.js";
 import { AnalysisScreenCommand } from "./analysis-screen.js";
 import { configHelp, runConfigCommand } from "./config.js";
 import { EventsCreateCommand } from "./events-create.js";
+import { JobsGetCommand } from "./jobs-get.js";
 import { JobsListCommand } from "./jobs-list.js";
 import { loginHelp, runLoginCommand, type LoginRuntime } from "./login.js";
 import { RegulationsGetCommand } from "./regulations-get.js";
@@ -25,6 +26,7 @@ const CREDENTIALED_COMMANDS: readonly Command<unknown, unknown>[] = [
   new AnalysisRiskCommand(),
   new EventsCreateCommand(),
   new JobsListCommand(),
+  new JobsGetCommand(),
 ] as readonly Command<unknown, unknown>[];
 
 const COMMANDS_BY_NAME = new Map(
