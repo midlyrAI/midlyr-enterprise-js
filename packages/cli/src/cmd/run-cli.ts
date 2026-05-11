@@ -9,6 +9,7 @@ import {
 } from "../domain/polling.js";
 import { JobsService } from "../domain/jobs.js";
 import { CommandName } from "./command-names.js";
+import { RiskAssessmentService } from "../domain/risk-assessment.js";
 import { ScreenAnalysisService } from "../domain/screen-analysis.js";
 import { MidlyrClient } from "../sdk/midlyr-client.js";
 import { CLI_VERSION } from "../version.js";
@@ -97,6 +98,7 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
       screenAnalysis: new ScreenAnalysisService(client, polling, (message) =>
         logger.write(`${message}\n`),
       ),
+      riskAssessment: new RiskAssessmentService(client),
       eventIntake: new EventIntakeService(client),
       jobs: new JobsService(client),
     });

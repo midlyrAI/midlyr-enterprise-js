@@ -36,3 +36,18 @@ export interface ScreenAnalysisResult {
   riskScore: number;
   findings: ScreenAnalysisViolationResult[];
 }
+
+export interface RiskAssessmentContent {
+  type: "text";
+  text: string;
+}
+
+export interface CreateRiskAssessmentJobRequest {
+  content: RiskAssessmentContent;
+  scenario: ScreenAnalysisScenario;
+}
+
+export interface RiskAssessmentResult {
+  type: "analysis.risk.result";
+  riskScore: number;
+}

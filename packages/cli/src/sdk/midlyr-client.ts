@@ -6,6 +6,7 @@ import {
   type QueryRegulationsRequest,
   type GetRegulationContentRequest,
   type CreateScreenAnalysisJobRequest,
+  type CreateRiskAssessmentJobRequest,
   type CreateEventRequest,
 } from "@midlyr/sdk-js";
 
@@ -52,6 +53,10 @@ export class MidlyrClient {
 
   startScreenAnalysis(input: CreateScreenAnalysisJobRequest) {
     return this.sdk.analysis.screen(input);
+  }
+
+  assessRisk(input: CreateRiskAssessmentJobRequest) {
+    return this.sdk.analysis.risk(input);
   }
 
   createEvent(input: CreateEventRequest) {

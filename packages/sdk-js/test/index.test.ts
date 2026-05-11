@@ -436,4 +436,56 @@ describe("Midlyr SDK", () => {
     const [url] = fetch.mock.calls[0]!;
     expect(String(url)).toBe("https://api.example.com/api/v1/jobs/");
   });
+
+  it("POSTs events.create to the trailing-slash path the server expects", async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({ ticketId: "tkt_1", created: true }, { status: 201 }),
+    );
+    const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
+
+    await client.events.create({
+      scenario: "complaint",
+      content: { type: "text", text: "customer message" },
+    });
+
+    const [url, init] = fetch.mock.calls[0]!;
+    // Server is registered at POST /api/v1/events/ — without the trailing slash
+    // Fastify (default routing) returns 404. Lock the canonical path here.
+    expect(String(url)).toBe("https://api.example.com/api/v1/events/");
+    expect(init?.method).toBe("POST");
+  });
+
+  it("POSTs analysis.risk and returns the synchronous job envelope", async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({
+        id: "job_risk_1",
+        type: "risk_assessment",
+        status: "succeeded",
+        createdAt: "2026-05-10T00:00:00.000Z",
+        updatedAt: "2026-05-10T00:00:01.000Z",
+        result: { type: "analysis.risk.result", riskScore: 42 },
+        error: null,
+      }),
+    );
+    const client = new Midlyr({ apiKey: "mlyr_test", baseUrl: "https://api.example.com", fetch });
+
+    const job = await client.analysis.risk({
+      content: { type: "text", text: "Get 0% APR for life!" },
+      scenario: "marketing_asset",
+    });
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const [url, init] = fetch.mock.calls[0]!;
+    expect(String(url)).toBe("https://api.example.com/api/v1/analysis/risk");
+    expect(init?.method).toBe("POST");
+    expect(JSON.parse(String(init?.body))).toEqual({
+      content: { type: "text", text: "Get 0% APR for life!" },
+      scenario: "marketing_asset",
+    });
+    expect(job).toMatchObject({
+      id: "job_risk_1",
+      status: "succeeded",
+      result: { type: "analysis.risk.result", riskScore: 42 },
+    });
+  });
 });

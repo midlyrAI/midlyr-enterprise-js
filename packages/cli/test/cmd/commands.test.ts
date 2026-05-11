@@ -14,6 +14,9 @@ function createServices() {
     screenAnalysis: {
       run: vi.fn(async () => ({ ok: true })),
     },
+    riskAssessment: {
+      run: vi.fn(async () => ({ ok: true })),
+    },
     eventIntake: {
       run: vi.fn(async () => ({ ok: true })),
     },

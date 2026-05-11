@@ -9,6 +9,7 @@ describe("command names", () => {
       "regulations get-content",
       "regulations query",
       "analysis screen",
+      "analysis risk",
       "events create",
       "jobs list",
       "config",
