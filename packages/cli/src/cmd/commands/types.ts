@@ -1,6 +1,7 @@
 import type { CommandName } from "../command-names.js";
 import type { ParsedArgs } from "../parser.js";
 import type { DocumentsService } from "../../domain/documents.js";
+import type { WikisService } from "../../domain/wikis.js";
 import type { EventIntakeService } from "../../domain/event-intake.js";
 import type { JobsService } from "../../domain/jobs.js";
 import type { RiskAssessmentService } from "../../domain/risk-assessment.js";
@@ -18,6 +19,7 @@ export interface CommandServices {
   riskAssessment: RiskAssessmentService;
   eventIntake: EventIntakeService;
   jobs: JobsService;
+  wikis: WikisService;
 }
 
 /**

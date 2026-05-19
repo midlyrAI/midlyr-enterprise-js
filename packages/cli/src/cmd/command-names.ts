@@ -10,6 +10,8 @@ export const CommandName = {
   JOBS_GET: "jobs get",
   CONFIG: "config",
   LOGIN: "login",
+  REGULATION_WIKIS_LIST: "regulation-wikis list",
+  REGULATION_WIKIS_GET: "regulation-wikis get",
 } as const;
 export type CommandName = (typeof CommandName)[keyof typeof CommandName];
 

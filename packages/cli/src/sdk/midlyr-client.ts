@@ -1,4 +1,5 @@
 import {
+  type ListRegulationWikisRequest,
   Midlyr as MidlyrSdk,
   type ListRegulationsRequest,
   type FetchLike,
@@ -18,7 +19,7 @@ export type MidlyrClientOptions = {
   clientIdentity?: string;
 };
 
-type PublicMidlyrSdk = Pick<MidlyrSdk, "regulations" | "analysis" | "events" | "jobs">;
+type PublicMidlyrSdk = Pick<MidlyrSdk, "regulations" | "regulationWikis" | "analysis" | "events" | "jobs">;
 
 export class MidlyrClient {
   private readonly sdk: PublicMidlyrSdk;
@@ -70,4 +71,13 @@ export class MidlyrClient {
   listJobs(query: ListJobsRequest) {
     return this.sdk.jobs.list(query);
   }
+
+  browseWikis(input: ListRegulationWikisRequest) {
+    return this.sdk.regulationWikis.list(input);
+  }
+
+  getWiki(slug: string) {
+    return this.sdk.regulationWikis.get(slug);
+  }
+
 }

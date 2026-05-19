@@ -15,6 +15,8 @@ describe("command names", () => {
       "jobs get",
       "config",
       "login",
+      "regulation-wikis list",
+      "regulation-wikis get",
     ]);
     expect(isCommandName("analysis screen")).toBe(true);
     expect(isCommandName("jobs")).toBe(false);

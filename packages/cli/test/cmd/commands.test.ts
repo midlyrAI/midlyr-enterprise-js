@@ -24,6 +24,10 @@ function createServices() {
       list: vi.fn(async () => ({ ok: true })),
       get: vi.fn(async () => ({ ok: true })),
     },
+    wikis: {
+      browse: vi.fn(async () => ({ ok: true })),
+      get: vi.fn(async () => ({ ok: true })),
+    },
   };
 }
 
@@ -355,6 +359,42 @@ describe("command handlers", () => {
   it("validates regulations query requires a query string", async () => {
     await expect(
       runCommand("regulations query", parseArgs(["regulations", "query"]), createServices()),
+    ).rejects.toBeInstanceOf(CliInputError);
+  });
+
+  it('maps regulation-wikis list options to domain input', async () => {
+    const services = createServices();
+
+    await runCommand(
+      'regulation-wikis list',
+      parseArgs(['regulation-wikis', 'list', '--domain', 'bsa-aml', '--limit', '5']),
+      services,
+    );
+
+    expect(services.wikis.browse).toHaveBeenCalledWith({
+      domain: 'bsa-aml',
+      q: undefined,
+      updatedSince: undefined,
+      limit: 5,
+      cursor: undefined,
+    });
+  });
+
+  it('maps regulation-wikis get to wikis.get with positional slug', async () => {
+    const services = createServices();
+
+    await runCommand(
+      'regulation-wikis get',
+      parseArgs(['regulation-wikis', 'get', 'bsa-aml-compliance']),
+      services,
+    );
+
+    expect(services.wikis.get).toHaveBeenCalledWith('bsa-aml-compliance');
+  });
+
+  it('validates regulation-wikis get requires a slug', async () => {
+    await expect(
+      runCommand('regulation-wikis get', parseArgs(['regulation-wikis', 'get']), createServices()),
     ).rejects.toBeInstanceOf(CliInputError);
   });
 });
