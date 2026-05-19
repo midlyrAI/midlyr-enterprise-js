@@ -488,4 +488,61 @@ describe("Midlyr SDK", () => {
       result: { type: "analysis.risk.result", riskScore: 42 },
     });
   });
+
+  it('lists regulation wikis with query parameters', async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({
+        results: [
+          {
+            slug: 'bsa-aml-compliance',
+            title: 'BSA/AML Compliance',
+            domain: 'bsa-aml',
+            description: 'Bank Secrecy Act and anti-money laundering overview.',
+            updatedAt: '2026-05-01T00:00:00.000Z',
+          },
+        ],
+        cursor: null,
+      }),
+    );
+    const client = new Midlyr({ apiKey: 'mlyr_test', baseUrl: 'https://api.example.com', fetch });
+
+    const page = await client.regulationWikis.list({ domain: 'bsa-aml', limit: 10 });
+
+    expect(page.results).toHaveLength(1);
+    expect(page.results[0]!.slug).toBe('bsa-aml-compliance');
+    expect(page.cursor).toBeNull();
+
+    const [url, init] = fetch.mock.calls[0]!;
+    expect(String(url)).toBe(
+      'https://api.example.com/api/v1/regulation-wikis?domain=bsa-aml&limit=10',
+    );
+    expect(init?.method).toBe('GET');
+  });
+
+  it('gets a regulation wiki by slug', async () => {
+    const fetch = vi.fn<FetchLike>(async () =>
+      jsonResponse({
+        slug: 'bsa-aml-compliance',
+        title: 'BSA/AML Compliance',
+        domain: 'bsa-aml',
+        description: 'Bank Secrecy Act and anti-money laundering overview.',
+        sources: ['https://www.fincen.gov/resources/statutes-and-regulations'],
+        body: 'The Bank Secrecy Act requires financial institutions...',
+        updatedAt: '2026-05-01T00:00:00.000Z',
+      }),
+    );
+    const client = new Midlyr({ apiKey: 'mlyr_test', baseUrl: 'https://api.example.com', fetch });
+
+    const wiki = await client.regulationWikis.get('bsa-aml-compliance');
+
+    expect(wiki.slug).toBe('bsa-aml-compliance');
+    expect(wiki.body).toBe('The Bank Secrecy Act requires financial institutions...');
+    expect(wiki.sources).toHaveLength(1);
+
+    const [url, init] = fetch.mock.calls[0]!;
+    expect(String(url)).toBe(
+      'https://api.example.com/api/v1/regulation-wikis/bsa-aml-compliance',
+    );
+    expect(init?.method).toBe('GET');
+  });
 });

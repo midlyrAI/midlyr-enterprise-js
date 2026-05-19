@@ -14,6 +14,7 @@ export { AnalysisAPI } from "./resources/analysis.js";
 export { EventAPI } from "./resources/events.js";
 export { JobAPI } from "./resources/jobs.js";
 export { RegulationAPI } from "./resources/regulations.js";
+export { RegulationWikiAPI } from "./resources/regulation-wikis.js";
 export type { ErrorDetail, PaginationResult } from "./types/common.js";
 export { ScreenAnalysisScenario, ViolationPriority } from "./types/analysis.js";
 export { JobType, JobStatus, JobTriggerType } from "./types/jobs.js";
@@ -69,5 +70,12 @@ export type {
   SroRuleAttributes,
   StatuteAttributes,
 } from "./types/regulations.js";
+
+export type {
+  Wiki,
+  WikiSummary,
+  ListRegulationWikisRequest,
+  ListRegulationWikisResponse,
+} from "./types/regulation-wikis.js";
 
 export const packageName = "@midlyr/sdk-js";
