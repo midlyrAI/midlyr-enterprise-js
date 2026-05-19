@@ -1,9 +1,12 @@
+import type { PaginationResult } from "./common.js";
+
 export interface WikiSummary {
   slug: string;
   title: string;
   domain: string;
   description: string;
   updatedAt: string;
+  sourceCount: number;
 }
 
 export interface Wiki extends WikiSummary {
@@ -21,5 +24,5 @@ export interface ListRegulationWikisRequest {
 
 export interface ListRegulationWikisResponse {
   results: WikiSummary[];
-  cursor: string | null;
+  pagination: PaginationResult;
 }

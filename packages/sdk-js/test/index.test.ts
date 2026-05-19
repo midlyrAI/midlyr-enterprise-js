@@ -499,9 +499,10 @@ describe("Midlyr SDK", () => {
             domain: 'bsa-aml',
             description: 'Bank Secrecy Act and anti-money laundering overview.',
             updatedAt: '2026-05-01T00:00:00.000Z',
+            sourceCount: 3,
           },
         ],
-        cursor: null,
+        pagination: { nextCursor: null, hasMore: false, approximateTotal: 1 },
       }),
     );
     const client = new Midlyr({ apiKey: 'mlyr_test', baseUrl: 'https://api.example.com', fetch });
@@ -510,7 +511,8 @@ describe("Midlyr SDK", () => {
 
     expect(page.results).toHaveLength(1);
     expect(page.results[0]!.slug).toBe('bsa-aml-compliance');
-    expect(page.cursor).toBeNull();
+    expect(page.results[0]!.sourceCount).toBe(3);
+    expect(page.pagination.nextCursor).toBeNull();
 
     const [url, init] = fetch.mock.calls[0]!;
     expect(String(url)).toBe(
