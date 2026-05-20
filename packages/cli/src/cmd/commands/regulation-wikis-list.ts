@@ -17,7 +17,7 @@ List regulation wikis with optional filters.
 
 Options:
   --domain <domain>
-  --q <text>
+  --query <text>
   --updated-since <iso-date>
   --limit <n>
   --cursor <token>
@@ -32,7 +32,7 @@ Endpoint: GET /api/v1/regulation-wikis
   parse(args: ParsedArgs): ListRegulationWikisRequest {
     return {
       domain: args.option("domain"),
-      q: args.option("q"),
+      query: args.option("query"),
       updatedSince: args.option("updated-since"),
       limit: args.numberOption("limit"),
       cursor: args.option("cursor"),

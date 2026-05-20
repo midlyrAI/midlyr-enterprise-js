@@ -16,7 +16,7 @@ export interface Wiki extends WikiSummary {
 
 export interface ListRegulationWikisRequest {
   domain?: string;
-  q?: string;
+  query?: string;
   updatedSince?: string;
   limit?: number;
   cursor?: string;

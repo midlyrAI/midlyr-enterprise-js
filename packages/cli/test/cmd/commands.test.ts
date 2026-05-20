@@ -373,7 +373,7 @@ describe("command handlers", () => {
 
     expect(services.wikis.browse).toHaveBeenCalledWith({
       domain: 'bsa-aml',
-      q: undefined,
+      query: undefined,
       updatedSince: undefined,
       limit: 5,
       cursor: undefined,
