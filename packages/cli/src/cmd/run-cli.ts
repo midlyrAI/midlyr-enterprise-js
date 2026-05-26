@@ -1,5 +1,6 @@
 import type { FetchLike } from "@midlyr/sdk-js";
 import { DocumentsService } from "../domain/documents.js";
+import { WikisService } from "../domain/wikis.js";
 import type { CredentialsStore } from "../domain/credentials.js";
 import { EventIntakeService } from "../domain/event-intake.js";
 import {
@@ -101,6 +102,7 @@ export async function runCli(argv: readonly string[], runtime: CliRuntime = {}):
       riskAssessment: new RiskAssessmentService(client),
       eventIntake: new EventIntakeService(client),
       jobs: new JobsService(client),
+      wikis: new WikisService(client),
     });
 
     printJson(stdout, result);

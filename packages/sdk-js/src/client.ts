@@ -4,10 +4,12 @@ import { AnalysisAPI } from "./resources/analysis.js";
 import { EventAPI } from "./resources/events.js";
 import { JobAPI } from "./resources/jobs.js";
 import { RegulationAPI } from "./resources/regulations.js";
+import { RegulationWikiAPI } from "./resources/regulation-wikis.js";
 import { Transport } from "./transport.js";
 
 export class Midlyr {
   readonly regulations: RegulationAPI;
+  readonly regulationWikis: RegulationWikiAPI;
   readonly analysis: AnalysisAPI;
   readonly events: EventAPI;
   readonly jobs: JobAPI;
@@ -28,6 +30,7 @@ export class Midlyr {
     });
 
     this.regulations = new RegulationAPI(transport);
+    this.regulationWikis = new RegulationWikiAPI(transport);
     this.analysis = new AnalysisAPI(transport);
     this.events = new EventAPI(transport);
     this.jobs = new JobAPI(transport);

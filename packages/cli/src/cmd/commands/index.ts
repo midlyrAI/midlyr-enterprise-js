@@ -12,6 +12,8 @@ import { RegulationsGetCommand } from "./regulations-get.js";
 import { RegulationsGetContentCommand } from "./regulations-get-content.js";
 import { RegulationsListCommand } from "./regulations-list.js";
 import { RegulationsQueryCommand } from "./regulations-query.js";
+import { RegulationWikisListCommand } from "./regulation-wikis-list.js";
+import { RegulationWikisGetCommand } from "./regulation-wikis-get.js";
 import { Command, type CommandServices, type HelpEntry } from "./types.js";
 
 export type { CommandServices, HelpEntry, LoginRuntime };
@@ -27,6 +29,8 @@ const CREDENTIALED_COMMANDS: readonly Command<unknown, unknown>[] = [
   new EventsCreateCommand(),
   new JobsListCommand(),
   new JobsGetCommand(),
+  new RegulationWikisListCommand(),
+  new RegulationWikisGetCommand(),
 ] as readonly Command<unknown, unknown>[];
 
 const COMMANDS_BY_NAME = new Map(
