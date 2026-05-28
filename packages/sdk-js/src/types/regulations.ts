@@ -11,12 +11,73 @@ export const DocumentCategory = {
 } as const;
 export type DocumentCategory = (typeof DocumentCategory)[keyof typeof DocumentCategory];
 
+/**
+ * Jurisdiction codes accepted by the regulations API. The server validates
+ * filter values against this enum and returns `400` for unknown codes.
+ * Mirrors `Jurisdiction` in the server-side `@midlyr/enterprise-types` package.
+ */
+export const Jurisdiction = {
+  US_FEDERAL: "us-federal",
+  US_AL: "us-state:al",
+  US_AK: "us-state:ak",
+  US_AZ: "us-state:az",
+  US_AR: "us-state:ar",
+  US_CA: "us-state:ca",
+  US_CO: "us-state:co",
+  US_CT: "us-state:ct",
+  US_DE: "us-state:de",
+  US_DC: "us-state:dc",
+  US_FL: "us-state:fl",
+  US_GA: "us-state:ga",
+  US_HI: "us-state:hi",
+  US_ID: "us-state:id",
+  US_IL: "us-state:il",
+  US_IN: "us-state:in",
+  US_IA: "us-state:ia",
+  US_KS: "us-state:ks",
+  US_KY: "us-state:ky",
+  US_LA: "us-state:la",
+  US_ME: "us-state:me",
+  US_MD: "us-state:md",
+  US_MA: "us-state:ma",
+  US_MI: "us-state:mi",
+  US_MN: "us-state:mn",
+  US_MS: "us-state:ms",
+  US_MO: "us-state:mo",
+  US_MT: "us-state:mt",
+  US_NE: "us-state:ne",
+  US_NV: "us-state:nv",
+  US_NH: "us-state:nh",
+  US_NJ: "us-state:nj",
+  US_NM: "us-state:nm",
+  US_NY: "us-state:ny",
+  US_NC: "us-state:nc",
+  US_ND: "us-state:nd",
+  US_OH: "us-state:oh",
+  US_OK: "us-state:ok",
+  US_OR: "us-state:or",
+  US_PA: "us-state:pa",
+  US_RI: "us-state:ri",
+  US_SC: "us-state:sc",
+  US_SD: "us-state:sd",
+  US_TN: "us-state:tn",
+  US_TX: "us-state:tx",
+  US_UT: "us-state:ut",
+  US_VT: "us-state:vt",
+  US_VA: "us-state:va",
+  US_WA: "us-state:wa",
+  US_WV: "us-state:wv",
+  US_WI: "us-state:wi",
+  US_WY: "us-state:wy",
+} as const;
+export type Jurisdiction = (typeof Jurisdiction)[keyof typeof Jurisdiction];
+
 export interface RegulationSummary {
   id: string;
   category: DocumentCategory;
   title: string;
   authorities: string[];
-  jurisdictions: string[];
+  jurisdictions: Jurisdiction[];
   description: string;
   updatedAt: string;
   sourceUrl: string;
@@ -123,6 +184,7 @@ export interface ListRegulationsRequest {
   query?: string;
   categories?: string | string[];
   authorities?: string | string[];
+  /** Filter by jurisdiction code from the `Jurisdiction` enum (e.g., `us-federal`, `us-state:ca`). Accepts a single value or an array. Server rejects unknown codes with `400`. */
   jurisdictions?: string | string[];
   limit?: number;
   cursor?: string;
@@ -143,7 +205,7 @@ export interface QueryRegulationsFilters {
   ids?: string | string[];
   /** Filter by issuing authority (e.g., `cfpb`, `occ`). Accepts a single value or an array. */
   authorities?: string | string[];
-  /** Filter by jurisdiction (e.g., `us-federal`). Accepts a single value or an array. */
+  /** Filter by jurisdiction code from the `Jurisdiction` enum (e.g., `us-federal`, `us-state:ca`). Accepts a single value or an array. Server rejects unknown codes with `400`. Up to 50. */
   jurisdictions?: string | string[];
 }
 

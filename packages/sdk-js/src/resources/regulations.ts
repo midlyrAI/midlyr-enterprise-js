@@ -92,7 +92,7 @@ function normalizeQueryBody(body: QueryRegulationsRequest): QueryRegulationsRequ
   };
 }
 
-function toArray(value: string | string[] | undefined): string[] | undefined {
+function toArray<T extends string>(value: T | T[] | undefined): T[] | undefined {
   if (value === undefined) return undefined;
   return Array.isArray(value) ? value : [value];
 }

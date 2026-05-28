@@ -29,7 +29,7 @@ Optional:
   --limit <n>                 Max chunks to return (1..50, default 10)
   --id <id>                   Restrict to specific regulation(s) (repeatable)
   --authority <name>          Filter by authority                (repeatable)
-  --jurisdiction <code>       Filter by jurisdiction             (repeatable)
+  --jurisdiction <code>       Filter by jurisdiction             (repeatable; e.g. us-federal, us-state:ca — Jurisdiction enum)
 
 Returns matches grouped by parent regulation, each with one or more excerpts
 (text, byte offsets, section path) and the regulation's metadata.

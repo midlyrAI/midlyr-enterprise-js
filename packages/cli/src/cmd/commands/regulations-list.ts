@@ -16,7 +16,7 @@ Options:
   --query <text>
   --category <cat>        (repeatable)
   --authority <name>      (repeatable)
-  --jurisdiction <code>   (repeatable)
+  --jurisdiction <code>   (repeatable; e.g. us-federal, us-state:ca — Jurisdiction enum)
   --limit <n>
   --cursor <token>
 
