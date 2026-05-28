@@ -18,7 +18,7 @@ export { RegulationWikiAPI } from "./resources/regulation-wikis.js";
 export type { ErrorDetail, PaginationResult } from "./types/common.js";
 export { ScreenAnalysisScenario, ViolationPriority } from "./types/analysis.js";
 export { JobType, JobStatus, JobTriggerType } from "./types/jobs.js";
-export { DocumentCategory } from "./types/regulations.js";
+export { DocumentCategory, Jurisdiction } from "./types/regulations.js";
 export type {
   ScreenAnalysisContent,
   ScreenAnalysisResult,
